@@ -21,18 +21,18 @@ import java.util.ArrayList;
 
 public class Game extends View implements SensorEventListener, View.OnTouchListener {
 
-    private Bitmap pozadie;
+    private Bitmap background;
     private Bitmap redBall;
-    private Bitmap roztiahnuty;
-    private Bitmap paddle_p;
+    private Bitmap stretch;
+    private Bitmap flipperBit;
 
     private Display display;
     private Point size;
     private Paint paint;
 
-    private Ball lopticka;
-    private ArrayList<Brick> zoznam;
-    private Paddle paddle;
+    private Ball ball;
+    private ArrayList<Brick> brickList;
+    private Paddle flipper;
 
     private RectF r;
 
@@ -50,48 +50,54 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         super(context);
         paint = new Paint();
 
-        // nastavi context, zivoty, skore a level
+        /*
+            Imposto:
+            - Contesto
+            - Vita
+            - Punteggio
+            - Livelli
+         */
         this.context = context;
         this.lifes = lifes;
         this.score = score;
         level = 0;
 
-        // start a gameOver na zistenie ci hra stoji a ci je hráč neprehral
+        // Imposto il gameOver se il gioco è finito o se il giocatore ha perso
         start = false;
         gameOver = false;
 
-        // vytvorí akcelerometer a SensorManager
+        // Imposto l'accelerometro e il SensorManager
         sManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        nacitajPozadie(context);
+        setBackground(context);
 
-        // vytvori bitmap pre lopticku a pádlo
+        // Crea un bitmap per la palla e il flipper
         redBall = BitmapFactory.decodeResource(getResources(), R.drawable.redball);
-        paddle_p = BitmapFactory.decodeResource(getResources(), R.drawable.paddle);
+        flipperBit = BitmapFactory.decodeResource(getResources(), R.drawable.flipper);
 
-        // vytvorí novú lopticku, pádlo, a zoznam tehliciek
-        lopticka = new Ball(size.x / 2, size.y - 480);
-        paddle = new Paddle(size.x / 2, size.y - 400);
-        zoznam = new ArrayList<Brick>();
+        // Crea una nuova palla, un nuovo flipper e un nuovo elenco di mattoni
+        ball = new Ball(size.x / 2, size.y - 480);
+        flipper = new Paddle(size.x / 2, size.y - 400);
+        brickList = new ArrayList<Brick>();
 
-        vygenerujBricks(context);
+        generateBricks(context);
         this.setOnTouchListener(this);
 
     }
 
-    // naplni zoznam tehlickami
-    private void vygenerujBricks(Context context) {
+    // Riempi la lista "brickList" con dei mattoni
+    private void generateBricks(Context context) {
         for (int i = 3; i < 7; i++) {
             for (int j = 1; j < 6; j++) {
-                zoznam.add(new Brick(context, j * 150, i * 100));
+                brickList.add(new Brick(context, j * 150, i * 100));
             }
         }
     }
 
-    // nastavi pozadie
-    private void nacitajPozadie(Context context) {
-        pozadie = Bitmap.createBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.pozadie_score));
+    // Imposta sfondo
+    private void setBackground(Context context) {
+        background = Bitmap.createBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.background));
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         display = wm.getDefaultDisplay();
         size = new Point();
@@ -99,36 +105,36 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     }
 
     protected void onDraw(Canvas canvas) {
-        // vytvori pozadie iba raz
-        if (roztiahnuty == null) {
-            roztiahnuty = Bitmap.createScaledBitmap(pozadie, size.x, size.y, false);
+        // Imposta lo sfondo solamente una volta
+        if (stretch == null) {
+            stretch = Bitmap.createScaledBitmap(background, size.x, size.y, false);
         }
-        canvas.drawBitmap(roztiahnuty, 0, 0, paint);
+        canvas.drawBitmap(stretch, 0, 0, paint);
 
-        // vykresli lopticku
+        // Disegna la palla
         paint.setColor(Color.RED);
-        canvas.drawBitmap(redBall, lopticka.getX(), lopticka.getY(), paint);
+        canvas.drawBitmap(redBall, ball.getX(), ball.getY(), paint);
 
-        // vykresli padlo
+        // Disegna il flipper
         paint.setColor(Color.WHITE);
-        r = new RectF(paddle.getX(), paddle.getY(), paddle.getX() + 200, paddle.getY() + 40);
-        canvas.drawBitmap(paddle_p, null, r, paint);
+        r = new RectF(flipper.getX(), flipper.getY(), flipper.getX() + 200, flipper.getY() + 40);
+        canvas.drawBitmap(flipperBit, null, r, paint);
 
-        // vykresli tehlicky
+        // Disegna i mattoni
         paint.setColor(Color.GREEN);
-        for (int i = 0; i < zoznam.size(); i++) {
-            Brick b = zoznam.get(i);
+        for (int i = 0; i < brickList.size(); i++) {
+            Brick b = brickList.get(i);
             r = new RectF(b.getX(), b.getY(), b.getX() + 100, b.getY() + 80);
             canvas.drawBitmap(b.getBrick(), null, r, paint);
         }
 
-        // vykresli text
+        // Disegna il testo
         paint.setColor(Color.WHITE);
         paint.setTextSize(50);
         canvas.drawText("" + lifes, 400, 100, paint);
         canvas.drawText("" + score, 700, 100, paint);
 
-        // v pripade prehry vykresli "Game over!"
+        // In caso di sconfitta, scrivi "Game over!"
         if (gameOver) {
             paint.setColor(Color.RED);
             paint.setTextSize(100);
@@ -136,79 +142,86 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
     }
 
-    // skontroluje či sa lopticka nedotkla okraju
-    private void skontrolujOkraje() {
-        if (lopticka.getX() + lopticka.getxRychlost() >= size.x - 60) {
-            lopticka.zmenSmer("prava");
-        } else if (lopticka.getX() + lopticka.getxRychlost() <= 0) {
-            lopticka.zmenSmer("lava");
-        } else if (lopticka.getY() + lopticka.getyRychlost() <= 150) {
-            lopticka.zmenSmer("hore");
-        } else if (lopticka.getY() + lopticka.getyRychlost() >= size.y - 200) {
-            skontrolujZivoty();
+    // Controlla che la palla non tocchi i bordi (Edges)
+    private void checkEdges() {
+        if (ball.getX() + ball.getxSpeed() >= size.x - 60) {
+            ball.changeDirection("prava");
+        } else if (ball.getX() + ball.getxSpeed() <= 0) {
+            ball.changeDirection("lava");
+        } else if (ball.getY() + ball.getySpeed() <= 150) {
+            ball.changeDirection("hore");
+        } else if (ball.getY() + ball.getySpeed() >= size.y - 200) {
+            checkLifes();
         }
     }
 
-    // skontroluje stav hry. či ma životy alebo či hra konči
-    private void skontrolujZivoty() {
+    // Controlla lo stato del gioco.
+    // Check sulle vite disponibili
+    // oppure se il gioco è terminato.
+    private void checkLifes() {
         if (lifes == 1) {
             gameOver = true;
             start = false;
             invalidate();
         } else {
             lifes--;
-            lopticka.setX(size.x / 2);
-            lopticka.setY(size.y - 480);
-            lopticka.vytvorRychlost();
-            lopticka.zvysRychlost(level);
+            ball.setX(size.x / 2);
+            ball.setY(size.y - 480);
+            ball.generateSpeed();
+            ball.raiseSpeed(level);
             start = false;
         }
     }
 
-    // kazdy krok kontroluje ci nedoslo ku kolizii, k prehre alebo k vyhre atd
+    // Ad ogni passaggio, controlla se
+    // ci sia stata o una collisione,
+    // una vittoria o una sconfitta, etc.
     public void update() {
         if (start) {
-            vyhra();
-            skontrolujOkraje();
-            lopticka.NarazPaddle(paddle.getX(), paddle.getY());
-            for (int i = 0; i < zoznam.size(); i++) {
-                Brick b = zoznam.get(i);
-                if (lopticka.NarazBrick(b.getX(), b.getY())) {
-                    zoznam.remove(i);
+            win();
+            checkEdges();
+            ball.hitFlipper(flipper.getX(), flipper.getY());
+            for (int i = 0; i < brickList.size(); i++) {
+                Brick b = brickList.get(i);
+                if (ball.hitBrick(b.getX(), b.getY())) {
+                    brickList.remove(i);
                     score = score + 80;
                 }
             }
-            lopticka.pohni();
+            ball.move();
         }
     }
 
-    public void zastavSnimanie() {
+    public void pauseGame() {
         sManager.unregisterListener(this);
     }
 
-    public void spustiSnimanie() {
+    public void resumeGame() {
         sManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
     }
 
-    // zmena akcelerometera
+    // Comanda Flipper tramite accelerometro
     @Override
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            paddle.setX(paddle.getX() - event.values[0] - event.values[0]);
+            flipper.setX(flipper.getX() - event.values[0] - event.values[0]);
 
-            if (paddle.getX() + event.values[0] > size.x - 240) {
-                paddle.setX(size.x - 240);
-            } else if (paddle.getX() - event.values[0] <= 20) {
-                paddle.setX(20);
+            if (flipper.getX() + event.values[0] > size.x - 240) {
+                flipper.setX(size.x - 240);
+            } else if (flipper.getX() - event.values[0] <= 20) {
+                flipper.setX(20);
             }
         }
     }
 
+    // Metodo necessario solamente perchè la classe Game
+    // implementa SensorEventListener, la quale necessita
+    // dell'override del metodo astratto onAccuracyChanged
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
-    // sluzi na pozastavenie hry v pripade novej hry
+    // Serve a sospendere il gioco in caso di una nuova partita
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (gameOver == true && start == false) {
@@ -223,21 +236,21 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         return false;
     }
 
-    // nastavi hru na zaciatok
+    // Imposta la partita per iniziare
     private void resetLevel() {
-        lopticka.setX(size.x / 2);
-        lopticka.setY(size.y - 480);
-        lopticka.vytvorRychlost();
-        zoznam = new ArrayList<Brick>();
-        vygenerujBricks(context);
+        ball.setX(size.x / 2);
+        ball.setY(size.y - 480);
+        ball.generateSpeed();
+        brickList = new ArrayList<Brick>();
+        generateBricks(context);
     }
 
-    // zisti ci hrac vyhral alebo nie
-    private void vyhra() {
-        if (zoznam.isEmpty()) {
+    // Check se il giocatore ha vinto o meno
+    private void win() {
+        if (brickList.isEmpty()) {
             ++level;
             resetLevel();
-            lopticka.zvysRychlost(level);
+            ball.raiseSpeed(level);
             start = false;
         }
     }

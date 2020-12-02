@@ -18,8 +18,9 @@ public class Brick extends View {
         skin();
     }
 
-    // priradi random obrazok tehlicke
+    // Assegna un colore random al mattone (brick)
     private void skin() {
+        // Random da 0 a 8
         int a = (int) (Math.random() * 8);
         switch (a) {
             case 0:

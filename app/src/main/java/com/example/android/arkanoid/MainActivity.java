@@ -16,20 +16,26 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // nastavi orientaciu obrazovky
+        // Imposta orientamento schermo
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        // vytvori novu hru
+        /*
+            Crea il gioco.
+            --------------
+            Parametri:
+            - Vita
+            - Score
+         */
         game = new Game(this, 3, 0);
         setContentView(game);
 
-        // vytvori handler a thread
-        VytvorHandler();
+        // Crea un Gestore ed un Thread
+        CreateHandler();
         myThread = new UpdateThread(updateHandler);
         myThread.start();
     }
 
-    private void VytvorHandler() {
+    private void CreateHandler() {
         updateHandler = new Handler() {
             public void handleMessage(Message msg) {
                 game.invalidate();
@@ -39,14 +45,16 @@ public class MainActivity extends AppCompatActivity {
         };
     }
 
+    // Metti in pausa il gioco
     protected void onPause() {
         super.onPause();
-        game.zastavSnimanie();
+        game.pauseGame();
     }
 
+    // Riprendi il gioco
     protected void onResume() {
         super.onResume();
-        game.spustiSnimanie();
+        game.resumeGame();
     }
 
 }
