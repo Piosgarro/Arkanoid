@@ -4,6 +4,7 @@ Caso di Studio - Sviluppo di Mobile Software - 2020 / 2021
 
 Forked from Ľudovít Laca & revamped from GAMP Team (ITPS - UniBA)
 
+- Gianmarco Scarano
 - Afrim Sokoli
 - Pio Sgarro
 - Claudio Moramarco
