@@ -42,6 +42,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private int lifes;
     private int score;
     private int level;
+
+    private float xBall;
+    private float yBall;
+    private float xFlipper;
+    private float yFlipper;
+
     private boolean start;
     private boolean gameOver;
     private Context context;
@@ -77,8 +83,13 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         flipperBit = BitmapFactory.decodeResource(getResources(), R.drawable.flipper);
 
         // Crea una nuova palla, un nuovo flipper e un nuovo elenco di mattoni
-        ball = new Ball(size.x / 2, size.y - 480);
-        flipper = new Paddle(size.x / 2, size.y - 400);
+        xBall = (float) (size.x / 2) - 30;
+        yBall = (float) (size.y - 480);
+        xFlipper = (float) (size.x / 2) - 90;
+        yFlipper = (float) (size.y - 390);
+
+        ball = new Ball( xBall , yBall);
+        flipper = new Paddle( xFlipper , yFlipper);
         brickList = new ArrayList<Brick>();
 
         generateBricks(context);
@@ -165,8 +176,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             invalidate();
         } else {
             lifes--;
-            ball.setX(size.x / 2);
-            ball.setY(size.y - 480);
+            ball.setX(xBall - 8);
+            ball.setY(yBall);
             ball.generateSpeed();
             ball.raiseSpeed(level);
             start = false;
@@ -238,8 +249,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     // Imposta la partita per iniziare
     private void resetLevel() {
-        ball.setX(size.x / 2);
-        ball.setY(size.y - 480);
+        ball.setX(xBall);
+        ball.setY(yBall);
         ball.generateSpeed();
         brickList = new ArrayList<Brick>();
         generateBricks(context);
