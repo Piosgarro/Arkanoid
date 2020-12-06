@@ -32,7 +32,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     private Ball ball;
     private ArrayList<Brick> brickList;
-    private Paddle flipper;
+    private Flipper flipper;
 
     private RectF r;
 
@@ -88,8 +88,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         xFlipper = (float) (size.x / 2) - 90;
         yFlipper = (float) (size.y - 390);
 
-        ball = new Ball( xBall , yBall);
-        flipper = new Paddle( xFlipper , yFlipper);
+        ball = new Ball(xBall , yBall);
+        flipper = new Flipper(xFlipper , yFlipper);
         brickList = new ArrayList<Brick>();
 
         generateBricks(context);

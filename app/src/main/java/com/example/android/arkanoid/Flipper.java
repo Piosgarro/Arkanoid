@@ -1,11 +1,11 @@
 package com.example.android.arkanoid;
 
-public class Paddle {
+public class Flipper {
 
     private float x;
     private float y;
 
-    public Paddle(float x, float y) {
+    public Flipper(float x, float y) {
         this.x = x;
         this.y = y;
     }
