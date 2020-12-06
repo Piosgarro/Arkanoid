@@ -1,6 +1,8 @@
 package com.example.android.arkanoid;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -148,8 +150,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // In caso di sconfitta, scrivi "Game over!"
         if (gameOver) {
             paint.setColor(Color.RED);
-            paint.setTextSize(100);
-            canvas.drawText("Game over!", size.x / 4, size.y / 2, paint);
+            paint.setTextSize(80);
+            canvas.drawText("Tocca per iniziare", (size.x / 4) - 13, 1500, paint);
         }
     }
 
@@ -173,7 +175,25 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         if (lifes == 1) {
             gameOver = true;
             start = false;
-            invalidate();
+
+            AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+            alertDialog.setTitle("Game over!");
+            alertDialog.setMessage("Vuoi iniziare una nuova partita?");
+
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Sì", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    invalidate();
+                }
+            });
+
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int which) {
+                    // Codice per il menu iniziale
+                }
+            });
+
+            alertDialog.show();
+
         } else {
             lifes--;
             ball.setX(xBall - 8);
