@@ -5,6 +5,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.View;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -27,12 +28,19 @@ public class MainActivity extends AppCompatActivity {
             - Score
          */
         game = new Game(this, 3, 0);
-        setContentView(game);
+
+        setContentView(R.layout.activity_main);
 
         // Crea un Gestore ed un Thread
         CreateHandler();
         myThread = new UpdateThread(updateHandler);
         myThread.start();
+    }
+
+    public void startGame(View v){
+        // TODO - Creare attività invece di impostare un layout
+        setContentView(game);
+
     }
 
     private void CreateHandler() {
