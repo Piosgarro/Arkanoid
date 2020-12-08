@@ -10,6 +10,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
 import android.graphics.RectF;
+import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -149,9 +150,23 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         // In caso di sconfitta, scrivi "Game over!"
         if (gameOver) {
+            // Imposto un nuovo carattere
+            // e centro il testo
+            paint.setTextAlign(Paint.Align.CENTER);
+            paint.setTypeface(Typeface.create(Typeface.SERIF, Typeface.ITALIC));
+
+            // Divido la larghezza totale dello schermo per 2
+            int xPos = (canvas.getWidth() / 2);
+
+            // Divido l'altezza totale dello schermo per 2
+            // e la sottraggo per la distanza che c'è al di sopra del testo
+            // più la distanza che c'è al di sotto del testo.
+            // In questo modo, insieme a "xPos", avrò il testo centrato perfettamente
+            int yPos = (int) ((canvas.getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2)) ;
+
             paint.setColor(Color.RED);
             paint.setTextSize(80);
-            canvas.drawText("Tocca per iniziare", (size.x / 4) - 13, 1500, paint);
+            canvas.drawText("Tocca per iniziare", xPos, yPos, paint);
         }
     }
 
