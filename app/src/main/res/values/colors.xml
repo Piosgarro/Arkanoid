@@ -4,4 +4,9 @@
     <color name="colorPrimaryDark">#c56000</color>
     <color name="colorAccent">#D81B60</color>
     <color name="buttonColor">#c56000</color>
+
+    <!-- Gradient colors -->
+    <color name="colorGradientStart">#c56000</color>
+    <color name="colorGradientCenter">#FACD68</color>
+    <color name="colorGradientEnd">#DD5B74</color>
 </resources>
