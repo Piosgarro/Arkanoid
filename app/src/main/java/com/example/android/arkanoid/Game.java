@@ -53,6 +53,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private float xFlipper;
     private float yFlipper;
 
+    private boolean newGame;
     private boolean start;
     private boolean gameOver;
     private Context context;
@@ -181,7 +182,9 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             paint.setTextSize(80);
             paint.setTextAlign(Paint.Align.CENTER);
             paint.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
-            canvas.drawText("Tocca per iniziare", xPos, yPos, paint);
+            if (newGame) {
+                canvas.drawText("Tocca per iniziare", xPos, yPos, paint);
+            }
         }
     }
 
@@ -212,12 +215,14 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
             alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Sì", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
+                    newGame = true;
                     invalidate();
                 }
             });
 
             alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
+                    newGame = false;
                     // Codice per il menu iniziale
                 }
             });
@@ -299,6 +304,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     // Imposta la partita per iniziare
     private void resetLevel() {
+        newGame = false;
         ball.setX(xBall);
         ball.setY(yBall);
         ball.generateSpeed();
