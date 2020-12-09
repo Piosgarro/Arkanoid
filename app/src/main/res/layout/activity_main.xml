@@ -23,12 +23,29 @@
         </android.support.v7.widget.CardView>
 
         <TextView
-            android:id="@+id/textView"
+            android:id="@+id/creditsOriginal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Developed by GAMP"
+            android:text="Developed by Ľudovít Laca"
             android:textAlignment="center"
-            android:textSize="20sp"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:rotationX="74"
+            android:text="___________________"
+            android:textAlignment="center"
+            android:textSize="20sp" />
+
+        <TextView
+            android:id="@+id/creditsRevamped"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Revamped by GAMP Team"
+            android:textAlignment="center"
+            android:textSize="16sp"
             android:textStyle="italic" />
 
     </LinearLayout>
