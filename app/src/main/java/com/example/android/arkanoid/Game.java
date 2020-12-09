@@ -35,6 +35,9 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private Point size;
     private Paint paint;
     private Paint textPaint;
+    private Paint life1;
+    private Paint life2;
+    private Paint life3;
 
     private Ball ball;
     private ArrayList<Brick> brickList;
@@ -150,9 +153,21 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // Disegna il testo
         Typeface candalFont = ResourcesCompat.getFont(context, R.font.candal);
 
-        paint.setColor(Color.WHITE);
-        paint.setTextSize(50);
-        paint.setTypeface(candalFont);
+        life1 = new Paint();
+        life2 = new Paint();
+        life3 = new Paint();
+
+        life1.setColor(Color.WHITE);
+        life1.setTextSize(50);
+        life1.setTypeface(candalFont);
+
+        life2.setColor(Color.WHITE);
+        life2.setTextSize(50);
+        life2.setTypeface(candalFont);
+
+        life3.setColor(Color.WHITE);
+        life3.setTextSize(50);
+        life3.setTypeface(candalFont);
 
         textPaint.setColor(Color.WHITE);
         textPaint.setTextSize(80);
@@ -160,7 +175,24 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         textPaint.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
 
         canvas.drawText("Livello: " + level, (canvas.getWidth() / 2), 80, textPaint);
-        canvas.drawText("\uD83D\uDC9B = " + lifes, 110, 1670, paint);
+
+        switch(lifes) {
+            case 1:
+                canvas.drawText("\uD83D\uDC9B", 110, 1670, life1);
+                break;
+            case 2:
+                canvas.drawText("\uD83D\uDC9B", 110, 1670, life1);
+                canvas.drawText("\uD83D\uDC9B", 170, 1670, life2);
+                break;
+            case 3:
+                canvas.drawText("\uD83D\uDC9B", 110, 1670, life1);
+                canvas.drawText("\uD83D\uDC9B", 170, 1670, life2);
+                canvas.drawText("\uD83D\uDC9B", 230, 1670, life3);
+                break;
+            default:
+                break;
+        }
+
         canvas.drawText("" + score, (canvas.getWidth() / 2), 1370, textPaint);
 
         // In caso di sconfitta, scrivi "Game over!"
