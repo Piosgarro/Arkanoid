@@ -26,41 +26,46 @@ import java.util.ArrayList;
 
 public class Game extends View implements SensorEventListener, View.OnTouchListener {
 
+    private ArrayList<Brick> brickList;
+    
+    private Ball ball;
+    
     private Bitmap background;
+    private Bitmap flipperBit;
     private Bitmap redBall;
     private Bitmap stretch;
-    private Bitmap flipperBit;
-
+    
+    private Context context;
+    
     private Display display;
-    private Point size;
-    private Paint paint;
-    private Paint textPaint;
+    
+    private Flipper flipper;
+    
     private Paint life1;
     private Paint life2;
     private Paint life3;
-
-    private Ball ball;
-    private ArrayList<Brick> brickList;
-    private Flipper flipper;
-
+    private Paint paint;
+    private Paint textPaint;
+    
+    private Point size;
+    
     private RectF r;
-
-    private SensorManager sManager;
+    
     private Sensor accelerometer;
-
-    private int lifes;
-    private int score;
-    private int level;
-
-    private float xBall;
-    private float yBall;
-    private float xFlipper;
-    private float yFlipper;
-
+    private SensorManager sManager;
+    
+    private boolean gameOver;
     private boolean newGame;
     private boolean start;
-    private boolean gameOver;
-    private Context context;
+    
+    private float xBall;
+    private float xFlipper;
+    private float yBall;
+    private float yFlipper;
+    
+    private int level;
+    private int lifes;
+    private int score;
 
     public Game(Context context, int lifes, int score) {
         super(context);
