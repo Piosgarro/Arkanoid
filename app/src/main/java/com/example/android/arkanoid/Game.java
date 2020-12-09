@@ -15,6 +15,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.support.v4.content.res.ResourcesCompat;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -32,6 +33,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private Display display;
     private Point size;
     private Paint paint;
+    private Paint textPaint;
 
     private Ball ball;
     private ArrayList<Brick> brickList;
@@ -58,6 +60,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     public Game(Context context, int lifes, int score) {
         super(context);
         paint = new Paint();
+        textPaint = new Paint();
 
         /*
             Imposto:
@@ -143,10 +146,20 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
 
         // Disegna il testo
+        Typeface candalFont = ResourcesCompat.getFont(context, R.font.candal);
+
         paint.setColor(Color.WHITE);
         paint.setTextSize(50);
-        canvas.drawText("" + lifes, 400, 100, paint);
-        canvas.drawText("" + score, 700, 100, paint);
+        paint.setTypeface(candalFont);
+
+        textPaint.setColor(Color.WHITE);
+        textPaint.setTextSize(80);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
+
+        canvas.drawText("Livello: " + level, (canvas.getWidth() / 2), 80, textPaint);
+        canvas.drawText("\uD83D\uDC9B = " + lifes, 110, 1670, paint);
+        canvas.drawText("" + score, (canvas.getWidth() / 2), 1370, textPaint);
 
         // In caso di sconfitta, scrivi "Game over!"
         if (gameOver) {
@@ -164,8 +177,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             // In questo modo, insieme a "xPos", avrò il testo centrato perfettamente
             int yPos = (int) ((canvas.getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2)) ;
 
-            paint.setColor(Color.RED);
+            paint.setColor(Color.WHITE);
             paint.setTextSize(80);
+            paint.setTextAlign(Paint.Align.CENTER);
+            paint.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
             canvas.drawText("Tocca per iniziare", xPos, yPos, paint);
         }
     }
