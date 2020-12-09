@@ -3,7 +3,6 @@ package com.example.android.arkanoid;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -57,12 +56,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private boolean gameOver;
     private boolean newGame;
     private boolean start;
-    
+
     private float xBall;
     private float xFlipper;
     private float yBall;
     private float yFlipper;
-    
+
     private int level;
     private int lifes;
     private int score;
@@ -261,14 +260,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     newGame = false;
-                    /*
-                        Instanzia una nuova attività
-                        TODO: Se vado indietro mostra di nuovo il game.
-                         Questo perchè bisogna impostare un'attività
-                         quando si clicca su "Gioca"
-                     */
-                    //Intent myIntent = new Intent(getContext(), MainActivity.class);
-                    //context.startActivity(myIntent);
+                    // Termina l'attività del gioco (automaticamente torna al Menù)
+                    StartGame.activity.finish();
                 }
             });
 
