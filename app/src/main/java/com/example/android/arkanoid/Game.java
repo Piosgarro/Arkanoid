@@ -16,6 +16,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v4.content.res.ResourcesCompat;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -54,6 +55,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private SensorManager sManager;
     
     private boolean gameOver;
+    private boolean ignore;
     private boolean newGame;
     private boolean start;
 
@@ -245,6 +247,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         if (lifes == 1) {
             gameOver = true;
             start = false;
+            ignore = true;
 
             AlertDialog alertDialog = new AlertDialog.Builder(context).create();
             alertDialog.setTitle("Game over!");
@@ -253,6 +256,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Sì", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     newGame = true;
+                    ignore = false;
                     invalidate();
                 }
             });
@@ -307,7 +311,11 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // Comanda Flipper tramite accelerometro
     @Override
     public void onSensorChanged(SensorEvent event) {
-        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+        //TODO: Implementare 2 opzioni. Sensore e Touch
+        //      e tramite una switch, impostare uno dei due
+        //      come parametro di gioco.
+        //      Nuova classe?
+/*        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             flipper.setX(flipper.getX() - event.values[0] - event.values[0]);
 
             if (flipper.getX() + event.values[0] > size.x - 200) {
@@ -315,7 +323,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             } else if (flipper.getX() - event.values[0] <= 10) {
                 flipper.setX(10);
             }
-        }
+        }*/
     }
 
     // Metodo necessario solamente perchè la classe Game
@@ -328,16 +336,36 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // Serve a sospendere il gioco in caso di una nuova partita
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if (gameOver == true && start == false) {
+        if (ignore) {
+            return false;
+        } else if (gameOver == true && start == false) {
             score = 0;
             lifes = 3;
             resetLevel();
             gameOver = false;
-
+            return false;
         } else {
+            final int action = event.getAction();
+                switch (action & MotionEvent.ACTION_MASK) {
+                    // Nel caso in cui si rilevano dei movimenti (touch)
+                    // sull'asse x, prendo questo dato e lo imposto
+                    // come il punto x del Flipper
+                    case MotionEvent.ACTION_MOVE:{
+                        float x = event.getX();
+                        // Se l'utente porta il dito oltre la posizione desiderata
+                        // allora la impostiamo noi in modo tale che il Flipper non esca
+                        if (x >= size.x - 202) {
+                            event.setLocation(size.x - 200, flipper.getY());
+                        } else {
+                            flipper.setX(x);
+                        }
+                        break;
+                    }
+                }
             start = true;
+            ignore = false;
+            return true;
         }
-        return false;
     }
 
     // Imposta la partita per iniziare
@@ -348,6 +376,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         ball.generateSpeed();
         brickList = new ArrayList<Brick>();
         generateBricks(context);
+        ignore = false;
     }
 
     // Check se il giocatore ha vinto o meno
