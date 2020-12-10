@@ -3,6 +3,7 @@ package com.example.android.arkanoid;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -16,7 +17,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v4.content.res.ResourcesCompat;
-import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -27,38 +27,39 @@ import java.util.ArrayList;
 public class Game extends View implements SensorEventListener, View.OnTouchListener {
 
     private ArrayList<Brick> brickList;
-    
+
     private Ball ball;
-    
+
     private Bitmap background;
     private Bitmap flipperBit;
     private Bitmap redBall;
     private Bitmap stretch;
-    
+
     private Context context;
-    
+
     private Display display;
-    
+
     private Flipper flipper;
-    
+
     private Paint life1;
     private Paint life2;
     private Paint life3;
     private Paint paint;
     private Paint textPaint;
-    
+
     private Point size;
-    
+
     private RectF r;
-    
+
     private Sensor accelerometer;
     private SensorManager sManager;
-    
+
     private boolean gameOver;
     private boolean ignore;
     private boolean newGame;
     private boolean newGameStarted;
     private boolean start;
+    private boolean touchSensor;
 
     private float xBall;
     private float xFlipper;
@@ -93,6 +94,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // Imposto l'accelerometro e il SensorManager
         sManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+
+        // Controllo lo stato della Switch tramite getSharedPreferences
+        // @param save = Il nome della SharedPreferences
+        // @param value = L'ID del Boolean della switch
+        SharedPreferences mPrefs = context.getSharedPreferences("save", 0);
+        touchSensor = mPrefs.getBoolean("value", true);
 
         setBackground(context);
 
@@ -320,19 +327,17 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // Comanda Flipper tramite accelerometro
     @Override
     public void onSensorChanged(SensorEvent event) {
-        //TODO: Implementare 2 opzioni. Sensore e Touch
-        //      e tramite una switch, impostare uno dei due
-        //      come parametro di gioco.
-        //      Nuova classe?
-/*        if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            flipper.setX(flipper.getX() - event.values[0] - event.values[0]);
+        if(!touchSensor) {
+            if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
+                flipper.setX(flipper.getX() - event.values[0] - event.values[0]);
 
-            if (flipper.getX() + event.values[0] > size.x - 200) {
-                flipper.setX(size.x - 200);
-            } else if (flipper.getX() - event.values[0] <= 10) {
-                flipper.setX(10);
+                if (flipper.getX() + event.values[0] > size.x - 200) {
+                    flipper.setX(size.x - 200);
+                } else if (flipper.getX() - event.values[0] <= 10) {
+                    flipper.setX(10);
+                }
             }
-        }*/
+        }
     }
 
     // Metodo necessario solamente perchè la classe Game
@@ -360,6 +365,9 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                     // sull'asse x, prendo questo dato e lo imposto
                     // come il punto x del Flipper
                     case MotionEvent.ACTION_MOVE:{
+                        if (!touchSensor) {
+                            break;
+                        }
                         float x = event.getX();
                         // Se l'utente porta il dito oltre la posizione desiderata
                         // allora la impostiamo noi in modo tale che il Flipper non esca

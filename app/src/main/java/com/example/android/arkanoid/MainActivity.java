@@ -68,4 +68,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    public void startSettings(View v) {
+        //Instanzia una nuova attività
+        Intent i = new Intent(MainActivity.this, StartSettings.class);
+
+        // Avvia la nuova attività attraverso un fade
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this);
+        startActivity(i,options.toBundle());
+
+    }
+
 }

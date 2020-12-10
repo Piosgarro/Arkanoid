@@ -17,8 +17,8 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".StartGame">
-        </activity>
+        <activity android:name=".StartGame">            </activity>
+        <activity android:name=".StartSettings">        </activity>
 
         <meta-data
             android:name="preloaded_fonts"
