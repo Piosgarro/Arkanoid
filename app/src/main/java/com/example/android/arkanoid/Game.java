@@ -250,6 +250,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             ignore = true;
 
             AlertDialog alertDialog = new AlertDialog.Builder(context).create();
+            alertDialog.setCancelable(false);
+            alertDialog.setCanceledOnTouchOutside(false);
             alertDialog.setTitle("Game over!");
             alertDialog.setMessage("Vuoi iniziare una nuova partita?");
 
