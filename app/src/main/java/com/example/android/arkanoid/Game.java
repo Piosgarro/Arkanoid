@@ -310,10 +310,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             flipper.setX(flipper.getX() - event.values[0] - event.values[0]);
 
-            if (flipper.getX() + event.values[0] > size.x - 240) {
-                flipper.setX(size.x - 240);
-            } else if (flipper.getX() - event.values[0] <= 20) {
-                flipper.setX(20);
+            if (flipper.getX() + event.values[0] > size.x - 200) {
+                flipper.setX(size.x - 200);
+            } else if (flipper.getX() - event.values[0] <= 10) {
+                flipper.setX(10);
             }
         }
     }
