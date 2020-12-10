@@ -57,6 +57,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private boolean gameOver;
     private boolean ignore;
     private boolean newGame;
+    private boolean newGameStarted;
     private boolean start;
 
     private float xBall;
@@ -146,6 +147,9 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // Disegna il flipper
         paint.setColor(Color.WHITE);
         r = new RectF(flipper.getX(), flipper.getY(), flipper.getX() + 200, flipper.getY() + 40);
+        if (newGameStarted) {
+            flipper.setX(xFlipper);
+        }
         canvas.drawBitmap(flipperBit, null, r, paint);
 
         // Disegna i mattoni
@@ -201,6 +205,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         canvas.drawText("" + score, (canvas.getWidth() / 2), 1370, textPaint);
 
+        newGameStarted = false;
+
         // In caso di sconfitta, scrivi "Game over!"
         if (gameOver) {
             // Imposto un nuovo carattere
@@ -222,6 +228,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             paint.setTextAlign(Paint.Align.CENTER);
             paint.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
             if (newGame) {
+                newGameStarted = true;
                 canvas.drawText("Tocca per iniziare", xPos, yPos, paint);
             }
         }
