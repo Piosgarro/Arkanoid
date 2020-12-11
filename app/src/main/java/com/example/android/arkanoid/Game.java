@@ -23,10 +23,12 @@ import android.view.View;
 import android.view.WindowManager;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Game extends View implements SensorEventListener, View.OnTouchListener {
 
     private ArrayList<Brick> brickList;
+    private ArrayList<PowerUp> powerUpList;
 
     private Ball ball;
 
@@ -49,7 +51,9 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     private Point size;
 
+    private Random rand;
     private RectF r;
+    private RectF rect;
 
     private Sensor accelerometer;
     private SensorManager sManager;
@@ -60,20 +64,28 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private boolean newGameStarted;
     private boolean start;
     private boolean touchSensor;
+    private boolean powerUpTaken;
+    private boolean powerUpTakenAtLeastOneTime;
+    private boolean powerUpSkippedAtThisLevel;
 
     private float xBall;
     private float xFlipper;
     private float yBall;
     private float yFlipper;
+    private float xPowerUp;
+    private float yPowerUp;
 
     private int level;
     private int lifes;
     private int score;
+    private int numberOfPowerUps;
+    private int numberOfPowerUpsTaken;
 
     public Game(Context context, int lifes, int score) {
         super(context);
         paint = new Paint();
         textPaint = new Paint();
+        rand = new Random();
 
         /*
             Imposto:
@@ -107,19 +119,66 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         redBall = BitmapFactory.decodeResource(getResources(), R.drawable.redball);
         flipperBit = BitmapFactory.decodeResource(getResources(), R.drawable.flipper);
 
-        // Crea una nuova palla, un nuovo flipper e un nuovo elenco di mattoni
+        /*
+            Crea una nuova palla, un nuovo flipper, un nuovo elenco di mattoni
+            e un nuovo elenco di PowerUp
+         */
+
+        // Palla
         xBall = (float) (size.x / 2) - 30;
         yBall = (float) (size.y - 480);
+        ball = new Ball(xBall , yBall);
+
+        // Flipper
         xFlipper = (float) (size.x / 2) - 90;
         yFlipper = (float) (size.y - 390);
-
-        ball = new Ball(xBall , yBall);
         flipper = new Flipper(xFlipper , yFlipper);
-        brickList = new ArrayList<Brick>();
 
+        // PowerUps
+        int min = 100;
+        int max = 750;
+        int s = 0;
+        numberOfPowerUpsTaken = 0;
+        xPowerUp = (int) (Math.random() * 950);
+        while (s == 0) {
+            yPowerUp = rand.nextInt(max - min + 1) + min;
+            if (yPowerUp < 221 || yPowerUp > 690) {
+                s = 1;
+            }
+        }
+        powerUpList = new ArrayList<PowerUp>();
+        generatePowerUps(context);
+
+        // Mattoni
+        brickList = new ArrayList<Brick>();
         generateBricks(context);
+
         this.setOnTouchListener(this);
 
+    }
+
+    // Riempi la lista "powerUpList" con dei powerup
+    private void generatePowerUps(Context context) {
+        numberOfPowerUps = 1;
+        if (powerUpTakenAtLeastOneTime && numberOfPowerUpsTaken >= 1 || (powerUpSkippedAtThisLevel))  {
+            int min = 100;
+            int max = 750;
+            int s = 0;
+            xPowerUp = (int) (Math.random() * 950);
+            while (s == 0) {
+                yPowerUp = rand.nextInt(max - min + 1) + min;
+                if (yPowerUp < 221 || yPowerUp > 690) {
+                    s = 1;
+                }
+            }
+            for (int i = 0; i < numberOfPowerUps; i++) {
+                powerUpList.add(new PowerUp(context, xPowerUp, yPowerUp));
+            }
+        } else {
+            for (int i = 0; i < numberOfPowerUps; i++) {
+                powerUpList.add(new PowerUp(context, xPowerUp, yPowerUp));
+            }
+        }
     }
 
     // Riempi la lista "brickList" con dei mattoni
@@ -153,7 +212,11 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         // Disegna il flipper
         paint.setColor(Color.WHITE);
-        r = new RectF(flipper.getX(), flipper.getY(), flipper.getX() + 200, flipper.getY() + 40);
+        //if (powerUpTaken) {
+        //    r = new RectF(flipper.getX(), flipper.getY(), flipper.getX() + 500, flipper.getY() + 40);
+        //} else{
+            r = new RectF(flipper.getX(), flipper.getY(), flipper.getX() + 200, flipper.getY() + 40);
+        //}
         if (newGameStarted) {
             flipper.setX(xFlipper);
         }
@@ -165,6 +228,37 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             Brick b = brickList.get(i);
             r = new RectF(b.getX(), b.getY(), b.getX() + 100, b.getY() + 80);
             canvas.drawBitmap(b.getBrick(), null, r, paint);
+        }
+
+        // Disegna i powerup
+        if (!powerUpTakenAtLeastOneTime && level < 1) {
+            if (score >= 1280) {
+                paint.setColor(Color.GREEN);
+                for (int i = 0; i < powerUpList.size(); i++) {
+                    PowerUp mIsPowerUp = powerUpList.get(i);
+                    rect = new RectF(mIsPowerUp.getX(), mIsPowerUp.getY(), mIsPowerUp.getX() + 100, mIsPowerUp.getY() + 80);
+                    canvas.drawBitmap(mIsPowerUp.getPowerUp(), null, rect, paint);
+                }
+            }
+        } else if (!powerUpTakenAtLeastOneTime && level >= 1) {
+            if (score >= (1600 * level) + 1280) {
+                paint.setColor(Color.GREEN);
+                for (int i = 0; i < powerUpList.size(); i++) {
+                    PowerUp mIsPowerUp = powerUpList.get(i);
+                    rect = new RectF(mIsPowerUp.getX(), mIsPowerUp.getY(), mIsPowerUp.getX() + 100, mIsPowerUp.getY() + 80);
+                    canvas.drawBitmap(mIsPowerUp.getPowerUp(), null, rect, paint);
+                }
+            }
+        }
+        if (powerUpTakenAtLeastOneTime) {
+            if (score >= (1600 * level) + (numberOfPowerUpsTaken * 500) + 1280) {
+                paint.setColor(Color.GREEN);
+                for (int i = 0; i < powerUpList.size(); i++) {
+                    PowerUp mIsPowerUp = powerUpList.get(i);
+                    rect = new RectF(mIsPowerUp.getX(), mIsPowerUp.getY(), mIsPowerUp.getX() + 100, mIsPowerUp.getY() + 80);
+                    canvas.drawBitmap(mIsPowerUp.getPowerUp(), null, rect, paint);
+                }
+            }
         }
 
         // Disegna il testo
@@ -305,6 +399,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             win();
             checkEdges();
             ball.hitFlipper(flipper.getX(), flipper.getY());
+            checkPowerUp(score, level, powerUpTakenAtLeastOneTime, numberOfPowerUpsTaken);
+
             for (int i = 0; i < brickList.size(); i++) {
                 Brick b = brickList.get(i);
                 if (ball.hitBrick(b.getX(), b.getY())) {
@@ -312,7 +408,52 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                     score = score + 80;
                 }
             }
+
             ball.move();
+        }
+    }
+
+    private void checkPowerUp(int mScore, int mLevel, boolean mPowerUpTakenAtLeastOneTime, int mNumberOfPowerUpsTaken) {
+        if (!mPowerUpTakenAtLeastOneTime && mLevel < 1) {
+            if (mScore >= 1280) {
+                for (int i = 0; i < powerUpList.size(); i++) {
+                    PowerUp p = powerUpList.get(i);
+                    if (ball.hitPowerUp(p.getX(), p.getY())) {
+                        powerUpList.remove(i);
+                        powerUpTaken = true;
+                        powerUpTakenAtLeastOneTime = true;
+                        numberOfPowerUpsTaken++;
+                        score = score + 500;
+                    }
+                }
+            }
+        } else if (!mPowerUpTakenAtLeastOneTime && mLevel >= 1) {
+            if (mScore >= (1600 * mLevel) + 1280) {
+                for (int i = 0; i < powerUpList.size(); i++) {
+                    PowerUp p = powerUpList.get(i);
+                    if (ball.hitPowerUp(p.getX(), p.getY())) {
+                        powerUpList.remove(i);
+                        powerUpTaken = true;
+                        powerUpTakenAtLeastOneTime = true;
+                        numberOfPowerUpsTaken++;
+                        score = score + 500;
+                    }
+                }
+            }
+        }
+        if (mPowerUpTakenAtLeastOneTime) {
+            if (mScore >= (1600 * mLevel) + (mNumberOfPowerUpsTaken * 500) + 1280) {
+                for (int i = 0; i < powerUpList.size(); i++) {
+                    PowerUp p = powerUpList.get(i);
+                    if (ball.hitPowerUp(p.getX(), p.getY())) {
+                        powerUpList.remove(i);
+                        powerUpTaken = true;
+                        powerUpTakenAtLeastOneTime = true;
+                        numberOfPowerUpsTaken++;
+                        score = score + 500;
+                    }
+                }
+            }
         }
     }
 
@@ -391,13 +532,21 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         ball.setX(xBall);
         ball.setY(yBall);
         ball.generateSpeed();
+        powerUpList = new ArrayList<PowerUp>();
         brickList = new ArrayList<Brick>();
         generateBricks(context);
+        generatePowerUps(context);
+        powerUpTaken = false;
+        powerUpSkippedAtThisLevel = false;
         ignore = false;
     }
 
     // Check se il giocatore ha vinto o meno
     private void win() {
+        if (!powerUpList.isEmpty() && brickList.isEmpty()) {
+            powerUpSkippedAtThisLevel = true;
+        }
+
         if (brickList.isEmpty()) {
             ++level;
             resetLevel();

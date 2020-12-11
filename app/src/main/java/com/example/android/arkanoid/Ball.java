@@ -107,6 +107,24 @@ public class Ball {
         }
     }
 
+    // Se la palla colpisce un powerup, ritorna "true"
+    // altrimenti falso
+    protected boolean hitPowerUp(float xPowerUp, float yPowerUp) {
+        if (isCloseToPowerUp(xPowerUp, yPowerUp, getX(), getY())) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    // Controlla se la palla è vicino al powerup
+    private boolean isCloseToPowerUp(float ax, float ay, float px, float py) {
+        px += 12;
+        py += 11;
+        double d = Math.sqrt(Math.pow((ax + 50) - px, 2) + Math.pow((ay + 40) - py, 2));
+        return d < 80;
+    }
+
     // Muovi la palla alla velocità indicata
     protected void move() {
         x = x + xSpeed;
