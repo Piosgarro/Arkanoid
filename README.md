@@ -16,11 +16,11 @@ __________________________________________________________________
 :white_check_mark: = Fatto<br/>
 :x: = Non ancora sviluppato<br/>
 
-- Introdurre nel gameplay almeno un power-up
+- Introdurre nel gameplay almeno un power-up :warning:
 - Introdurre almeno una variante di gameplay (mattoni che si comportano in modi particolari, armi, ecc...)
 - Dare nuova struttura della app: splash-screen iniziale, sezione per le opzioni, una per i punteggi, ...  :warning:
 - Introdurre almeno un sistema di controllo alternativo (touch, slider, virtual gamepad, ..) :white_check_mark:	
-- Introdurre livelli di difficoltà (oltre a quello base già presenterelativo alla velocità della pallina)
+- Introdurre livelli di difficoltà (oltre a quello base già presente relativo alla velocità della pallina)
 - Creare una modalità multiplayer (livello di complessità libero, anche asincrona o non massiva)
 - Fornire un editor di livelli (struttura, difficoltà, ecc) con possibilità di salvare/caricare
 - Introdurre il comparto audio (usare collezioni open source e indicare quale nella documentazione)
