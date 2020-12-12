@@ -3,6 +3,7 @@ package com.example.android.arkanoid;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -367,7 +368,11 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 public void onClick(DialogInterface dialog, int which) {
                     newGame = true;
                     ignore = false;
-                    invalidate();
+                    // Termina l'attività del gioco e iniziane un'altra
+                    StartGame.activity.finish();
+                    Intent intent = new Intent(context,StartGame.class)
+                            .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    context.startActivity(intent);
                 }
             });
 
