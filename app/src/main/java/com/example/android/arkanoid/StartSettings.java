@@ -28,7 +28,7 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
 
         SharedPreferences sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
 
-        touchSwitch = (Switch) findViewById(R.id.touch);
+        touchSwitch = (Switch) findViewById(R.id.switchTouch);
         touchSwitch.setChecked(sharedPreferences.getBoolean("value", true));
 
         touchSwitch.setOnClickListener(new View.OnClickListener() {

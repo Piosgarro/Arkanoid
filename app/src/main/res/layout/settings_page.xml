@@ -6,10 +6,10 @@
     android:layout_height="match_parent">
 
     <Switch
-        android:id="@+id/touch"
+        android:id="@+id/switchTouch"
         android:layout_width="139dp"
         android:layout_height="44dp"
-        android:text="Touch"
+        android:text="@string/switchTouch"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

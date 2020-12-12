@@ -28,7 +28,7 @@
             android:id="@+id/creditsOriginal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Developed by Ľudovít Laca"
+            android:text="@string/creditsOriginal"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="20sp" />
@@ -38,7 +38,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:rotationX="74"
-            android:text="___________________"
+            android:text="@string/divider"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="20sp" />
@@ -47,7 +47,7 @@
             android:id="@+id/creditsRevamped"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Revamped by GAMP Team"
+            android:text="@string/creditsRevamped"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="16sp"
