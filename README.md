@@ -26,7 +26,7 @@ __________________________________________________________________
 - Introdurre il comparto audio (usare collezioni open source e indicare quale nella documentazione)
 - Gestire una classifica che permetta di condividere i punteggi con servizi o app esterne
 - Permettere il gioco anche in modalità ‘landscape’
-- Fornire supporto multilingua
+- Fornire supporto multilingua :white_check_mark:
 - Varie ed eventuali (nuova grafica, ecc) :warning:
 
 <img src="https://user-images.githubusercontent.com/38889174/57987417-4647ef00-7a81-11e9-9589-9614bf986706.jpg" width="300">
