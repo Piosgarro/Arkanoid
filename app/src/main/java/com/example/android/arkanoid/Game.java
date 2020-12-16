@@ -18,6 +18,7 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v4.content.res.ResourcesCompat;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -212,12 +213,43 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         canvas.drawBitmap(redBall, ball.getX(), ball.getY(), paint);
 
         // Disegna il flipper
-        paint.setColor(Color.WHITE);
-        //if (powerUpTaken) {
-        //    r = new RectF(flipper.getX(), flipper.getY(), flipper.getX() + 500, flipper.getY() + 40);
-        //} else{
-            r = new RectF(flipper.getX(), flipper.getY(), flipper.getX() + 200, flipper.getY() + 40);
-        //}
+        RectF FlipperRect = new RectF();
+        r = new RectF();
+
+        // Margine per evitare che il Paddle tocchi il bordo del Canvas/View
+        // Si può impostare a 0, in modo tale che tocchi proprio il bordo del Canvas/View
+        final int canvasMargin = 5;
+
+        // Scelgo la dimensione fissa dell'Height del Flipper
+        final int flipperHeight = 40;
+        int flipperWidth;
+
+        // Scelgo la larghezza del Flipper in base al PowerUp
+        if (powerUpTaken) {
+            flipperWidth = 350;
+        }
+        else {
+            flipperWidth = 200;
+        }
+
+        // Calcolo il RectF del Flipper (ma attenzione - potrebbe essere fuori schermo, quindi devo correggerlo subito dopo)
+        FlipperRect.left = Math.max(canvasMargin, flipper.getX());
+        FlipperRect.right = FlipperRect.left + flipperWidth;
+
+        // Verifico, quindi, se sto uscendo fuori dallo schermo dalla parte destra
+        // Se sì, correggo la larghezza.
+        // Inoltre setto il Top e il Bottom
+        if (FlipperRect.right > (this.getWidth() - canvasMargin)) {
+            FlipperRect.left = (this.getWidth() - canvasMargin) - flipperWidth;
+            FlipperRect.right = FlipperRect.left + flipperWidth;
+        }
+
+        FlipperRect.top = Math.max(0, flipper.getY());
+        FlipperRect.bottom = FlipperRect.top + flipperHeight;
+
+        // Costruisco, infine, il Flipper
+        r.set(FlipperRect);
+
         if (newGameStarted) {
             flipper.setX(xFlipper);
         }
