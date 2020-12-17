@@ -319,7 +319,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
 
-        canvas.drawText("Livello: " + level, (canvas.getWidth() / 2), 80, textPaint);
+        canvas.drawText(getContext().getString(R.string.level) + level, (canvas.getWidth() / 2), 80, textPaint);
 
         switch(lifes) {
             case 1:
@@ -364,7 +364,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             paint.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
             if (newGame) {
                 newGameStarted = true;
-                canvas.drawText("Tocca per iniziare", xPos, yPos, paint);
+                canvas.drawText(getContext().getString(R.string.touchToStart), xPos, yPos, paint);
             }
         }
     }
@@ -397,10 +397,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             AlertDialog alertDialog = new AlertDialog.Builder(context).create();
             alertDialog.setCancelable(false);
             alertDialog.setCanceledOnTouchOutside(false);
-            alertDialog.setTitle("Game over!");
-            alertDialog.setMessage("Vuoi iniziare una nuova partita?");
+            alertDialog.setTitle(getContext().getString(R.string.gameOver));
+            alertDialog.setMessage(getContext().getString(R.string.startNewMatch));
 
-            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Sì", new DialogInterface.OnClickListener() {
+            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getContext().getString(R.string.yes), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     newGame = true;
                     ignore = false;
@@ -412,7 +412,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 }
             });
 
-            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, "No", new DialogInterface.OnClickListener() {
+            alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getContext().getString(R.string.no), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
                     newGame = false;
                     // Termina l'attività del gioco (automaticamente torna al Menù)
