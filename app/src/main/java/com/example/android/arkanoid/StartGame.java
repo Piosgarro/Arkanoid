@@ -12,6 +12,7 @@ public class StartGame extends AppCompatActivity {
     private Game game;
     private Handler updateHandler;
     public static Sound sound;
+    private UpdateThread myThread;
 
     public static Activity activity = null;
 
@@ -28,7 +29,7 @@ public class StartGame extends AppCompatActivity {
 
         // Crea un Gestore ed un Thread
         CreateHandler();
-        UpdateThread myThread = new UpdateThread(updateHandler);
+        myThread = new UpdateThread(updateHandler);
         myThread.start();
 
         activity = this;
@@ -56,4 +57,11 @@ public class StartGame extends AppCompatActivity {
         super.onResume();
         game.resumeGame();
     }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        myThread.threadSuspended = true;
+    }
+
 }

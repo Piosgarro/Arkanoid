@@ -5,6 +5,7 @@ import android.os.Handler;
 public class UpdateThread extends Thread {
 
     Handler updateHandler;
+    public boolean threadSuspended;
 
     public UpdateThread(Handler uh) {
         super();
@@ -12,7 +13,7 @@ public class UpdateThread extends Thread {
     }
 
     public void run() {
-        while (true) {
+        while (!threadSuspended) {
             try {
                 sleep(32);
             } catch (Exception ignored) {
