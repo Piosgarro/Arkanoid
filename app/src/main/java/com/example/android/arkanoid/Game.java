@@ -23,7 +23,6 @@ import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
-
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -54,6 +53,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private Point size;
 
     private Random rand;
+
     private RectF r;
     private RectF rect;
 
@@ -64,25 +64,25 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private boolean ignore;
     private boolean newGame;
     private boolean newGameStarted;
-    private boolean start;
-    private boolean touchSensor;
+    private boolean powerUpSkippedAtThisLevel;
     private boolean powerUpTaken;
     private boolean powerUpTakenAtLeastOneTime;
-    private boolean powerUpSkippedAtThisLevel;
+    private boolean start;
+    private boolean touchSensor;
 
     private float xBall;
     private float xFlipper;
+    private float xPowerUp;
     private float yBall;
     private float yFlipper;
-    private float xPowerUp;
     private float yPowerUp;
 
     private int level;
     private int lifes;
-    private int score;
     private int numberOfPowerUps;
     private int numberOfPowerUpsTaken;
     private int p = 1;
+    private int score;
 
     public Game(Context context, int lifes, int score) {
         super(context);
