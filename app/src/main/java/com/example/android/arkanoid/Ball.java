@@ -117,7 +117,11 @@ public class Ball {
         px += 12;
         py += 11;
         double d = Math.sqrt(Math.pow((ax + 50) - px, 2) + Math.pow((ay + 40) - py, 2));
-        return d < 80;
+        if (d < 80) {
+            StartGame.sound.playPowerUp();
+            return true;
+        }
+        return false;
     }
 
     // Muovi la palla alla velocità indicata

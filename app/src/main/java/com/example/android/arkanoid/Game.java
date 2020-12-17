@@ -370,6 +370,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // oppure se il gioco è terminato.
     private void checkLifes() {
         if (lifes == 1) {
+            StartGame.sound.playLostLife();
             gameOver = true;
             start = false;
             ignore = true;
@@ -404,6 +405,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         } else {
             lifes--;
+            StartGame.sound.playLostLife();
             ball.setX(xBall - 8);
             ball.setY(yBall);
             ball.generateSpeed();
@@ -578,6 +580,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
 
         if (brickList.isEmpty()) {
+            StartGame.sound.playWin();
             ++level;
             resetLevel();
             ball.raiseSpeed(level);
