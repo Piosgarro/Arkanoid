@@ -82,6 +82,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private int score;
     private int numberOfPowerUps;
     private int numberOfPowerUpsTaken;
+    private int p = 1;
 
     public Game(Context context, int lifes, int score) {
         super(context);
@@ -371,10 +372,13 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // Controlla che la palla non tocchi i bordi (Edges)
     private void checkEdges() {
         if (ball.getX() + ball.getxSpeed() >= size.x - 60) {
+            StartGame.sound.playHitSound();
             ball.changeDirection("prava");
         } else if (ball.getX() + ball.getxSpeed() <= 0) {
+            StartGame.sound.playHitSound();
             ball.changeDirection("lava");
         } else if (ball.getY() + ball.getySpeed() <= 150) {
+            StartGame.sound.playHitSound();
             ball.changeDirection("hore");
         } else if (ball.getY() + ball.getySpeed() >= size.y - 200) {
             checkLifes();
@@ -444,6 +448,11 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                     brickList.remove(i);
                     score = score + 80;
                 }
+            }
+
+            if (score >= 1000 * p) {
+                StartGame.sound.playScoreSound();
+                p++;
             }
 
             ball.move();
@@ -534,6 +543,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             score = 0;
             lifes = 3;
             resetLevel();
+            p = 1;
             gameOver = false;
             return false;
         } else {

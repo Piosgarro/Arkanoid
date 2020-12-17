@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Avvia la nuova attività attraverso un fade
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this);
-        startActivity(i,options.toBundle());
+        startActivity(i, options.toBundle());
 
     }
 
@@ -74,8 +74,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Avvia la nuova attività attraverso un fade
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this);
-        startActivity(i,options.toBundle());
+        startActivity(i, options.toBundle());
 
     }
-
 }

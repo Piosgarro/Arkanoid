@@ -93,6 +93,7 @@ public class Ball {
     // Se la palla colpisce il Flipper, cambia direzione
     protected void hitFlipper(float xPaddle, float yPaddle) {
         if (isCloseToFlipper(xPaddle, yPaddle, getX(), getY())) {
+            StartGame.sound.playHitFlipper();
             changeDirection();
         }
     }
@@ -100,6 +101,7 @@ public class Ball {
     // Se la palla colpisce un mattone, cambia direzione
     protected boolean hitBrick(float xBrick, float yBrick) {
         if (isCloseToBrick(xBrick, yBrick, getX(), getY())) {
+            StartGame.sound.playHitSound();
             changeDirection();
             return true;
         } else {

@@ -12,6 +12,7 @@ public class StartGame extends AppCompatActivity {
     private Game game;
     private Handler updateHandler;
     private UpdateThread myThread;
+    public static Sound sound;
 
     public static Activity activity = null;
 
@@ -22,6 +23,7 @@ public class StartGame extends AppCompatActivity {
         // Imposta orientamento schermo
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        sound = new Sound(this);
         game = new Game(this, 3, 0);
         setContentView(game);
 
