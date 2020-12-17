@@ -8,7 +8,7 @@
     <string name="rankings">RANKINGS &#128081;</string>
     <string name="settings">SETTINGS &#128295;</string>
     <string name="switchTouch">Touch</string>
-    <string name="level">Level</string>
+    <string name="level">"Level: "</string>
     <string name="touchToStart">Touch to start</string>
     <string name="gameOver">Game over!</string>
     <string name="startNewMatch">Do you want to start a new match?</string>

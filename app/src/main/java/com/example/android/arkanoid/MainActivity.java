@@ -4,18 +4,16 @@ import android.app.ActivityOptions;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.drawable.AnimationDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.transition.Slide;
-import android.view.Gravity;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ScrollView;
 
-public class MainActivity extends AppCompatActivity {
+import static android.view.Gravity.START;
 
-    private AnimationDrawable frameAnimation;
+public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         img.setBackgroundResource(R.drawable.gradient_anim);
 
         // Carica lo sfondo, che è stato compilato come un oggetto AnimationDrawable
-        frameAnimation = (AnimationDrawable) img.getBackground();
+        AnimationDrawable frameAnimation = (AnimationDrawable) img.getBackground();
 
         // Starta l'animazione (Verrà loopata di default)
         frameAnimation.setEnterFadeDuration(1000);
@@ -44,18 +42,16 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-    // Se la versione di Android è maggiore di 4.4, allora imposta la transizione
+    // Imposta la transizione
     public void setAnimation()
     {
-        if(Build.VERSION.SDK_INT>20) {
-            Slide slide = new Slide();
-            slide.setSlideEdge(Gravity.LEFT);
-            slide.setDuration(200);
-            slide.setInterpolator(new AccelerateDecelerateInterpolator());
-            getWindow().setExitTransition(slide);
-            getWindow().setEnterTransition(slide);
+        Slide slide = new Slide();
+        slide.setSlideEdge(START);
+        slide.setDuration(200);
+        slide.setInterpolator(new AccelerateDecelerateInterpolator());
+        getWindow().setExitTransition(slide);
+        getWindow().setEnterTransition(slide);
 
-        }
     }
 
     public void startGame(View v){

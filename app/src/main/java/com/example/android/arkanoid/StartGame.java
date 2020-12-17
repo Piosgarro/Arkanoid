@@ -11,7 +11,6 @@ public class StartGame extends AppCompatActivity {
 
     private Game game;
     private Handler updateHandler;
-    private UpdateThread myThread;
     public static Sound sound;
 
     public static Activity activity = null;
@@ -29,7 +28,7 @@ public class StartGame extends AppCompatActivity {
 
         // Crea un Gestore ed un Thread
         CreateHandler();
-        myThread = new UpdateThread(updateHandler);
+        UpdateThread myThread = new UpdateThread(updateHandler);
         myThread.start();
 
         activity = this;

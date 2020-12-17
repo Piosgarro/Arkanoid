@@ -41,8 +41,8 @@ public class Ball {
 
     // Aumenta velocità in base al livello
     protected void raiseSpeed(int level) {
-        xSpeed = xSpeed + (1 * level);
-        ySpeed = ySpeed - (1 * level);
+        xSpeed = xSpeed + (level);
+        ySpeed = ySpeed - (level);
     }
 
     // Cambia direzione in base al muro che ha toccato
@@ -76,10 +76,7 @@ public class Ball {
             return true;
         } else if ((Math.sqrt(Math.pow((ax + 100) - bx, 2) + Math.pow(ay - by, 2))) < 60) {
             return true;
-        } else if ((Math.sqrt(Math.pow((ax + 150) - bx, 2) + Math.pow(ay - by, 2))) < 60) {
-            return true;
-        }
-        return false;
+        } else return (Math.sqrt(Math.pow((ax + 150) - bx, 2) + Math.pow(ay - by, 2))) < 60;
     }
 
     // Controlla se la palla è vicina ad un mattone
@@ -112,11 +109,7 @@ public class Ball {
     // Se la palla colpisce un powerup, ritorna "true"
     // altrimenti falso
     protected boolean hitPowerUp(float xPowerUp, float yPowerUp) {
-        if (isCloseToPowerUp(xPowerUp, yPowerUp, getX(), getY())) {
-            return true;
-        } else {
-            return false;
-        }
+        return isCloseToPowerUp(xPowerUp, yPowerUp, getX(), getY());
     }
 
     // Controlla se la palla è vicino al powerup

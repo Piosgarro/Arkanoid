@@ -3,7 +3,7 @@ package com.example.android.arkanoid;
 public class Flipper {
 
     private float x;
-    private float y;
+    private final float y;
 
     public Flipper(float x, float y) {
         this.x = x;

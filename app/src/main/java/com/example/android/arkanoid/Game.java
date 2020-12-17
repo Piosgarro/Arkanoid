@@ -18,7 +18,6 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.support.v4.content.res.ResourcesCompat;
-import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -31,34 +30,26 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private ArrayList<Brick> brickList;
     private ArrayList<PowerUp> powerUpList;
 
-    private Ball ball;
+    private final Ball ball;
 
     private Bitmap background;
-    private Bitmap flipperBit;
-    private Bitmap redBall;
+    private final Bitmap flipperBit;
+    private final Bitmap redBall;
     private Bitmap stretch;
 
-    private Context context;
+    private final Context context;
 
-    private Display display;
+    private final Flipper flipper;
 
-    private Flipper flipper;
-
-    private Paint life1;
-    private Paint life2;
-    private Paint life3;
-    private Paint paint;
-    private Paint textPaint;
+    private final Paint paint;
+    private final Paint textPaint;
 
     private Point size;
 
-    private Random rand;
+    private final Random rand;
 
-    private RectF r;
-    private RectF rect;
-
-    private Sensor accelerometer;
-    private SensorManager sManager;
+    private final Sensor accelerometer;
+    private final SensorManager sManager;
 
     private boolean gameOver;
     private boolean ignore;
@@ -68,18 +59,16 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private boolean powerUpTaken;
     private boolean powerUpTakenAtLeastOneTime;
     private boolean start;
-    private boolean touchSensor;
+    private final boolean touchSensor;
 
-    private float xBall;
-    private float xFlipper;
+    private final float xBall;
+    private final float xFlipper;
     private float xPowerUp;
-    private float yBall;
-    private float yFlipper;
+    private final float yBall;
     private float yPowerUp;
 
     private int level;
     private int lifes;
-    private int numberOfPowerUps;
     private int numberOfPowerUpsTaken;
     private int p = 1;
     private int score;
@@ -134,7 +123,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         // Flipper
         xFlipper = (float) (size.x / 2) - 90;
-        yFlipper = (float) (size.y - 390);
+        float yFlipper = (float) (size.y - 390);
         flipper = new Flipper(xFlipper , yFlipper);
 
         // PowerUps
@@ -149,11 +138,11 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 s = 1;
             }
         }
-        powerUpList = new ArrayList<PowerUp>();
+        powerUpList = new ArrayList<>();
         generatePowerUps(context);
 
         // Mattoni
-        brickList = new ArrayList<Brick>();
+        brickList = new ArrayList<>();
         generateBricks(context);
 
         this.setOnTouchListener(this);
@@ -162,7 +151,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     // Riempi la lista "powerUpList" con dei powerup
     private void generatePowerUps(Context context) {
-        numberOfPowerUps = 1;
+        int numberOfPowerUps = 1;
         if (powerUpTakenAtLeastOneTime && numberOfPowerUpsTaken >= 1 || (powerUpSkippedAtThisLevel))  {
             int min = 100;
             int max = 750;
@@ -197,7 +186,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private void setBackground(Context context) {
         background = Bitmap.createBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.background));
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        display = wm.getDefaultDisplay();
+        Display display = wm.getDefaultDisplay();
         size = new Point();
         display.getSize(size);
     }
@@ -215,7 +204,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         // Disegna il flipper
         RectF FlipperRect = new RectF();
-        r = new RectF();
+        RectF r = new RectF();
 
         // Margine per evitare che il Paddle tocchi il bordo del Canvas/View
         // Si può impostare a 0, in modo tale che tocchi proprio il bordo del Canvas/View
@@ -265,6 +254,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
 
         // Disegna i powerup
+        RectF rect;
         if (!powerUpTakenAtLeastOneTime && level < 1) {
             if (score >= 1280) {
                 paint.setColor(Color.GREEN);
@@ -298,47 +288,37 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // Disegna il testo
         Typeface candalFont = ResourcesCompat.getFont(context, R.font.candal);
 
-        life1 = new Paint();
-        life2 = new Paint();
-        life3 = new Paint();
+        Paint life = new Paint();
 
-        life1.setColor(Color.WHITE);
-        life1.setTextSize(50);
-        life1.setTypeface(candalFont);
-
-        life2.setColor(Color.WHITE);
-        life2.setTextSize(50);
-        life2.setTypeface(candalFont);
-
-        life3.setColor(Color.WHITE);
-        life3.setTextSize(50);
-        life3.setTypeface(candalFont);
+        life.setColor(Color.WHITE);
+        life.setTextSize(50);
+        life.setTypeface(candalFont);
 
         textPaint.setColor(Color.WHITE);
         textPaint.setTextSize(80);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
 
-        canvas.drawText(getContext().getString(R.string.level) + level, (canvas.getWidth() / 2), 80, textPaint);
+        canvas.drawText(getContext().getString(R.string.level) + level, ((float) getWidth() / 2), 80, textPaint);
 
         switch(lifes) {
             case 1:
-                canvas.drawText("\uD83D\uDC9B", 110, 1670, life1);
+                canvas.drawText("\uD83D\uDC9B", 110, 1670, life);
                 break;
             case 2:
-                canvas.drawText("\uD83D\uDC9B", 110, 1670, life1);
-                canvas.drawText("\uD83D\uDC9B", 170, 1670, life2);
+                canvas.drawText("\uD83D\uDC9B", 110, 1670, life);
+                canvas.drawText("\uD83D\uDC9B", 170, 1670, life);
                 break;
             case 3:
-                canvas.drawText("\uD83D\uDC9B", 110, 1670, life1);
-                canvas.drawText("\uD83D\uDC9B", 170, 1670, life2);
-                canvas.drawText("\uD83D\uDC9B", 230, 1670, life3);
+                canvas.drawText("\uD83D\uDC9B", 110, 1670, life);
+                canvas.drawText("\uD83D\uDC9B", 170, 1670, life);
+                canvas.drawText("\uD83D\uDC9B", 230, 1670, life);
                 break;
             default:
                 break;
         }
 
-        canvas.drawText("" + score, (canvas.getWidth() / 2), 1370, textPaint);
+        canvas.drawText("" + score, ((float) getWidth() / 2), 1370, textPaint);
 
         newGameStarted = false;
 
@@ -350,13 +330,13 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             paint.setTypeface(Typeface.create(Typeface.SERIF, Typeface.ITALIC));
 
             // Divido la larghezza totale dello schermo per 2
-            int xPos = (canvas.getWidth() / 2);
+            int xPos = getWidth() / 2;
 
             // Divido l'altezza totale dello schermo per 2
             // e la sottraggo per la distanza che c'è al di sopra del testo
             // più la distanza che c'è al di sotto del testo.
             // In questo modo, insieme a "xPos", avrò il testo centrato perfettamente
-            int yPos = (int) ((canvas.getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2)) ;
+            int yPos = (int) ((getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2)) ;
 
             paint.setColor(Color.WHITE);
             paint.setTextSize(80);
@@ -473,7 +453,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                     }
                 }
             }
-        } else if (!mPowerUpTakenAtLeastOneTime && mLevel >= 1) {
+        } else if (!mPowerUpTakenAtLeastOneTime) {
             if (mScore >= (1600 * mLevel) + 1280) {
                 for (int i = 0; i < powerUpList.size(); i++) {
                     PowerUp p = powerUpList.get(i);
@@ -534,12 +514,18 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
+    @Override
+    public boolean performClick() {
+        super.performClick();
+        return true;
+    }
+
     // Serve a sospendere il gioco in caso di una nuova partita
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (ignore) {
             return false;
-        } else if (gameOver == true && start == false) {
+        } else if (gameOver && !start) {
             score = 0;
             lifes = 3;
             resetLevel();
@@ -548,25 +534,22 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             return false;
         } else {
             final int action = event.getAction();
-                switch (action & MotionEvent.ACTION_MASK) {
-                    // Nel caso in cui si rilevano dei movimenti (touch)
-                    // sull'asse x, prendo questo dato e lo imposto
-                    // come il punto x del Flipper
-                    case MotionEvent.ACTION_MOVE:{
-                        if (!touchSensor) {
-                            break;
-                        }
-                        float x = event.getX();
-                        // Se l'utente porta il dito oltre la posizione desiderata
-                        // allora la impostiamo noi in modo tale che il Flipper non esca
-                        if (x >= size.x - 202) {
-                            event.setLocation(size.x - 200, flipper.getY());
-                        } else {
-                            flipper.setX(x);
-                        }
-                        break;
-                    }
+            // Nel caso in cui si rilevano dei movimenti (touch)
+            // sull'asse x, prendo questo dato e lo imposto
+            // come il punto x del Flipper
+            if ((action & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE) {
+                if (!touchSensor) {
+                    return false;
                 }
+                float x = event.getX();
+                // Se l'utente porta il dito oltre la posizione desiderata
+                // allora la impostiamo noi in modo tale che il Flipper non esca
+                if (x >= size.x - 202) {
+                    event.setLocation(size.x - 200, flipper.getY());
+                } else {
+                    flipper.setX(x);
+                }
+            }
             start = true;
             ignore = false;
             return true;
@@ -579,8 +562,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         ball.setX(xBall);
         ball.setY(yBall);
         ball.generateSpeed();
-        powerUpList = new ArrayList<PowerUp>();
-        brickList = new ArrayList<Brick>();
+        powerUpList = new ArrayList<>();
+        brickList = new ArrayList<>();
         generateBricks(context);
         generatePowerUps(context);
         powerUpTaken = false;
