@@ -8,10 +8,22 @@
     <Switch
         android:id="@+id/switchTouch"
         android:layout_width="139dp"
-        android:layout_height="44dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="344dp"
         android:text="@string/switchTouch"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Switch
+        android:id="@+id/switchMusic"
+        android:layout_width="139dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="400dp"
+        android:text="Music"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
 </android.support.constraint.ConstraintLayout>

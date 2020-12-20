@@ -101,9 +101,9 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         // Controllo lo stato della Switch tramite getSharedPreferences
         // @param save = Il nome della SharedPreferences
-        // @param value = L'ID del Boolean della switch
+        // @param valueTouch = L'ID del Boolean della switch
         SharedPreferences mPrefs = context.getSharedPreferences("save", 0);
-        touchSensor = mPrefs.getBoolean("value", true);
+        touchSensor = mPrefs.getBoolean("valueTouch", true);
 
         setBackground(context);
 

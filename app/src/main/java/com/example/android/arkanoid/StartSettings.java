@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
+import android.widget.SeekBar;
 import android.widget.Switch;
 
 import java.util.Map;
@@ -13,6 +14,9 @@ import java.util.Set;
 public class StartSettings extends AppCompatActivity implements SharedPreferences {
 
     public static Switch touchSwitch;
+    public static Switch musicSwitch;
+
+    private MainActivity main = new MainActivity();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -21,6 +25,39 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
         setContentView(R.layout.settings_page);
 
         checkSensorOption();
+        checkMusic();
+
+    }
+
+    private void checkMusic() {
+
+        SharedPreferences sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
+
+        musicSwitch = (Switch) findViewById(R.id.switchMusic);
+        musicSwitch.setChecked(sharedPreferences.getBoolean("valueMusic", true));
+
+        musicSwitch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (musicSwitch.isChecked()) {
+                    //Switch enabled
+                    SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
+                    editor.putBoolean("valueMusic", true);
+                    editor.apply();
+                    main.mediaPlayer.pause();
+                    main.startFadeIn();
+                    main.mediaPlayer.start();
+                    musicSwitch.setChecked(true);
+                } else {
+                    //Switch disabled
+                    SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
+                    editor.putBoolean("valueMusic", false);
+                    editor.apply();
+                    main.startFadeOut();
+                    musicSwitch.setChecked(false);
+                }
+            }
+        });
 
     }
 
@@ -29,7 +66,7 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
         SharedPreferences sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
 
         touchSwitch = (Switch) findViewById(R.id.switchTouch);
-        touchSwitch.setChecked(sharedPreferences.getBoolean("value", true));
+        touchSwitch.setChecked(sharedPreferences.getBoolean("valueTouch", true));
 
         touchSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,13 +74,13 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
                 if (touchSwitch.isChecked()) {
                     //Switch enabled
                     SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
-                    editor.putBoolean("value", true);
+                    editor.putBoolean("valueTouch", true);
                     editor.apply();
                     touchSwitch.setChecked(true);
                 } else {
                     //Switch disabled
                     SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
-                    editor.putBoolean("value", false);
+                    editor.putBoolean("valueTouch", false);
                     editor.apply();
                     touchSwitch.setChecked(false);
                 }
