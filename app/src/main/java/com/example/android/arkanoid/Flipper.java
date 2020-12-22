@@ -2,8 +2,8 @@ package com.example.android.arkanoid;
 
 public class Flipper {
 
-    private float x;
-    private final float y;
+    private float x; // Posizione del Flipper sull'asse orizzontale
+    private final float y; // Posizione del Flipper sull'asse verticale
 
     public Flipper(float x, float y) {
         this.x = x;

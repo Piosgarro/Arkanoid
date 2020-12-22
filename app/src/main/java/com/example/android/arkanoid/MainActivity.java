@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
         // Setta l'animazione prima di impostare il layout
         setAnimation();
 
+        // Imposto il layout
         setContentView(R.layout.activity_main);
 
         // Controllo lo stato della Switch tramite getSharedPreferences
@@ -53,10 +54,12 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedpreferences = getSharedPreferences("save", Context.MODE_PRIVATE);
         musicSwitch = sharedpreferences.getBoolean("valueMusic", true);
 
+        // Creo un mediaPlayer per poter inizializzare la musica
         mediaPlayer = new MediaPlayer();
         mediaPlayer = create(this, R.raw.main_soundtrack);
         mediaPlayer.setLooping(true);
 
+        // Se la switch della Musica è attiva, starta la musica
         if (musicSwitch) {
             mediaPlayer.start();
         }
@@ -94,6 +97,7 @@ public class MainActivity extends AppCompatActivity {
             startFadeOut();
         }
 
+        // Boolean
         gameStarted = true;
 
         //Instanzia una nuova attività
@@ -107,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void startSettings(View v) {
 
+        // Boolean
         settingStarted = true;
 
         //Instanzia una nuova attività
@@ -195,44 +200,62 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // Cattura il pulsante Back
+    // Una volta che l'utente preme il tasto "Indietro", possiamo
+    // caricare un nostro codice personale
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        // Controllo lo switch della musica
         SharedPreferences sharedpreferences = getSharedPreferences("save", Context.MODE_PRIVATE);
         musicSwitch = sharedpreferences.getBoolean("valueMusic", true);
 
+        // Se lo switch è attivo e non ho avviato la schermata delle Impostazioni
+        // significa che l'utente è uscito dall'App
         if (musicSwitch && !settingStarted) {
             userClickedBackButton = true;
-            mediaPlayer.pause();
-            lenghtWhenPressBackButton = mediaPlayer.getCurrentPosition();
+            mediaPlayer.pause(); // Pausa la musica
+            lenghtWhenPressBackButton = mediaPlayer.getCurrentPosition(); // Conserva in che punto ho stoppato la musica
         }
     }
 
     // Cattura il pulsante Home
+    // Una volta che l'utente preme il tasto "Home", possiamo
+    // caricare un nostro codice personale
     @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
+        // Controllo lo switch della musica
         SharedPreferences sharedpreferences = getSharedPreferences("save", Context.MODE_PRIVATE);
         musicSwitch = sharedpreferences.getBoolean("valueMusic", true);
 
+        // Se lo switch è attivo e non ho avviato la schermata delle Impostazioni
+        // significa che l'utente è uscito dall'App
         if (musicSwitch && !settingStarted) {
             userClickedHomeButton = true;
-            mediaPlayer.pause();
-            lenghtWhenPressHomeButton = mediaPlayer.getCurrentPosition();
+            mediaPlayer.pause(); // Pausa la musica
+            lenghtWhenPressHomeButton = mediaPlayer.getCurrentPosition(); // Conserva in che punto ho stoppato la musica
         }
     }
 
+    // onResume permette di caricare un nostro codice personale quando
+    // l'attività "MainActivity" viene ripresa.
     @Override
     public void onResume() {
         super.onResume();
 
+        // Controllo lo switch della musica
         SharedPreferences sharedpreferences = getSharedPreferences("save", Context.MODE_PRIVATE);
         musicSwitch = sharedpreferences.getBoolean("valueMusic", true);
 
+        // Se ho precedentemente visualizzato la pagina delle Impostazioni, la resetto
         if (settingStarted) {
             settingStarted = false;
         }
 
+        // Se lo switch della musica è attivo, faccio i vari controlli
+        // per poter mandare in FadeIn (transizione) la musica se l'utente
+        // torna in MainActivity, dopo aver cliccato il pulsante Indietro, Home oppure
+        // dopo aver iniziato una partita
         if (musicSwitch) {
             if (userClickedHomeButton) {
                 userClickedHomeButton = false;

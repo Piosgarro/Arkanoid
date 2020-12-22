@@ -53,7 +53,6 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     private boolean gameOver;
     private boolean ignore;
-    private boolean newGame;
     private boolean newGameStarted;
     private boolean powerUpSkippedAtThisLevel;
     private boolean powerUpTaken;
@@ -62,9 +61,9 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private final boolean touchSensor;
 
     private final float xBall;
+    private final float yBall;
     private final float xFlipper;
     private float xPowerUp;
-    private final float yBall;
     private float yPowerUp;
 
     private int level;
@@ -99,7 +98,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         sManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
         accelerometer = sManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
-        // Controllo lo stato della Switch tramite getSharedPreferences
+        // Controllo lo stato della Switch sul Touch tramite getSharedPreferences
         // @param save = Il nome della SharedPreferences
         // @param valueTouch = L'ID del Boolean della switch
         SharedPreferences mPrefs = context.getSharedPreferences("save", 0);
@@ -117,25 +116,25 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
          */
 
         // Palla
-        xBall = (float) (size.x / 2) - 30;
-        yBall = (float) (size.y - 480);
+        xBall = (float) (size.x / 2) - 30; // Posizione della palla sull'asse orizzontale
+        yBall = (float) (size.y - 480); // Posizione della palla sull'asse verticale
         ball = new Ball(xBall , yBall);
 
         // Flipper
-        xFlipper = (float) (size.x / 2) - 90;
-        float yFlipper = (float) (size.y - 390);
+        xFlipper = (float) (size.x / 2) - 90; // Posizione del Flipper sull'asse orizzontale
+        float yFlipper = (float) (size.y - 390); // Posizione del Flipper sull'asse verticale
         flipper = new Flipper(xFlipper , yFlipper);
 
         // PowerUps
-        int min = 100;
-        int max = 750;
-        int s = 0;
-        numberOfPowerUpsTaken = 0;
-        xPowerUp = (int) (Math.random() * 950);
+        int min = 100; // Posizione minima del PowerUp sull'asse verticale
+        int max = 750; // Posizione massima del PowerUp sull'asse orizzontale
+        int s = 0; // Contatore
+        numberOfPowerUpsTaken = 0; // Contatore dei PowerUp
+        xPowerUp = (int) (Math.random() * 950); // Posizione del PowerUp sull'asse orizzontale
         while (s == 0) {
-            yPowerUp = rand.nextInt(max - min + 1) + min;
-            if (yPowerUp < 221 || yPowerUp > 690) {
-                s = 1;
+            yPowerUp = rand.nextInt(max - min + 1) + min; // Genera un numero random tra 100 e 750
+            if (yPowerUp < 221 || yPowerUp > 690) { // Se il numero è < 221 o > 690 significa che è stato
+                s = 1;                              // generato un numero che non ci serviva, quindi ricalcolo.
             }
         }
         powerUpList = new ArrayList<>();
@@ -151,7 +150,14 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     // Riempi la lista "powerUpList" con dei powerup
     private void generatePowerUps(Context context) {
-        int numberOfPowerUps = 1;
+        int numberOfPowerUps = 1; // Numero dei PowerUp (per ora 1)
+
+        // Se ho preso il powerUp almeno una volta oppure se il powerUp è stato skippato
+        // nel livello seguente, allora rigenero il powerUp in una posizione random (nuovamente)
+        // e lo aggiungo all'ArrayList, il quale mi servirà dopo per poter "disegnare" i powerUp sullo schermo
+        // ------------------------------------------------------------------------------------
+        // Imposto questa "if" per evitare che un powerUp venga aggiunto nella stessa posizione di un
+        // powerUp già presente.
         if (powerUpTakenAtLeastOneTime && numberOfPowerUpsTaken >= 1 || (powerUpSkippedAtThisLevel))  {
             int min = 100;
             int max = 750;
@@ -188,7 +194,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         Display display = wm.getDefaultDisplay();
         size = new Point();
-        display.getSize(size);
+        display.getSize(size); // Prendi le dimensione dello schermo
     }
 
     protected void onDraw(Canvas canvas) {
@@ -196,11 +202,11 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         if (stretch == null) {
             stretch = Bitmap.createScaledBitmap(background, size.x, size.y, false);
         }
-        canvas.drawBitmap(stretch, 0, 0, paint);
+        canvas.drawBitmap(stretch, 0, 0, paint); // Disegna il background sul Canvas
 
         // Disegna la palla
         paint.setColor(Color.RED);
-        canvas.drawBitmap(redBall, ball.getX(), ball.getY(), paint);
+        canvas.drawBitmap(redBall, ball.getX(), ball.getY(), paint); // Disegna la palla sul Canvas, nelle posizioni specificate precedentemente
 
         // Disegna il flipper
         RectF FlipperRect = new RectF();
@@ -240,12 +246,16 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // Costruisco, infine, il Flipper
         r.set(FlipperRect);
 
+        // Se sto iniziando un nuovo livello, oppure sto iniziando da capo
+        // imposto il Flipper nella posizione ottimale
         if (newGameStarted) {
             flipper.setX(xFlipper);
         }
-        canvas.drawBitmap(flipperBit, null, r, paint);
 
-        // Disegna i mattoni
+        canvas.drawBitmap(flipperBit, null, r, paint); // Disegna il Flipper sul Canvas
+
+        // Disegna i mattoni sul Canvas, prendendo ogni oggetto dall'ArrayList
+        // e assegnandoli un rettangolo dalle dimensioni specificate in generateBricks()
         paint.setColor(Color.GREEN);
         for (int i = 0; i < brickList.size(); i++) {
             Brick b = brickList.get(i);
@@ -253,8 +263,13 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             canvas.drawBitmap(b.getBrick(), null, r, paint);
         }
 
-        // Disegna i powerup
+        // Disegna i powerUp sul Canvas, prendendo ogni oggetto dall'ArrayList
+        // e assegnandoli un rettangolo dalle dimensioni specificate in generatePowerUps()
         RectF rect;
+
+        // Se non ho preso nessun powerUp e sono al primo livello (Livello 0), basta controllare
+        // semplicemente lo score. Se lo score è >= 1280 (significa che sono rimasti 4 mattoni)
+        // allora solo in quel momento mi disegni il powerUp sul Canvas.
         if (!powerUpTakenAtLeastOneTime && level < 1) {
             if (score >= 1280) {
                 paint.setColor(Color.GREEN);
@@ -264,6 +279,13 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                     canvas.drawBitmap(mIsPowerUp.getPowerUp(), null, rect, paint);
                 }
             }
+            // Altrimenti se non ho preso nessun powerUp e sono ad un livello superiore al primo,
+            // controllo innanzitutto quanto sarà lo score al livello in cui sono adesso.
+            // Per fare ciò, faccio 1600 (significa che ho colpito tutti i mattoni), per il livello
+            // in cui sto giocando. Fatto ciò, aggiungo 1280 (4 mattoni rimanenti) per farmi spawnare il powerUp.
+            // Es. Livello 3 e non ho preso nessun powerUp. Esso mi spawnerà quando raggiungerò lo score 4480
+            // N.B. I livelli partono da 0.
+            // int level 0; -> Livello 1 == level
         } else if (!powerUpTakenAtLeastOneTime && level >= 1) {
             if (score >= (1600 * level) + 1280) {
                 paint.setColor(Color.GREEN);
@@ -274,6 +296,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 }
             }
         }
+        // Altrimenti se ho preso il powerUp almeno una volta, faccio lo stesso controllo precendente,
+        // però in più dovrò aggiungere il numero dei powerUp presi, moltiplicato per 500.
+        // Significa che se sono al livello 2 ed ho preso 1 powerUp, il prossimo sarà spawnato quando
+        // raggiungerò lo score 3380.
         if (powerUpTakenAtLeastOneTime) {
             if (score >= (1600 * level) + (numberOfPowerUpsTaken * 500) + 1280) {
                 paint.setColor(Color.GREEN);
@@ -288,19 +314,20 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // Disegna il testo
         Typeface candalFont = ResourcesCompat.getFont(context, R.font.candal);
 
-        Paint life = new Paint();
+        Paint life = new Paint(); // Risorsa che utilizzo per scrivere qualcosa
 
-        life.setColor(Color.WHITE);
-        life.setTextSize(50);
-        life.setTypeface(candalFont);
+        life.setTextSize(50); // Imposta la dimensione del carattere
+        life.setTypeface(candalFont); // Imposta il Font (R.font.candal)
 
         textPaint.setColor(Color.WHITE);
         textPaint.setTextSize(80);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
 
+        // Scrivi "Livello: / Level: " nella posizione specificata
         canvas.drawText(getContext().getString(R.string.level) + level, ((float) getWidth() / 2), 80, textPaint);
 
+        // In base a quante vite ho al momento, scrivi 3, 2 o 1 cuore nella posizione specificata
         switch(lifes) {
             case 1:
                 canvas.drawText("\uD83D\uDC9B", 110, 1670, life);
@@ -318,35 +345,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 break;
         }
 
+        // Punteggio al centro dello schermo
         canvas.drawText("" + score, ((float) getWidth() / 2), 1370, textPaint);
 
+        // Reimposto il boolean (riguardante se ho iniziato o meno un nuovo gioco) su falso,
+        // poichè ci sto giocando.
         newGameStarted = false;
-
-        // In caso di sconfitta, scrivi "Game over!"
-        if (gameOver) {
-            // Imposto un nuovo carattere
-            // e centro il testo
-            paint.setTextAlign(Paint.Align.CENTER);
-            paint.setTypeface(Typeface.create(Typeface.SERIF, Typeface.ITALIC));
-
-            // Divido la larghezza totale dello schermo per 2
-            int xPos = getWidth() / 2;
-
-            // Divido l'altezza totale dello schermo per 2
-            // e la sottraggo per la distanza che c'è al di sopra del testo
-            // più la distanza che c'è al di sotto del testo.
-            // In questo modo, insieme a "xPos", avrò il testo centrato perfettamente
-            int yPos = (int) ((getHeight() / 2) - ((paint.descent() + paint.ascent()) / 2)) ;
-
-            paint.setColor(Color.WHITE);
-            paint.setTextSize(80);
-            paint.setTextAlign(Paint.Align.CENTER);
-            paint.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
-            if (newGame) {
-                newGameStarted = true;
-                canvas.drawText(getContext().getString(R.string.touchToStart), xPos, yPos, paint);
-            }
-        }
     }
 
     // Controlla che la palla non tocchi i bordi (Edges)
@@ -369,22 +373,31 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // Check sulle vite disponibili
     // oppure se il gioco è terminato.
     private void checkLifes() {
+
+        // Caso in cui hai perso
         if (lifes == 1) {
-            StartGame.sound.playLostLife();
+            StartGame.sound.playLostLife(); // Se il gioco è finito, attiva il suono relativo
+
+            // Reimposto le variabili
             gameOver = true;
             start = false;
-            ignore = true;
+            ignore = true; // Ignoro il touch input dell'Utente
 
+            // Creo un oggetto AlertDialog, che mi permette di visualizzare
+            // un dialog riguardo la scelta di iniziare una nuova partita o meno
             AlertDialog alertDialog = new AlertDialog.Builder(context).create();
             alertDialog.setCancelable(false);
             alertDialog.setCanceledOnTouchOutside(false);
             alertDialog.setTitle(getContext().getString(R.string.gameOver));
             alertDialog.setMessage(getContext().getString(R.string.startNewMatch));
 
+            // Codice se l'utente clicca "Si"
             alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, getContext().getString(R.string.yes), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
-                    newGame = true;
+                    // Reimposto la variabile riguardante il Touch.
+                    // L'utente ora vuole utilizzare il Touch per giocare.
                     ignore = false;
+
                     // Termina l'attività del gioco e iniziane un'altra
                     StartGame.activity.finish();
                     Intent intent = new Intent(context,StartGame.class)
@@ -395,7 +408,6 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
             alertDialog.setButton(AlertDialog.BUTTON_NEGATIVE, getContext().getString(R.string.no), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int which) {
-                    newGame = false;
                     // Termina l'attività del gioco (automaticamente torna al Menù)
                     StartGame.activity.finish();
                 }
@@ -403,14 +415,15 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
             alertDialog.show();
 
+        // Caso in cui l'utente ha più di una vita
         } else {
             lifes--;
-            StartGame.sound.playLostLife();
-            ball.setX(xBall - 8);
-            ball.setY(yBall);
+            StartGame.sound.playLostLife(); // Se l'utente perde una vita, attiva il suono relativo
+            ball.setX(xBall - 8); // Reimposta la palla al centro dello schermo
+            ball.setY(yBall); // Reimposta la palla al centro dello schermo
             ball.generateSpeed();
             ball.raiseSpeed(level);
-            start = false;
+            start = false; // Inizializzo start a false, poichè l'utente non ha ancora "iniziato" a giocare
         }
     }
 
@@ -419,11 +432,13 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // una vittoria o una sconfitta, etc.
     public void update() {
         if (start) {
-            win();
-            checkEdges();
-            ball.hitFlipper(flipper.getX(), flipper.getY());
-            checkPowerUp(score, level, powerUpTakenAtLeastOneTime, numberOfPowerUpsTaken);
+            win(); // Controlla se l'utente ha vinto
+            checkEdges(); // Controlla se la palla ha toccato i bordi
+            ball.hitFlipper(flipper.getX(), flipper.getY()); // Controlla se la palla ha toccato il Flipper
+            checkPowerUp(score, level, powerUpTakenAtLeastOneTime, numberOfPowerUpsTaken); // Controlla se l'utente ha preso un powerUp
 
+            // Prendo la lista dei mattoni e controllo se la palla ha colpito un mattone.
+            // Se sì, allora rimuovo il mattone dall'ArrayList e aggiorno lo score
             for (int i = 0; i < brickList.size(); i++) {
                 Brick b = brickList.get(i);
                 if (ball.hitBrick(b.getX(), b.getY())) {
@@ -432,6 +447,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 }
             }
 
+            // Se l'utente ha raggiunto 1000/2000/3000/4000/x000 ecc.
+            // attivo il suono relativo
             if (score >= 1000 * p) {
                 StartGame.sound.playScoreSound();
                 p++;
@@ -441,6 +458,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
     }
 
+    // Il controllo sul powerUp, segue la stessa logica utilizzata per la generazione degli stessi.
     private void checkPowerUp(int mScore, int mLevel, boolean mPowerUpTakenAtLeastOneTime, int mNumberOfPowerUpsTaken) {
         if (!mPowerUpTakenAtLeastOneTime && mLevel < 1) {
             if (mScore >= 1280) {
@@ -496,6 +514,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // Comanda Flipper tramite accelerometro
     @Override
     public void onSensorChanged(SensorEvent event) {
+        // "touchSensor" è una variabile collegata alla Switch del Touch presente
+        // nelle opzioni. Se la switch è disattivata, utilizza l'accelerometro
         if(!touchSensor) {
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 flipper.setX(flipper.getX() - event.values[0] - event.values[0]);
@@ -516,6 +536,9 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
     }
 
+    // Metodo necessario solamente perchè la classe Game
+    // estende la classe View, la quale necessita
+    // dell'override del metodo astratto performClick
     @Override
     public boolean performClick() {
         super.performClick();
@@ -525,8 +548,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // Serve a sospendere il gioco in caso di una nuova partita
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+        // Se l'utente non vuole iniziare una nuova partita, allora il touch
+        // non ci serve. Quindi ritorno subito.
         if (ignore) {
             return false;
+        // Altrimenti se la partita è finita, ed il giocatore non inizia ancora a giocare
+        // reimposto semplicemente il livello e aspetto che tocchi lo schermo.
         } else if (gameOver && !start) {
             score = 0;
             lifes = 3;
@@ -534,13 +561,14 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             p = 1;
             gameOver = false;
             return false;
+        // In questo caso che l'utente vuole registrare il touch
         } else {
             final int action = event.getAction();
             // Nel caso in cui si rilevano dei movimenti (touch)
             // sull'asse x, prendo questo dato e lo imposto
             // come il punto x del Flipper
             if ((action & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE) {
-                if (!touchSensor) {
+                if (!touchSensor) { // Controllo della switch
                     return false;
                 }
                 float x = event.getX();
@@ -560,7 +588,6 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     // Imposta la partita per iniziare
     private void resetLevel() {
-        newGame = false;
         ball.setX(xBall);
         ball.setY(yBall);
         ball.generateSpeed();
@@ -575,10 +602,14 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     // Check se il giocatore ha vinto o meno
     private void win() {
+        // Se l'ArrayList dei powerUp non è vuota, mentre quella
+        // dei mattoni lo è, allora l'utente ha skippato il powerUp
         if (!powerUpList.isEmpty() && brickList.isEmpty()) {
             powerUpSkippedAtThisLevel = true;
         }
 
+        // Se l'ArrayList dei mattoni è vuota, attivo il suono relativo,
+        // aumento il livello, lo resetto, e imposto la partita per iniziare.
         if (brickList.isEmpty()) {
             StartGame.sound.playWin();
             ++level;

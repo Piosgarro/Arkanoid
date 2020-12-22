@@ -24,7 +24,10 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
 
         setContentView(R.layout.settings_page);
 
+        // Controllo il sensore attivo
         checkSensorOption();
+
+        // Controllo se la musica deve essere riprodotta
         checkMusic();
 
     }
@@ -33,27 +36,28 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
 
         SharedPreferences sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
 
+        // Assegno la switch della musica alla variabile musicSwitch
         musicSwitch = (Switch) findViewById(R.id.switchMusic);
-        musicSwitch.setChecked(sharedPreferences.getBoolean("valueMusic", true));
+        musicSwitch.setChecked(sharedPreferences.getBoolean("valueMusic", true)); // Controllo lo stato della Switch
 
         musicSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (musicSwitch.isChecked()) {
-                    //Switch enabled
+                    //Switch attiva
                     SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
-                    editor.putBoolean("valueMusic", true);
+                    editor.putBoolean("valueMusic", true); // Imposto il valore "valueMusic" come True
                     editor.apply();
-                    main.mediaPlayer.pause();
+                    main.mediaPlayer.pause(); // Metto in pausa la musica e la ri-avvio tramite un fade
                     main.startFadeIn();
                     main.mediaPlayer.start();
                     musicSwitch.setChecked(true);
                 } else {
-                    //Switch disabled
+                    //Switch non attiva
                     SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
-                    editor.putBoolean("valueMusic", false);
+                    editor.putBoolean("valueMusic", false); // Imposto il valore "valueMusic" come False
                     editor.apply();
-                    main.startFadeOut();
+                    main.startFadeOut(); // Metto in pausa la musica attraverso un fade
                     musicSwitch.setChecked(false);
                 }
             }
@@ -65,22 +69,23 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
 
         SharedPreferences sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
 
+        // Assegno la switch del Touch alla variabile touchSwitch
         touchSwitch = (Switch) findViewById(R.id.switchTouch);
-        touchSwitch.setChecked(sharedPreferences.getBoolean("valueTouch", true));
+        touchSwitch.setChecked(sharedPreferences.getBoolean("valueTouch", true)); // Controllo lo stato della Switch
 
         touchSwitch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (touchSwitch.isChecked()) {
-                    //Switch enabled
+                    //Switch attiva
                     SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
-                    editor.putBoolean("valueTouch", true);
+                    editor.putBoolean("valueTouch", true); // Imposto il valore "valueTouch" come True
                     editor.apply();
                     touchSwitch.setChecked(true);
                 } else {
-                    //Switch disabled
+                    //Switch non attiva
                     SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
-                    editor.putBoolean("valueTouch", false);
+                    editor.putBoolean("valueTouch", false); // Imposto il valore "valueTouch" come False
                     editor.apply();
                     touchSwitch.setChecked(false);
                 }

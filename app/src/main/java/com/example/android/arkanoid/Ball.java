@@ -2,10 +2,10 @@ package com.example.android.arkanoid;
 
 public class Ball {
 
-    protected float xSpeed;
-    protected float ySpeed;
-    private float x;
-    private float y;
+    protected float xSpeed; // Velocità orizzontale
+    protected float ySpeed; // Velocità verticale
+    private float x; // Posizione della palla sull'asse orizzontale
+    private float y; // Posizione della palla sull'asse verticale
 
     public Ball(float x, float y) {
         this.x = x;
@@ -90,7 +90,7 @@ public class Ball {
     // Se la palla colpisce il Flipper, cambia direzione
     protected void hitFlipper(float xPaddle, float yPaddle) {
         if (isCloseToFlipper(xPaddle, yPaddle, getX(), getY())) {
-            StartGame.sound.playHitFlipper();
+            StartGame.sound.playHitFlipper(); // Se colpisci il Flipper, attiva il suono relativo
             changeDirection();
         }
     }
@@ -98,7 +98,7 @@ public class Ball {
     // Se la palla colpisce un mattone, cambia direzione
     protected boolean hitBrick(float xBrick, float yBrick) {
         if (isCloseToBrick(xBrick, yBrick, getX(), getY())) {
-            StartGame.sound.playHitSound();
+            StartGame.sound.playHitSound(); // Se colpisci il mattone, attiva il suono relativo
             changeDirection();
             return true;
         } else {
@@ -118,7 +118,9 @@ public class Ball {
         py += 11;
         double d = Math.sqrt(Math.pow((ax + 50) - px, 2) + Math.pow((ay + 40) - py, 2));
         if (d < 80) {
-            StartGame.sound.playPowerUp();
+            StartGame.sound.playPowerUp(); // Se colpisci il PowerUp, attiva il suono relativo
+                                           // Non c'è "changeDirection()", perchè non vogliamo
+                                           // che la palla cambi direzione quando tocca il PowerUp
             return true;
         }
         return false;

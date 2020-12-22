@@ -36,11 +36,12 @@ public class StartGame extends AppCompatActivity {
 
     }
 
+    // Questo handler, permette di farmi runnare il gioco come un "Thread"
     private void CreateHandler() {
         updateHandler = new Handler() {
             public void handleMessage(Message msg) {
                 game.invalidate();
-                game.update();
+                game.update(); // Controllo lo status del gioco
                 super.handleMessage(msg);
             }
         };
@@ -58,6 +59,8 @@ public class StartGame extends AppCompatActivity {
         game.resumeGame();
     }
 
+    // Se premo indietro, mentre sto giocando, significa che l'utente vuole chiudere
+    // la partita in corso, quindi stoppo il Thread relativo al gioco
     @Override
     public void onBackPressed() {
         super.onBackPressed();

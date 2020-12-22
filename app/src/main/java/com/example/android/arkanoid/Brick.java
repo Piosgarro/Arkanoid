@@ -7,9 +7,9 @@ import android.view.View;
 
 public class Brick extends View {
 
-    private Bitmap brick;
-    private float x;
-    private float y;
+    private Bitmap brick; // Contenitore per l'immagine del mattone
+    private float x; // Posizione del mattone sull'asse orizzontale
+    private float y; // Posizione del mattone sull'asse verticale
 
     public Brick(Context context, float x, float y) {
         super(context);

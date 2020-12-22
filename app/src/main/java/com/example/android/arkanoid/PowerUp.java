@@ -7,9 +7,9 @@ import android.view.View;
 
 public class PowerUp extends View {
 
-    private Bitmap powerup;
-    private float x;
-    private float y;
+    private Bitmap powerup; // Contenitore per l'immagine del powerUp
+    private float x; // Posizione del powerUp sull'asse orizzontale
+    private float y; // Posizione del powerUp sull'asse verticale
 
     public PowerUp(Context context, float x, float y) {
         super(context);

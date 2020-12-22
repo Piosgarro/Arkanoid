@@ -16,7 +16,8 @@ public class Sound {
 
     public Sound(Context context) {
 
-        //SoundPool deprecated in API 21
+        // Tramite SoundPool, riesco a riprodurre suoni come la vittoria,
+        // partita persa, tocco sul mattone ecc.
         AudioAttributes audioAttributes = new AudioAttributes.Builder()
                 .setUsage(AudioAttributes.USAGE_GAME)
                 .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
@@ -26,6 +27,7 @@ public class Sound {
                 .setMaxStreams(2)
                 .build();
 
+        // Assegno il suono delle varie "action", alle variabili consone
         hitSound = soundPool.load(context, R.raw.hit_sound, 1);
         hitFlipper = soundPool.load(context, R.raw.hit_flipper, 1);
         scoreSound = soundPool.load(context, R.raw.score_sound, 1);
@@ -34,6 +36,8 @@ public class Sound {
         powerUp = soundPool.load(context, R.raw.power_up, 1);
     }
 
+    // Vari metodi per poter riprodurre il suono.
+    // Es. uso "playHitFlipper" quando la palla colpisce il Flipper, in modo tale che viene riprodotto il suono appropiato
     public void playHitSound() {
         soundPool.play(hitSound,1.0f, 1.0f, 1,0,1.0f);
     }
