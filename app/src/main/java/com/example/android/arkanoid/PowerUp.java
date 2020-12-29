@@ -3,6 +3,7 @@ package com.example.android.arkanoid;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
 import android.view.View;
 
 public class PowerUp extends View {
@@ -20,7 +21,20 @@ public class PowerUp extends View {
 
     // Assegna una skin al powerup
     private void skin() {
-        powerup = BitmapFactory.decodeResource(getResources(), R.drawable.power_up);
+        // Random da 0 a 2
+        int a = (int) (Math.random() * 3);
+        Log.d("D:","PowerUp Number: " + Integer.toString(a));
+        switch (a) {
+            case 0:
+                powerup = BitmapFactory.decodeResource(getResources(), R.drawable.power_up_0);
+                break;
+            case 1:
+                powerup = BitmapFactory.decodeResource(getResources(), R.drawable.power_up_1);
+                break;
+            case 2:
+                powerup = BitmapFactory.decodeResource(getResources(), R.drawable.power_up_2);
+                break;
+        }
     }
 
     @Override

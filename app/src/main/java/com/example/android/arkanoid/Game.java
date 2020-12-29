@@ -19,6 +19,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.CountDownTimer;
 import android.support.v4.content.res.ResourcesCompat;
+import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
 import android.view.View;
@@ -47,6 +48,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     private Point size;
 
+    private PowerUp mIsPowerUp;
+
     private final Random rand;
 
     private final Sensor accelerometer;
@@ -56,8 +59,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private boolean ignore;
     private boolean newGameStarted;
     private boolean powerUpSkippedAtThisLevel;
-    private boolean powerUpTaken;
+    private boolean flipperPowerUpTaken;
+    private boolean flipperPowerDownTaken;
     private boolean powerUpTakenAtLeastOneTime;
+    private boolean powerUpIsNotAlive;
     private boolean start;
     private boolean shouldSkipTimer;
     private boolean timer1Ended;
@@ -76,6 +81,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private int p = 1;
     private int score;
     private long seconds;
+    private int index;
 
     public Game(Context context, int lifes, int score) {
         super(context);
@@ -156,7 +162,9 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     // Riempi la lista "powerUpList" con dei powerup
     private void generatePowerUps(Context context) {
-        int numberOfPowerUps = 1; // Numero dei PowerUp (per ora 1)
+        int numberOfPowerUps = 3; // Numero dei PowerUp
+
+        powerUpList.clear(); // Svuotiamo l'eventuale ArrayList
 
         // Se ho preso il powerUp almeno una volta oppure se il powerUp è stato skippato
         // nel livello seguente, allora rigenero il powerUp in una posizione random (nuovamente)
@@ -193,6 +201,13 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 powerUpList.add(new PowerUp(context, xPowerUp, yPowerUp));
             }
         }
+        // define the range
+        int max = 2;
+        int min = 0;
+        int range = max - min + 1;
+        index = (int)(Math.random() * range) + min;
+        Log.d("D:","PowerUp Random Index: " + Integer.toString(index));
+        mIsPowerUp = powerUpList.get(index);
     }
 
     // Riempi la lista "brickList" con dei mattoni
@@ -237,10 +252,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         int flipperWidth;
 
         // Scelgo la larghezza del Flipper in base al PowerUp
-        if (powerUpTaken) {
+        if (flipperPowerUpTaken) {
             flipperWidth = 350;
         }
-        else {
+        else if (flipperPowerDownTaken) {
+            flipperWidth = 150;
+        } else {
             flipperWidth = 200;
         }
 
@@ -305,13 +322,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // e assegnandoli un rettangolo dalle dimensioni specificate in generatePowerUps()
         RectF rect;
 
-        if (timer1Ended && !powerUpGone) {
+        if (timer1Ended && !powerUpGone && !powerUpIsNotAlive) {
             paint.setColor(Color.GREEN);
-            for (int i = 0; i < powerUpList.size(); i++) {
-                PowerUp mIsPowerUp = powerUpList.get(i);
-                rect = new RectF(mIsPowerUp.getX(), mIsPowerUp.getY(), mIsPowerUp.getX() + 100, mIsPowerUp.getY() + 80);
-                canvas.drawBitmap(mIsPowerUp.getPowerUp(), null, rect, paint);
-            }
+            rect = new RectF(mIsPowerUp.getX(), mIsPowerUp.getY(), mIsPowerUp.getX() + 100, mIsPowerUp.getY() + 80);
+            canvas.drawBitmap(mIsPowerUp.getPowerUp(), null, rect, paint);
         }
 
         // Disegna il testo
@@ -438,7 +452,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             win(); // Controlla se l'utente ha vinto
             checkEdges(); // Controlla se la palla ha toccato i bordi
             ball.hitFlipper(flipper.getX(), flipper.getY()); // Controlla se la palla ha toccato il Flipper
-            checkPowerUp(timer1Ended, powerUpGone); // Controlla se l'utente ha preso un powerUp
+            checkPowerUp(timer1Ended, powerUpGone, powerUpIsNotAlive); // Controlla se l'utente ha preso un powerUp
 
             // Prendo la lista dei mattoni e controllo se la palla ha colpito un mattone.
             // Se sì, allora rimuovo il mattone dall'ArrayList e aggiorno lo score
@@ -462,26 +476,46 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     }
 
     // Il controllo sul powerUp, segue la stessa logica utilizzata per la generazione degli stessi.
-    private void checkPowerUp(boolean timerFinished, boolean powerUpIsGone) {
-        if (timerFinished && !powerUpIsGone) {
-            for (int i = 0; i < powerUpList.size(); i++) {
-                PowerUp p = powerUpList.get(i);
-                if (ball.hitPowerUp(p.getX(), p.getY())) {
-                    powerUpList.remove(i);
-                    powerUpTakenAtLeastOneTime = true;
-                    numberOfPowerUpsTaken++;
-                    score = score + 500;
-                    new CountDownTimer(10000, 1000) {
-                        public void onTick(long millisUntilFinished) {
-                            powerUpTaken = true;
-                        }
-
-                        public void onFinish() {
-                            powerUpTaken = false;
-                        }
-                    }.start();
+    private void checkPowerUp(boolean timerFinished, boolean powerUpIsGone, boolean powerUpNotAlive) {
+        if (timerFinished && !powerUpIsGone && !powerUpNotAlive) {
+            Bitmap powerUpImage = powerUpList.get(index).getPowerUp();
+            if (ball.hitPowerUp(mIsPowerUp.getX(), mIsPowerUp.getY())) {
+                    if (powerUpImage.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.power_up_0))) {
+                        powerUpList.remove(index);
+                        powerUpTakenAtLeastOneTime = true;
+                        powerUpIsNotAlive = true;
+                        numberOfPowerUpsTaken++;
+                        score = score + 500;
+                        new CountDownTimer(10000, 1000) {
+                            public void onTick(long millisUntilFinished) {
+                                flipperPowerUpTaken = true;
+                            }
+                            public void onFinish() {
+                                flipperPowerUpTaken = false;
+                            }
+                        }.start();
+                    } else if (powerUpImage.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.power_up_1))) {
+                        powerUpList.remove(index);
+                        powerUpTakenAtLeastOneTime = true;
+                        powerUpIsNotAlive = true;
+                        numberOfPowerUpsTaken++;
+                        score = score + 500;
+                    } else {
+                        powerUpList.remove(index);
+                        powerUpTakenAtLeastOneTime = true;
+                        powerUpIsNotAlive = true;
+                        numberOfPowerUpsTaken++;
+                        score = score - 300;
+                        new CountDownTimer(10000, 1000) {
+                            public void onTick(long millisUntilFinished) {
+                                flipperPowerDownTaken = true;
+                            }
+                            public void onFinish() {
+                                flipperPowerDownTaken = false;
+                            }
+                        }.start();
+                    }
                 }
-            }
         }
     }
 
@@ -577,8 +611,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         brickList = new ArrayList<>();
         generateBricks(context);
         generatePowerUps(context);
-        powerUpTaken = false;
+        flipperPowerUpTaken = false;
+        flipperPowerDownTaken = false;
         powerUpSkippedAtThisLevel = false;
+        powerUpIsNotAlive = false;
         ignore = false;
         timer1Ended = false;
         shouldSkipTimer = false;
