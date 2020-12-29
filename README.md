@@ -23,7 +23,7 @@ __________________________________________________________________
 - Introdurre livelli di difficoltà (oltre a quello base già presente relativo alla velocità della pallina)
 - Creare una modalità multiplayer (livello di complessità libero, anche asincrona o non massiva)
 - Fornire un editor di livelli (struttura, difficoltà, ecc) con possibilità di salvare/caricare
-- Introdurre il comparto audio (usare collezioni open source e indicare quale nella documentazione)
+- Introdurre il comparto audio (usare collezioni open source e indicare quale nella documentazione) :white_check_mark:
 - Gestire una classifica che permetta di condividere i punteggi con servizi o app esterne
 - Permettere il gioco anche in modalità ‘landscape’
 - Fornire supporto multilingua :white_check_mark:
