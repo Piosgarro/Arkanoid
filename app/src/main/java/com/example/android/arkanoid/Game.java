@@ -17,6 +17,7 @@ import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.CountDownTimer;
 import android.support.v4.content.res.ResourcesCompat;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -58,6 +59,9 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private boolean powerUpTaken;
     private boolean powerUpTakenAtLeastOneTime;
     private boolean start;
+    private boolean shouldSkipTimer;
+    private boolean timer1Ended;
+    private boolean powerUpGone;
     private final boolean touchSensor;
 
     private final float xBall;
@@ -71,6 +75,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private int numberOfPowerUpsTaken;
     private int p = 1;
     private int score;
+    private long seconds;
 
     public Game(Context context, int lifes, int score) {
         super(context);
@@ -137,6 +142,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 s = 1;                              // generato un numero che non ci serviva, quindi ricalcolo.
             }
         }
+        seconds = rand.nextInt(25000 - 7000 + 1) + 7000;
         powerUpList = new ArrayList<>();
         generatePowerUps(context);
 
@@ -162,18 +168,28 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             int min = 100;
             int max = 750;
             int s = 0;
-            xPowerUp = (int) (Math.random() * 950);
-            while (s == 0) {
-                yPowerUp = rand.nextInt(max - min + 1) + min;
-                if (yPowerUp < 221 || yPowerUp > 690) {
-                    s = 1;
-                }
-            }
             for (int i = 0; i < numberOfPowerUps; i++) {
+                xPowerUp = (int) (Math.random() * 950);
+                while (s == 0) {
+                    yPowerUp = rand.nextInt(max - min + 1) + min;
+                    if (yPowerUp < 221 || yPowerUp > 690) {
+                        s = 1;
+                    }
+                }
                 powerUpList.add(new PowerUp(context, xPowerUp, yPowerUp));
             }
         } else {
+            int min = 100;
+            int max = 750;
+            int s = 0;
             for (int i = 0; i < numberOfPowerUps; i++) {
+                xPowerUp = (int) (Math.random() * 950);
+                while (s == 0) {
+                    yPowerUp = rand.nextInt(max - min + 1) + min;
+                    if (yPowerUp < 221 || yPowerUp > 690) {
+                        s = 1;
+                    }
+                }
                 powerUpList.add(new PowerUp(context, xPowerUp, yPowerUp));
             }
         }
@@ -263,51 +279,38 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             canvas.drawBitmap(b.getBrick(), null, r, paint);
         }
 
+        if (!shouldSkipTimer) {
+            new CountDownTimer(seconds, 1000) {
+
+                public void onTick(long millisUntilFinished) {
+                    shouldSkipTimer = true;
+                }
+
+                public void onFinish() {
+                    timer1Ended = true;
+                    new CountDownTimer(seconds, 1000) {
+                        public void onTick(long millisUntilFinished) {
+                            powerUpGone = false;
+                        }
+
+                        public void onFinish() {
+                            powerUpGone = true;
+                        }
+                    }.start();
+                }
+            }.start();
+        }
+
         // Disegna i powerUp sul Canvas, prendendo ogni oggetto dall'ArrayList
         // e assegnandoli un rettangolo dalle dimensioni specificate in generatePowerUps()
         RectF rect;
 
-        // Se non ho preso nessun powerUp e sono al primo livello (Livello 0), basta controllare
-        // semplicemente lo score. Se lo score è >= 1280 (significa che sono rimasti 4 mattoni)
-        // allora solo in quel momento mi disegni il powerUp sul Canvas.
-        if (!powerUpTakenAtLeastOneTime && level < 1) {
-            if (score >= 1280) {
-                paint.setColor(Color.GREEN);
-                for (int i = 0; i < powerUpList.size(); i++) {
-                    PowerUp mIsPowerUp = powerUpList.get(i);
-                    rect = new RectF(mIsPowerUp.getX(), mIsPowerUp.getY(), mIsPowerUp.getX() + 100, mIsPowerUp.getY() + 80);
-                    canvas.drawBitmap(mIsPowerUp.getPowerUp(), null, rect, paint);
-                }
-            }
-            // Altrimenti se non ho preso nessun powerUp e sono ad un livello superiore al primo,
-            // controllo innanzitutto quanto sarà lo score al livello in cui sono adesso.
-            // Per fare ciò, faccio 1600 (significa che ho colpito tutti i mattoni), per il livello
-            // in cui sto giocando. Fatto ciò, aggiungo 1280 (4 mattoni rimanenti) per farmi spawnare il powerUp.
-            // Es. Livello 3 e non ho preso nessun powerUp. Esso mi spawnerà quando raggiungerò lo score 4480
-            // N.B. I livelli partono da 0.
-            // int level 0; -> Livello 1 == level
-        } else if (!powerUpTakenAtLeastOneTime && level >= 1) {
-            if (score >= (1600 * level) + 1280) {
-                paint.setColor(Color.GREEN);
-                for (int i = 0; i < powerUpList.size(); i++) {
-                    PowerUp mIsPowerUp = powerUpList.get(i);
-                    rect = new RectF(mIsPowerUp.getX(), mIsPowerUp.getY(), mIsPowerUp.getX() + 100, mIsPowerUp.getY() + 80);
-                    canvas.drawBitmap(mIsPowerUp.getPowerUp(), null, rect, paint);
-                }
-            }
-        }
-        // Altrimenti se ho preso il powerUp almeno una volta, faccio lo stesso controllo precendente,
-        // però in più dovrò aggiungere il numero dei powerUp presi, moltiplicato per 500.
-        // Significa che se sono al livello 2 ed ho preso 1 powerUp, il prossimo sarà spawnato quando
-        // raggiungerò lo score 3380.
-        if (powerUpTakenAtLeastOneTime) {
-            if (score >= (1600 * level) + (numberOfPowerUpsTaken * 500) + 1280) {
-                paint.setColor(Color.GREEN);
-                for (int i = 0; i < powerUpList.size(); i++) {
-                    PowerUp mIsPowerUp = powerUpList.get(i);
-                    rect = new RectF(mIsPowerUp.getX(), mIsPowerUp.getY(), mIsPowerUp.getX() + 100, mIsPowerUp.getY() + 80);
-                    canvas.drawBitmap(mIsPowerUp.getPowerUp(), null, rect, paint);
-                }
+        if (timer1Ended && !powerUpGone) {
+            paint.setColor(Color.GREEN);
+            for (int i = 0; i < powerUpList.size(); i++) {
+                PowerUp mIsPowerUp = powerUpList.get(i);
+                rect = new RectF(mIsPowerUp.getX(), mIsPowerUp.getY(), mIsPowerUp.getX() + 100, mIsPowerUp.getY() + 80);
+                canvas.drawBitmap(mIsPowerUp.getPowerUp(), null, rect, paint);
             }
         }
 
@@ -435,7 +438,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             win(); // Controlla se l'utente ha vinto
             checkEdges(); // Controlla se la palla ha toccato i bordi
             ball.hitFlipper(flipper.getX(), flipper.getY()); // Controlla se la palla ha toccato il Flipper
-            checkPowerUp(score, level, powerUpTakenAtLeastOneTime, numberOfPowerUpsTaken); // Controlla se l'utente ha preso un powerUp
+            checkPowerUp(timer1Ended, powerUpGone); // Controlla se l'utente ha preso un powerUp
 
             // Prendo la lista dei mattoni e controllo se la palla ha colpito un mattone.
             // Se sì, allora rimuovo il mattone dall'ArrayList e aggiorno lo score
@@ -459,45 +462,24 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     }
 
     // Il controllo sul powerUp, segue la stessa logica utilizzata per la generazione degli stessi.
-    private void checkPowerUp(int mScore, int mLevel, boolean mPowerUpTakenAtLeastOneTime, int mNumberOfPowerUpsTaken) {
-        if (!mPowerUpTakenAtLeastOneTime && mLevel < 1) {
-            if (mScore >= 1280) {
-                for (int i = 0; i < powerUpList.size(); i++) {
-                    PowerUp p = powerUpList.get(i);
-                    if (ball.hitPowerUp(p.getX(), p.getY())) {
-                        powerUpList.remove(i);
-                        powerUpTaken = true;
-                        powerUpTakenAtLeastOneTime = true;
-                        numberOfPowerUpsTaken++;
-                        score = score + 500;
-                    }
-                }
-            }
-        } else if (!mPowerUpTakenAtLeastOneTime) {
-            if (mScore >= (1600 * mLevel) + 1280) {
-                for (int i = 0; i < powerUpList.size(); i++) {
-                    PowerUp p = powerUpList.get(i);
-                    if (ball.hitPowerUp(p.getX(), p.getY())) {
-                        powerUpList.remove(i);
-                        powerUpTaken = true;
-                        powerUpTakenAtLeastOneTime = true;
-                        numberOfPowerUpsTaken++;
-                        score = score + 500;
-                    }
-                }
-            }
-        }
-        if (mPowerUpTakenAtLeastOneTime) {
-            if (mScore >= (1600 * mLevel) + (mNumberOfPowerUpsTaken * 500) + 1280) {
-                for (int i = 0; i < powerUpList.size(); i++) {
-                    PowerUp p = powerUpList.get(i);
-                    if (ball.hitPowerUp(p.getX(), p.getY())) {
-                        powerUpList.remove(i);
-                        powerUpTaken = true;
-                        powerUpTakenAtLeastOneTime = true;
-                        numberOfPowerUpsTaken++;
-                        score = score + 500;
-                    }
+    private void checkPowerUp(boolean timerFinished, boolean powerUpIsGone) {
+        if (timerFinished && !powerUpIsGone) {
+            for (int i = 0; i < powerUpList.size(); i++) {
+                PowerUp p = powerUpList.get(i);
+                if (ball.hitPowerUp(p.getX(), p.getY())) {
+                    powerUpList.remove(i);
+                    powerUpTakenAtLeastOneTime = true;
+                    numberOfPowerUpsTaken++;
+                    score = score + 500;
+                    new CountDownTimer(10000, 1000) {
+                        public void onTick(long millisUntilFinished) {
+                            powerUpTaken = true;
+                        }
+
+                        public void onFinish() {
+                            powerUpTaken = false;
+                        }
+                    }.start();
                 }
             }
         }
@@ -598,6 +580,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         powerUpTaken = false;
         powerUpSkippedAtThisLevel = false;
         ignore = false;
+        timer1Ended = false;
+        shouldSkipTimer = false;
+        powerUpGone = false;
+        seconds = rand.nextInt(25000 - 7000 + 1) + 7000;
     }
 
     // Check se il giocatore ha vinto o meno
