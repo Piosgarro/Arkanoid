@@ -75,6 +75,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private float xPowerUp;
     private float yPowerUp;
 
+    private int flipperWidth;
     private int level;
     private int lifes;
     private int numberOfPowerUpsTaken;
@@ -249,7 +250,6 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         // Scelgo la dimensione fissa dell'Height del Flipper
         final int flipperHeight = 40;
-        int flipperWidth;
 
         // Scelgo la larghezza del Flipper in base al PowerUp
         if (flipperPowerUpTaken) {
@@ -451,7 +451,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         if (start) {
             win(); // Controlla se l'utente ha vinto
             checkEdges(); // Controlla se la palla ha toccato i bordi
-            ball.hitFlipper(flipper.getX(), flipper.getY()); // Controlla se la palla ha toccato il Flipper
+            ball.hitFlipper(flipper.getX(), flipper.getY(), flipperWidth, redBall.getWidth(), redBall.getHeight()); // Controlla se la palla ha toccato il Flipper
             checkPowerUp(timer1Ended, powerUpGone, powerUpIsNotAlive); // Controlla se l'utente ha preso un powerUp
 
             // Prendo la lista dei mattoni e controllo se la palla ha colpito un mattone.

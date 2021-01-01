@@ -69,14 +69,14 @@ public class Ball {
     }
 
     // Controlla se la palla è vicina al flipper
-    private boolean isCloseToFlipper(float ax, float ay, float bx, float by) {
-        bx += 12;
-        by += 11;
-        if ((Math.sqrt(Math.pow((ax + 50) - bx, 2) + Math.pow(ay - by, 2))) < 80) {
-            return true;
-        } else if ((Math.sqrt(Math.pow((ax + 100) - bx, 2) + Math.pow(ay - by, 2))) < 60) {
-            return true;
-        } else return (Math.sqrt(Math.pow((ax + 150) - bx, 2) + Math.pow(ay - by, 2))) < 60;
+    private boolean isCloseToFlipper(float ax, float ay, float bx, float by, int flipperWidth, int ballBitmapWidth, int ballBitmapHeight) {
+        if ((by + ballBitmapHeight) > ay) {
+            bx += (float) ballBitmapWidth / 2;
+            if ((bx > ax) && (bx < (ax + flipperWidth))) {
+                return true;
+            }
+        }
+        return false;
     }
 
     // Controlla se la palla è vicina ad un mattone
@@ -88,8 +88,8 @@ public class Ball {
     }
 
     // Se la palla colpisce il Flipper, cambia direzione
-    protected void hitFlipper(float xPaddle, float yPaddle) {
-        if (isCloseToFlipper(xPaddle, yPaddle, getX(), getY())) {
+    protected void hitFlipper(float xPaddle, float yPaddle, int flipperWidth, int ballBitmapWidth, int ballBitmapHeight) {
+        if (isCloseToFlipper(xPaddle, yPaddle, getX(), getY(), flipperWidth, ballBitmapWidth, ballBitmapHeight)) {
             StartGame.sound.playHitFlipper(); // Se colpisci il Flipper, attiva il suono relativo
             changeDirection();
         }
