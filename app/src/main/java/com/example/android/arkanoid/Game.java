@@ -78,6 +78,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     private final float xBall;
     private final float yBall;
+    private final float ballRadius;
     private final float xFlipper;
     private float xPowerUp;
     private float yPowerUp;
@@ -137,6 +138,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // Palla
         xBall = (float) (size.x / 2) - 30; // Posizione della palla sull'asse orizzontale
         yBall = (float) (size.y - 480); // Posizione della palla sull'asse verticale
+        ballRadius = (float) (redBall.getWidth() / 2) * (float) (redBall.getWidth() / 2);
         ball = new Ball(xBall , yBall);
 
         // Flipper
@@ -544,7 +546,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             // Se sì, allora rimuovo il mattone dall'ArrayList e aggiorno lo score
             for (int i = 0; i < brickList.size(); i++) {
                 Brick b = brickList.get(i);
-                if (ball.hitBrick(b.getX(), b.getY())) {
+                if (ball.hitBrickNuova(b.getX(), b.getY(), redBall.getWidth(), redBall.getHeight(), ballRadius)) {
                     brickList.remove(i);
                     score = score + 80;
                 }

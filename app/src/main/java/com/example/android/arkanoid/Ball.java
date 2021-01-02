@@ -1,11 +1,14 @@
 package com.example.android.arkanoid;
 
+import android.graphics.Bitmap;
+
 public class Ball {
 
     protected float xSpeed; // Velocità orizzontale
     protected float ySpeed; // Velocità verticale
     private float x; // Posizione della palla sull'asse orizzontale
     private float y; // Posizione della palla sull'asse verticale
+    private Bitmap redBall;
 
     public Ball(float x, float y) {
         this.x = x;
@@ -43,6 +46,49 @@ public class Ball {
     protected void raiseSpeed(int level) {
         xSpeed = xSpeed + (level);
         ySpeed = ySpeed - (level);
+    }
+
+    public boolean hitBrickNuova(float xBrick, float yBrick, float ballWidth, float ballHeight, float ballRadius) {
+        float x, y;
+        boolean bx, by;
+        float ballX = (getX() + (ballWidth / 2));
+        float ballY = (getY() + (ballHeight / 2));
+
+        if (ballX < xBrick) {
+            x = xBrick;
+            bx = false;
+        } else if (ballX > (xBrick + 100)) {
+            x = ballX + 100;
+            bx = false;
+        } else {
+            x = ballX;
+            bx = true;
+        }
+        if (ballY < yBrick) {
+            y = yBrick;
+            by = false;
+        } else if (ballY > (yBrick + 80)) {
+            y = ballY + 80;
+            by = false;
+        } else {
+            y = ballY;
+            by = true;
+        }
+
+        if (((x - ballX) * (x - ballX)) + ((y - ballY) * (y - ballY)) < ballRadius) {
+            if (bx) {
+                invertYSpeed();
+            }
+            if (by) {
+                invertXSpeed();
+            }
+            if (!by && !bx) {
+                invertXSpeed();
+                invertYSpeed();
+            }
+            return true;
+        }
+        return false;
     }
 
     // Controlla se la palla è vicina ad un mattone
