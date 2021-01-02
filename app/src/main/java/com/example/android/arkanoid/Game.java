@@ -32,7 +32,11 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private ArrayList<Brick> brickList;
     private ArrayList<PowerUp> powerUpList;
 
+    private CountDownTimer ballPowerUpTimer;
+
     private final Ball ball;
+    private Ball ball_1;
+    private Ball ball_2;
 
     private Bitmap background;
     private final Bitmap flipperBit;
@@ -67,6 +71,9 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private boolean shouldSkipTimer;
     private boolean timer1Ended;
     private boolean powerUpGone;
+    private boolean ballPowerUpTaken;
+    private boolean ball1NotVisible;
+    private boolean ball2NotVisible;
     private final boolean touchSensor;
 
     private final float xBall;
@@ -239,6 +246,15 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // Disegna la palla
         paint.setColor(Color.RED);
         canvas.drawBitmap(redBall, ball.getX(), ball.getY(), paint); // Disegna la palla sul Canvas, nelle posizioni specificate precedentemente
+        if (ballPowerUpTaken) {
+            // Disegna la palla relativa al powerUp
+            if (!ball1NotVisible) {
+                canvas.drawBitmap(redBall, ball_1.getX(), ball_1.getY(), paint); // Disegna la palla sul Canvas, nelle posizioni specificate precedentemente
+            }
+            if (!ball2NotVisible) {
+                canvas.drawBitmap(redBall, ball_2.getX(), ball_2.getY(), paint); // Disegna la palla sul Canvas, nelle posizioni specificate precedentemente
+            }
+        }
 
         // Disegna il flipper
         RectF FlipperRect = new RectF();
@@ -372,17 +388,56 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     // Controlla che la palla non tocchi i bordi (Edges)
     private void checkEdges() {
-        if (ball.getX() + ball.getxSpeed() >= size.x - 60) {
-            StartGame.sound.playHitSound();
-            ball.changeDirection("prava");
-        } else if (ball.getX() + ball.getxSpeed() <= 0) {
-            StartGame.sound.playHitSound();
-            ball.changeDirection("lava");
-        } else if (ball.getY() + ball.getySpeed() <= 150) {
-            StartGame.sound.playHitSound();
-            ball.changeDirection("hore");
-        } else if (ball.getY() + ball.getySpeed() >= size.y - 200) {
-            checkLifes();
+        if (!ballPowerUpTaken) {
+            if (ball.getX() + ball.getxSpeed() >= size.x - 60) {
+                StartGame.sound.playHitSound();
+                ball.changeDirection("prava");
+            } else if (ball.getX() + ball.getxSpeed() <= 0) {
+                StartGame.sound.playHitSound();
+                ball.changeDirection("lava");
+            } else if (ball.getY() + ball.getySpeed() <= 150) {
+                StartGame.sound.playHitSound();
+                ball.changeDirection("hore");
+            } else if (ball.getY() + ball.getySpeed() >= size.y - 200) {
+                checkLifes();
+            }
+        } else {
+            if (ball.getX() + ball.getxSpeed() >= size.x - 60) {
+                StartGame.sound.playHitSound();
+                ball.changeDirection("prava");
+            } else if (ball.getX() + ball.getxSpeed() <= 0) {
+                StartGame.sound.playHitSound();
+                ball.changeDirection("lava");
+            } else if (ball.getY() + ball.getySpeed() <= 150) {
+                StartGame.sound.playHitSound();
+                ball.changeDirection("hore");
+            } else if (ball.getY() + ball.getySpeed() >= size.y - 200) {
+                checkLifes();
+            }
+            if (ball_1.getX() + ball_1.getxSpeed() >= size.x - 60) {
+                StartGame.sound.playHitSound();
+                ball_1.changeDirection("prava");
+            } else if (ball_1.getX() + ball_1.getxSpeed() <= 0) {
+                StartGame.sound.playHitSound();
+                ball_1.changeDirection("lava");
+            } else if (ball_1.getY() + ball_1.getySpeed() <= 150) {
+                StartGame.sound.playHitSound();
+                ball_1.changeDirection("hore");
+            } else if (ball_1.getY() + ball_1.getySpeed() >= size.y - 200) {
+                ball1NotVisible = true;
+            }
+            if (ball_2.getX() + ball_2.getxSpeed() >= size.x - 60) {
+                StartGame.sound.playHitSound();
+                ball_2.changeDirection("prava");
+            } else if (ball_2.getX() + ball_2.getxSpeed() <= 0) {
+                StartGame.sound.playHitSound();
+                ball_2.changeDirection("lava");
+            } else if (ball_2.getY() + ball_2.getySpeed() <= 150) {
+                StartGame.sound.playHitSound();
+                ball_2.changeDirection("hore");
+            } else if (ball_2.getY() + ball_2.getySpeed() >= size.y - 200) {
+                ball2NotVisible = true;
+            }
         }
     }
 
@@ -434,6 +489,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         // Caso in cui l'utente ha più di una vita
         } else {
+            if (ballPowerUpTaken) {
+                ballPowerUpTimer.cancel();
+                ballPowerUpTaken = false;
+            }
             lifes--;
             StartGame.sound.playLostLife(); // Se l'utente perde una vita, attiva il suono relativo
             ball.setX(xBall - 8); // Reimposta la palla al centro dello schermo
@@ -452,6 +511,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             win(); // Controlla se l'utente ha vinto
             checkEdges(); // Controlla se la palla ha toccato i bordi
             ball.hitFlipper(flipper.getX(), flipper.getY(), flipperWidth, redBall.getWidth(), redBall.getHeight()); // Controlla se la palla ha toccato il Flipper
+            if (ballPowerUpTaken) {
+                ball_1.hitFlipper(flipper.getX(), flipper.getY(), flipperWidth, redBall.getWidth(), redBall.getHeight()); // Controlla se la palla ha toccato il Flipper
+                ball_2.hitFlipper(flipper.getX(), flipper.getY(), flipperWidth, redBall.getWidth(), redBall.getHeight()); // Controlla se la palla ha toccato il Flipper
+            }
             checkPowerUp(timer1Ended, powerUpGone, powerUpIsNotAlive); // Controlla se l'utente ha preso un powerUp
 
             // Prendo la lista dei mattoni e controllo se la palla ha colpito un mattone.
@@ -461,6 +524,17 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 if (ball.hitBrick(b.getX(), b.getY())) {
                     brickList.remove(i);
                     score = score + 80;
+                }
+
+                if (ballPowerUpTaken) {
+                    if (ball_1.hitBrick(b.getX(), b.getY())) {
+                        brickList.remove(i);
+                        score = score + 80;
+                    }
+                    if (ball_2.hitBrick(b.getX(), b.getY())) {
+                        brickList.remove(i);
+                        score = score + 80;
+                    }
                 }
             }
 
@@ -472,6 +546,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             }
 
             ball.move();
+            if (ballPowerUpTaken) {
+                ball_1.move();
+                ball_2.move();
+            }
         }
     }
 
@@ -499,7 +577,17 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                         powerUpTakenAtLeastOneTime = true;
                         powerUpIsNotAlive = true;
                         numberOfPowerUpsTaken++;
-                        score = score + 500;
+                        ball_1 = new Ball(ball.getX() , ball.getY());
+                        ball_2 = new Ball(ball.getX() , ball.getY());
+                        score = score + 200;
+                        ballPowerUpTimer = new CountDownTimer(10000, 1000) {
+                            public void onTick(long millisUntilFinished) {
+                                ballPowerUpTaken = true;
+                            }
+                            public void onFinish() {
+                                ballPowerUpTaken = false;
+                            }
+                        }.start();
                     } else {
                         powerUpList.remove(index);
                         powerUpTakenAtLeastOneTime = true;
@@ -611,6 +699,14 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         brickList = new ArrayList<>();
         generateBricks(context);
         generatePowerUps(context);
+        if (ballPowerUpTaken) {
+            ballPowerUpTimer.cancel();
+            ballPowerUpTaken = false;
+            ball_1 = null;
+            ball_2 = null;
+        }
+        ball1NotVisible = false;
+        ball2NotVisible = false;
         flipperPowerUpTaken = false;
         flipperPowerDownTaken = false;
         powerUpSkippedAtThisLevel = false;
