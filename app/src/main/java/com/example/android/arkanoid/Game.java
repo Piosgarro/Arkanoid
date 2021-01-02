@@ -389,54 +389,82 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // Controlla che la palla non tocchi i bordi (Edges)
     private void checkEdges() {
         if (!ballPowerUpTaken) {
-            if (ball.getX() + ball.getxSpeed() >= size.x - 60) {
+            if (ball.getX() + redBall.getWidth() >= size.x) {
                 StartGame.sound.playHitSound();
-                ball.changeDirection("prava");
-            } else if (ball.getX() + ball.getxSpeed() <= 0) {
+                ball.invertXSpeed();
+            } else if (ball.getX() <= 0) {
                 StartGame.sound.playHitSound();
-                ball.changeDirection("lava");
-            } else if (ball.getY() + ball.getySpeed() <= 150) {
+                ball.invertXSpeed();
+            } else if (ball.getY() <= 150) {
                 StartGame.sound.playHitSound();
-                ball.changeDirection("hore");
-            } else if (ball.getY() + ball.getySpeed() >= size.y - 200) {
+                ball.invertYSpeed();
+            } else if(ball.getY() > flipper.getY() + 100) {
                 checkLifes();
+            } else if ((ball.getY() + redBall.getHeight()) > flipper.getY()) {
+                float ballX = ball.getX();
+                ballX += (float) redBall.getWidth() / 2;
+                if ((ballX > flipper.getX()) && (ballX < (flipper.getX() + flipperWidth))) {
+                    StartGame.sound.playHitSound();
+                    ball.invertYSpeed();
+                }
             }
         } else {
-            if (ball.getX() + ball.getxSpeed() >= size.x - 60) {
+            if (ball.getX() + redBall.getWidth() >= size.x) {
                 StartGame.sound.playHitSound();
-                ball.changeDirection("prava");
-            } else if (ball.getX() + ball.getxSpeed() <= 0) {
+                ball.invertXSpeed();
+            } else if (ball.getX() <= 0) {
                 StartGame.sound.playHitSound();
-                ball.changeDirection("lava");
-            } else if (ball.getY() + ball.getySpeed() <= 150) {
+                ball.invertXSpeed();
+            } else if (ball.getY() <= 150) {
                 StartGame.sound.playHitSound();
-                ball.changeDirection("hore");
-            } else if (ball.getY() + ball.getySpeed() >= size.y - 200) {
+                ball.invertYSpeed();
+            } else if(ball.getY() > flipper.getY() + 100) {
                 checkLifes();
+            } else if ((ball.getY() + redBall.getHeight()) > flipper.getY()) {
+                float ballX = ball.getX();
+                ballX += (float) redBall.getWidth() / 2;
+                if ((ballX > flipper.getX()) && (ballX < (flipper.getX() + flipperWidth))) {
+                    StartGame.sound.playHitSound();
+                    ball.invertYSpeed();
+                }
             }
-            if (ball_1.getX() + ball_1.getxSpeed() >= size.x - 60) {
+            if (ball_1.getX() + redBall.getWidth() >= size.x) {
                 StartGame.sound.playHitSound();
-                ball_1.changeDirection("prava");
-            } else if (ball_1.getX() + ball_1.getxSpeed() <= 0) {
+                ball_1.invertXSpeed();
+            } else if (ball_1.getX() <= 0) {
                 StartGame.sound.playHitSound();
-                ball_1.changeDirection("lava");
-            } else if (ball_1.getY() + ball_1.getySpeed() <= 150) {
+                ball_1.invertXSpeed();
+            } else if (ball_1.getY() <= 150) {
                 StartGame.sound.playHitSound();
-                ball_1.changeDirection("hore");
-            } else if (ball_1.getY() + ball_1.getySpeed() >= size.y - 200) {
-                ball1NotVisible = true;
+                ball_1.invertYSpeed();
+            } else if(ball_1.getY() > flipper.getY() + 100) {
+                checkLifes();
+            } else if ((ball_1.getY() + redBall.getHeight()) > flipper.getY()) {
+                float ballX = ball_1.getX();
+                ballX += (float) redBall.getWidth() / 2;
+                if ((ballX > flipper.getX()) && (ballX < (flipper.getX() + flipperWidth))) {
+                    StartGame.sound.playHitSound();
+                    ball_1.invertYSpeed();
+                }
             }
-            if (ball_2.getX() + ball_2.getxSpeed() >= size.x - 60) {
+            if (ball_2.getX() + redBall.getWidth() >= size.x) {
                 StartGame.sound.playHitSound();
-                ball_2.changeDirection("prava");
-            } else if (ball_2.getX() + ball_2.getxSpeed() <= 0) {
+                ball_2.invertXSpeed();
+            } else if (ball_2.getX() <= 0) {
                 StartGame.sound.playHitSound();
-                ball_2.changeDirection("lava");
-            } else if (ball_2.getY() + ball_2.getySpeed() <= 150) {
+                ball_2.invertXSpeed();
+            } else if (ball_2.getY() <= 150) {
                 StartGame.sound.playHitSound();
-                ball_2.changeDirection("hore");
-            } else if (ball_2.getY() + ball_2.getySpeed() >= size.y - 200) {
-                ball2NotVisible = true;
+                ball_2.invertYSpeed();
+            } else if(ball_2.getY() > flipper.getY() + 100) {
+                checkLifes();
+            } else if ((ball_2.getY() + redBall.getHeight()) > flipper.getY()) {
+                float ballX = ball_2.getX();
+                ballX += (float) redBall.getWidth() / 2;
+                if ((ballX > flipper.getX()) && (ballX < (flipper.getX() + flipperWidth))) {
+                    StartGame.sound.playHitSound();
+                    ball_2.invertYSpeed();
+                }
             }
         }
     }
@@ -509,12 +537,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     public void update() {
         if (start) {
             win(); // Controlla se l'utente ha vinto
-            checkEdges(); // Controlla se la palla ha toccato i bordi
-            ball.hitFlipper(flipper.getX(), flipper.getY(), flipperWidth, redBall.getWidth(), redBall.getHeight()); // Controlla se la palla ha toccato il Flipper
-            if (ballPowerUpTaken) {
-                ball_1.hitFlipper(flipper.getX(), flipper.getY(), flipperWidth, redBall.getWidth(), redBall.getHeight()); // Controlla se la palla ha toccato il Flipper
-                ball_2.hitFlipper(flipper.getX(), flipper.getY(), flipperWidth, redBall.getWidth(), redBall.getHeight()); // Controlla se la palla ha toccato il Flipper
-            }
+            checkEdges(); // Controlla se la palla ha toccato i bordi / Flipper
             checkPowerUp(timer1Ended, powerUpGone, powerUpIsNotAlive); // Controlla se l'utente ha preso un powerUp
 
             // Prendo la lista dei mattoni e controllo se la palla ha colpito un mattone.
