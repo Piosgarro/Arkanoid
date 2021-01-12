@@ -10,11 +10,13 @@ public class Brick extends View {
     private Bitmap brick; // Contenitore per l'immagine del mattone
     private float x; // Posizione del mattone sull'asse orizzontale
     private float y; // Posizione del mattone sull'asse verticale
+    private int lifes; // Vita del Brcik
 
-    public Brick(Context context, float x, float y) {
+    public Brick(Context context, float x, float y, int lifes) {
         super(context);
         this.x = x;
         this.y = y;
+        this.lifes = lifes;
         skin();
     }
 
@@ -68,6 +70,14 @@ public class Brick extends View {
     @Override
     public void setY(float y) {
         this.y = y;
+    }
+
+    public int getLifes() {
+        return lifes;
+    }
+
+    public void setLifes(int lifes) {
+        this.lifes = lifes;
     }
 
     public Bitmap getBrick() {

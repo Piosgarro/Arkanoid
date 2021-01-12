@@ -222,9 +222,16 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     // Riempi la lista "brickList" con dei mattoni
     private void generateBricks(Context context) {
+        int brickLifes;
+        if (level == 5) {
+            brickLifes = 3;
+        } else {
+            brickLifes = 1;
+        }
+
         for (int i = 3; i < 7; i++) {
             for (int j = 1; j < 6; j++) {
-                brickList.add(new Brick(context, j * 150, i * 100));
+                brickList.add(new Brick(context, j * 150, i * 100, brickLifes));
             }
         }
     }
@@ -546,18 +553,31 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             // Se sì, allora rimuovo il mattone dall'ArrayList e aggiorno lo score
             for (int i = 0; i < brickList.size(); i++) {
                 Brick b = brickList.get(i);
+                int brickLife = b.getLifes();
                 if (ball.hitBrickNuova(b.getX(), b.getY(), redBall.getWidth(), redBall.getHeight(), ballRadius)) {
-                    brickList.remove(i);
+                    if (brickLife == 1) {
+                        brickList.remove(i);
+                    } else {
+                        b.setLifes(--brickLife);
+                    }
                     score = score + 80;
                 }
 
                 if (ballPowerUpTaken) {
                     if (ball_1.hitBrick(b.getX(), b.getY())) {
-                        brickList.remove(i);
+                        if (brickLife == 1) {
+                            brickList.remove(i);
+                        } else {
+                            b.setLifes(--brickLife);
+                        }
                         score = score + 80;
                     }
                     if (ball_2.hitBrick(b.getX(), b.getY())) {
-                        brickList.remove(i);
+                        if (brickLife == 1) {
+                            brickList.remove(i);
+                        } else {
+                            b.setLifes(--brickLife);
+                        }
                         score = score + 80;
                     }
                 }
