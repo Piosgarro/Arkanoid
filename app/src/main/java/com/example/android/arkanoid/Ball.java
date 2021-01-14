@@ -1,21 +1,17 @@
 package com.example.android.arkanoid;
 
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 
-public class Ball {
+import java.util.Random;
 
-    protected float xSpeed; // Velocità orizzontale
-    protected float ySpeed; // Velocità verticale
-    private float x; // Posizione della palla sull'asse orizzontale
-    private float y; // Posizione della palla sull'asse verticale
+public class Ball {
 
     private float dx,dy;
     private float cx;
     private float cy;
-    private float radius;
-    private Paint pen;
+    private final float radius;
+    private final Paint pen;
 
     public Ball(float cx, float cy, float radius)
     {
@@ -35,14 +31,6 @@ public class Ball {
         this.cy = cy;
     }
 
-    public void setDx(float dx) {
-        this.dx = dx;
-    }
-
-    public void setDy(float dy) {
-        this.dy = dy;
-    }
-
     public float getCx() {
         return cx;
     }
@@ -51,18 +39,29 @@ public class Ball {
         return cy;
     }
 
-    public float getRadius() {
-        return radius;
+    public void setDx(float dx) {
+        this.dx = dx;
     }
 
-    public void draw(Canvas canvas)
+    public void setDy(float dy) {
+        this.dy = dy;
+    }
+
+    public float getDx() {
+        return dx;
+    }
+
+    public float getDy() {
+        return dy;
+    }
+
+    public void draw(Canvas canvas, int color)
     {
-        pen.setColor(Color.WHITE);
+        pen.setColor(color);
         canvas.drawCircle(cx,cy,radius,pen);
     }
 
-    public boolean move(int w, int h)
-    {
+    public boolean move(int w, int h, Flipper flipper, int flipperWidth) {
         this.cx+= dx;
         this.cy+= dy;
 
@@ -71,62 +70,44 @@ public class Ball {
             dx = -dx;
             StartGame.sound.playHitSound();
             return true;
-        }
-
-        // check if ball out of up side
-        if( (cy-radius) <= 150 ) {
+        } else if((cy-radius) <= 145) { //up side
             dy = -dy;
             StartGame.sound.playHitSound();
             return true;
-        }
-
-        if( (cy + radius) >= h ) {
-            dx = -dx;
+        } else if (cy+radius >= flipper.getY() && cy+radius <= (flipper.getY()+30) && cx-radius >= flipper.getX() && cx+radius <= (flipper.getX()+flipperWidth) && dy > 0) {
+            dy = -dy;
             StartGame.sound.playHitSound();
-            return false;
-        }
+        } else return !(cy + radius >= h);
+
         return true;
     }
 
-    public boolean collideWith(Brick brick)
-    {
-
+    public boolean collideWith(Brick brick) {
         float xBrick = brick.getX();
         float yBrick = brick.getY();
 
-        float x, y;
-        boolean bx = false;
-        boolean by = false;
-
         if (cx < xBrick) {
-            x = xBrick;
-            bx = true;
+            xBrick -= cx;
         } else if (cx > (xBrick + 100)) {
-            x = xBrick + 100;
-            bx = true;
+            xBrick = cx - (xBrick + 100);
         } else {
-            x = cx;
+            xBrick = 0;
         }
         if (cy < yBrick) {
-            y = yBrick;
-            by = true;
+            yBrick -= cy;
         } else if (cy > (yBrick + 80)) {
-            y = yBrick + 80;
-            by = true;
+            yBrick = cy - (yBrick + 80);
         } else {
-            y = cy;
+            yBrick = 0;
         }
 
-        if (((x - cx) * (x - cx)) + ((y - cy) * (y - cy)) < radius*radius) {
-
-            if (bx) {
+        if ((xBrick * xBrick) + (yBrick * yBrick) <= radius * radius) {
+            if ((yBrick == 0) || ((xBrick != 0) && (yBrick <= xBrick))) {
                 dx = -dx;
-                StartGame.sound.playHitSound();
-            }
-            if (by) {
+            } else {
                 dy = -dy;
-                StartGame.sound.playHitSound();
             }
+            StartGame.sound.playHitSound();
             return true;
         }
         return false;
@@ -134,90 +115,38 @@ public class Ball {
 
     public boolean collideWith(PowerUp powerup) {
 
-        float xPowerUp = powerup.getX();
-        float yPowerUp = powerup.getY();
+        float x = powerup.getX() + 40 - cx;
+        float y = powerup.getY() + 40 - cy;
 
-        float x, y;
-
-        if (cx < xPowerUp) {
-            x = xPowerUp;
-        } else if (cx > (xPowerUp + 100)) {
-            x = xPowerUp + 100;
-        } else {
-            x = cx;
-        }
-        if (cy < yPowerUp) {
-            y = yPowerUp;
-        } else if (cy > (yPowerUp + 80)) {
-            y = yPowerUp + 80;
-        } else {
-            y = cy;
-        }
-
-        if (((x - cx) * (x - cx)) + ((y - cy) * (y - cy)) < radius*radius) {
+        if (((x * x) + (y * y)) < (radius + 40) * (radius + 40)) {
             StartGame.sound.playPowerUp();
             return true;
         }
         return false;
     }
 
-    public void collideWith(Flipper flipper, int flipperWidth, int flipperHeight) {
-
-        float x1,y1, x2,y2;
-        x1 = flipper.getX();
-        y1 = flipper.getY();
-
-        x2 = flipper.getX() + flipperWidth;
-        y2 = flipper.getY() + flipperHeight;
-
-        // from up
-        if( (cx >= x1 && cx <= x2) && (cy + radius) == y1) {
-            dy = -dy;
-            StartGame.sound.playHitSound();
-            return;
-        }
-
-        //from right
-        if( cx-radius == x2 && (cy >= y1 && cy <= y2)) {
-            dx = -dx;
-            StartGame.sound.playHitSound();
-            return;
-        }
-
-        //from left
-        if( cx+radius == x1 && (cy >= y1 && cy <= y2) ) {
-            dx = -dx;
-            StartGame.sound.playHitSound();
-        }
-
-    }
-
     // Crea una palla con velocità casuale
     protected void generateSpeed() {
-        int maxX = 9;
-        int minX = 7;
-        int maxY = -7;
-        int minY = -9;
-        int rangeX = maxX - minX + 1;
-        int rangeY = maxY - minY + 1;
+        Random rand = new Random();
+        int randomSign;
+        if(rand.nextBoolean())
+            randomSign = -1;
+        else
+            randomSign = 1;
 
-        dx = ((int) (Math.random() * rangeX) + minX);
-        dy = ((int) (Math.random() * rangeY) + minY);
+        float maxX = 9;
+        float minX = 7;
+        float maxY = -7;
+        float minY = -9;
+        float rangeX = maxX - minX + 1;
+        float rangeY = maxY - minY + 1;
+
+        dx = ((float) ((Math.random() * rangeX) + minX)) * randomSign;
+        dy = ((float) (Math.random() * rangeY) + minY);
+
         //dx = (float) 0.52;
         //dy = (float) -0.52;
-    }
 
-    // Cambia direzione in base alla velocità
-    protected void changeDirection() {
-        if (xSpeed > 0 && ySpeed < 0) {
-            invertXSpeed();
-        } else if (xSpeed < 0 && ySpeed < 0) {
-            invertYSpeed();
-        } else if (xSpeed < 0 && ySpeed > 0) {
-            invertXSpeed();
-        } else if (xSpeed > 0 && ySpeed > 0) {
-            invertYSpeed();
-        }
     }
 
     // Aumenta velocità in base al livello
@@ -225,61 +154,4 @@ public class Ball {
         dx = dx + (level);
         dy = dy - (level);
     }
-
-    // Controlla se la palla è vicina ad un mattone
-    private boolean isCloseToBrick(float ax, float ay, float bx, float by) {
-        bx += 12;
-        by += 11;
-        double d = Math.sqrt(Math.pow((ax + 50) - bx, 2) + Math.pow((ay + 40) - by, 2));
-        return d < 80;
-    }
-
-
-    // Se la palla colpisce un mattone, cambia direzione
-    protected boolean hitBrick(float xBrick, float yBrick) {
-        if (isCloseToBrick(xBrick, yBrick, getX(), getY())) {
-            StartGame.sound.playHitSound(); // Se colpisci il mattone, attiva il suono relativo
-            changeDirection();
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-    // Se la palla colpisce un powerup, ritorna "true"
-    // altrimenti falso
-    protected boolean hitPowerUp(float xPowerUp, float yPowerUp) {
-        return isCloseToPowerUp(xPowerUp, yPowerUp, getX(), getY());
-    }
-
-    // Controlla se la palla è vicino al powerup
-    private boolean isCloseToPowerUp(float ax, float ay, float px, float py) {
-        px += 12;
-        py += 11;
-        double d = Math.sqrt(Math.pow((ax + 50) - px, 2) + Math.pow((ay + 40) - py, 2));
-        if (d < 80) {
-            StartGame.sound.playPowerUp(); // Se colpisci il PowerUp, attiva il suono relativo
-                                           // Non c'è il cambio della direzione, perchè non vogliamo
-                                           // che la palla cambi direzione quando tocca il PowerUp
-            return true;
-        }
-        return false;
-    }
-
-    public void invertXSpeed() {
-        xSpeed = -xSpeed;
-    }
-
-    public void invertYSpeed() {
-        ySpeed = -ySpeed;
-    }
-
-    public float getX() {
-        return x;
-    }
-
-    public float getY() {
-        return y;
-    }
-
 }

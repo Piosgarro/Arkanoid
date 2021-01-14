@@ -27,6 +27,10 @@ import android.view.WindowManager;
 import java.util.ArrayList;
 import java.util.Random;
 
+import static android.graphics.Color.GREEN;
+import static android.graphics.Color.RED;
+import static android.graphics.Color.WHITE;
+
 public class Game extends View implements SensorEventListener, View.OnTouchListener {
 
     private ArrayList<Brick> brickList;
@@ -34,13 +38,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     private CountDownTimer ballPowerUpTimer;
 
-    private Ball ball;
+    private final Ball ball;
     private Ball ball_1;
     private Ball ball_2;
 
     private Bitmap background;
     private final Bitmap flipperBit;
-    private final Bitmap redBall;
     private Bitmap stretch;
 
     private final Context context;
@@ -77,10 +80,11 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private boolean ball1NotVisible;
     private boolean ball2NotVisible;
     private final boolean touchSensor;
-    private boolean primaVolta = false;
     private final float xFlipper;
     private float xPowerUp;
     private float yPowerUp;
+    private float xSpeed;
+    private float ySpeed;
 
     private int canvasWidth;
     private int canvasHeight;
@@ -127,46 +131,22 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         setBackground(context);
 
-        // Crea un bitmap per la palla e il flipper
-        redBall = BitmapFactory.decodeResource(getResources(), R.drawable.redball);
-        flipperBit = BitmapFactory.decodeResource(getResources(), R.drawable.flipper);
-
         /*
-            Crea una nuova palla, un nuovo flipper, un nuovo elenco di mattoni
-            e un nuovo elenco di PowerUp
+            Crea una nuova palla ed un nuovo flipper
          */
 
         // Flipper
+        flipperBit = BitmapFactory.decodeResource(getResources(), R.drawable.flipper);
         xFlipper = (float) (size.x / 2) - 90; // Posizione del Flipper sull'asse orizzontale
-        float yFlipper = (float) (size.y - 390); // Posizione del Flipper sull'asse verticale
+        float yFlipper = size.y - 390; // Posizione del Flipper sull'asse verticale
         flipper = new Flipper(xFlipper , yFlipper);
-
-        // Scelgo la dimensione fissa dell'Height del Flipper
-        flipperHeight = 40;
+        flipperHeight = 40; // Scelgo la dimensione fissa dell'Height del Flipper che mi servirà in seguito
 
         // Palla
         ball = new Ball((float) canvasWidth/2, flipper.getY()-20, 20);
-        ball.generateSpeed();
 
-        // PowerUps
-        int min = 100; // Posizione minima del PowerUp sull'asse verticale
-        int max = 750; // Posizione massima del PowerUp sull'asse orizzontale
-        int s = 0; // Contatore
-        numberOfPowerUpsTaken = 0; // Contatore dei PowerUp
-        xPowerUp = (int) (Math.random() * 950); // Posizione del PowerUp sull'asse orizzontale
-        while (s == 0) {
-            yPowerUp = rand.nextInt(max - min + 1) + min; // Genera un numero random tra 100 e 750
-            if (yPowerUp < 221 || yPowerUp > 690) { // Se il numero è < 221 o > 690 significa che è stato
-                s = 1;                              // generato un numero che non ci serviva, quindi ricalcolo.
-            }
-        }
+        // Secondi random per il contatore dei powerUp
         seconds = rand.nextInt(25000 - 7000 + 1) + 7000;
-        powerUpList = new ArrayList<>();
-        generatePowerUps(context);
-
-        // Mattoni
-        brickList = new ArrayList<>();
-        generateBricks(context);
 
         this.setOnTouchListener(this);
 
@@ -275,15 +255,15 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             flipperWidth = 200;
         }
 
-        ball.draw(canvas);
+        ball.draw(canvas, WHITE);
 
         if (ballPowerUpTaken) {
             // Disegna la palla relativa al powerUp
             if (!ball1NotVisible) {
-                ball_1.draw(canvas);
+                ball_1.draw(canvas, RED);
             }
             if (!ball2NotVisible) {
-                ball_2.draw(canvas); // Disegna la palla sul Canvas, nelle posizioni specificate precedentemente
+                ball_2.draw(canvas, GREEN); // Disegna la palla sul Canvas, nelle posizioni specificate precedentemente
             }
         }
 
@@ -322,26 +302,28 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             canvas.drawBitmap(b.getBrick(), null, r, paint);
         }
 
-        if (!shouldSkipTimer) {
-            new CountDownTimer(seconds, 1000) {
+        if (start) {
+            if (!shouldSkipTimer) {
+                new CountDownTimer(seconds, 1000) {
 
-                public void onTick(long millisUntilFinished) {
-                    shouldSkipTimer = true;
-                }
+                    public void onTick(long millisUntilFinished) {
+                        shouldSkipTimer = true;
+                    }
 
-                public void onFinish() {
-                    timer1Ended = true;
-                    new CountDownTimer(seconds, 1000) {
-                        public void onTick(long millisUntilFinished) {
-                            powerUpGone = false;
-                        }
+                    public void onFinish() {
+                        timer1Ended = true;
+                        new CountDownTimer(seconds, 1000) {
+                            public void onTick(long millisUntilFinished) {
+                                powerUpGone = false;
+                            }
 
-                        public void onFinish() {
-                            powerUpGone = true;
-                        }
-                    }.start();
-                }
-            }.start();
+                            public void onFinish() {
+                                powerUpGone = true;
+                            }
+                        }.start();
+                    }
+                }.start();
+            }
         }
 
         // Disegna i powerUp sul Canvas, prendendo ogni oggetto dall'ArrayList
@@ -350,7 +332,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         if (timer1Ended && !powerUpGone && !powerUpIsNotAlive) {
             paint.setColor(Color.GREEN);
-            rect = new RectF(mIsPowerUp.getX(), mIsPowerUp.getY(), mIsPowerUp.getX() + 100, mIsPowerUp.getY() + 80);
+            rect = new RectF(mIsPowerUp.getX(), mIsPowerUp.getY(), mIsPowerUp.getX() + 80, mIsPowerUp.getY() + 80);
             canvas.drawBitmap(mIsPowerUp.getPowerUp(), null, rect, paint);
         }
 
@@ -362,7 +344,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         life.setTextSize(50); // Imposta la dimensione del carattere
         life.setTypeface(candalFont); // Imposta il Font (R.font.candal)
 
-        textPaint.setColor(Color.WHITE);
+        textPaint.setColor(WHITE);
         textPaint.setTextSize(80);
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
@@ -397,6 +379,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         update();
 
+        invalidate();
+
     }
 
     public boolean isCollideWithBrick(Ball ball)
@@ -416,89 +400,6 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             }
         }
         return false;
-    }
-
-    // Controlla che la palla non tocchi i bordi (Edges)
-    private void checkEdges() {
-        if (!ballPowerUpTaken) {
-            if (ball.getX() + redBall.getWidth() >= size.x) {
-                StartGame.sound.playHitSound();
-                ball.invertXSpeed();
-            } else if (ball.getX() <= 0) {
-                StartGame.sound.playHitSound();
-                ball.invertXSpeed();
-            } else if (ball.getY() <= 150) {
-                StartGame.sound.playHitSound();
-                ball.invertYSpeed();
-            } else if(ball.getY() > flipper.getY() + 100) {
-                checkLifes();
-            } else if ((ball.getY() + redBall.getHeight()) > flipper.getY()) {
-                float ballX = ball.getX();
-                ballX += (float) redBall.getWidth() / 2;
-                if ((ballX > flipper.getX()) && (ballX < (flipper.getX() + flipperWidth))) {
-                    StartGame.sound.playHitSound();
-                    ball.invertYSpeed();
-                }
-            }
-        } else {
-            if (ball.getX() + redBall.getWidth() >= size.x) {
-                StartGame.sound.playHitSound();
-                ball.invertXSpeed();
-            } else if (ball.getX() <= 0) {
-                StartGame.sound.playHitSound();
-                ball.invertXSpeed();
-            } else if (ball.getY() <= 150) {
-                StartGame.sound.playHitSound();
-                ball.invertYSpeed();
-            } else if(ball.getY() > flipper.getY() + 100) {
-                checkLifes();
-            } else if ((ball.getY() + redBall.getHeight()) > flipper.getY()) {
-                float ballX = ball.getX();
-                ballX += (float) redBall.getWidth() / 2;
-                if ((ballX > flipper.getX()) && (ballX < (flipper.getX() + flipperWidth))) {
-                    StartGame.sound.playHitSound();
-                    ball.invertYSpeed();
-                }
-            }
-            if (ball_1.getX() + redBall.getWidth() >= size.x) {
-                StartGame.sound.playHitSound();
-                ball_1.invertXSpeed();
-            } else if (ball_1.getX() <= 0) {
-                StartGame.sound.playHitSound();
-                ball_1.invertXSpeed();
-            } else if (ball_1.getY() <= 150) {
-                StartGame.sound.playHitSound();
-                ball_1.invertYSpeed();
-            } else if(ball_1.getY() > flipper.getY() + 100) {
-                checkLifes();
-            } else if ((ball_1.getY() + redBall.getHeight()) > flipper.getY()) {
-                float ballX = ball_1.getX();
-                ballX += (float) redBall.getWidth() / 2;
-                if ((ballX > flipper.getX()) && (ballX < (flipper.getX() + flipperWidth))) {
-                    StartGame.sound.playHitSound();
-                    ball_1.invertYSpeed();
-                }
-            }
-            if (ball_2.getX() + redBall.getWidth() >= size.x) {
-                StartGame.sound.playHitSound();
-                ball_2.invertXSpeed();
-            } else if (ball_2.getX() <= 0) {
-                StartGame.sound.playHitSound();
-                ball_2.invertXSpeed();
-            } else if (ball_2.getY() <= 150) {
-                StartGame.sound.playHitSound();
-                ball_2.invertYSpeed();
-            } else if(ball_2.getY() > flipper.getY() + 100) {
-                checkLifes();
-            } else if ((ball_2.getY() + redBall.getHeight()) > flipper.getY()) {
-                float ballX = ball_2.getX();
-                ballX += (float) redBall.getWidth() / 2;
-                if ((ballX > flipper.getX()) && (ballX < (flipper.getX() + flipperWidth))) {
-                    StartGame.sound.playHitSound();
-                    ball_2.invertYSpeed();
-                }
-            }
-        }
     }
 
     // Controlla lo stato del gioco.
@@ -555,9 +456,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             }
             lifes--;
             StartGame.sound.playLostLife(); // Se l'utente perde una vita, attiva il suono relativo
-            ball.generateSpeed();
             ball.setCx((float) canvasWidth/2);
             ball.setCy(flipper.getY()-20);
+            ball.setDx(xSpeed);
+            ball.setDy(-ySpeed);
             start = false; // Inizializzo start a false, poichè l'utente non ha ancora "iniziato" a giocare
         }
     }
@@ -569,7 +471,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         if (start) {
             win(); // Controlla se l'utente ha vinto
 
-            if (ball.move(canvasWidth, canvasHeight)) {
+            if (ball.move(canvasWidth, canvasHeight, flipper, flipperWidth)) {
+                xSpeed = ball.getDx();
+                ySpeed = ball.getDy();
+                if (isCollideWithBrick(ball)) {
+                    score = score + 80;
+                }
             } else {
                 checkLifes();
             }
@@ -577,25 +484,25 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             // Controlla se l'utente ha preso un powerUp
             checkPowerUp(timer1Ended, powerUpGone, powerUpIsNotAlive);
 
-            // Prendo la lista dei mattoni e controllo se la palla ha colpito un mattone.
-            // Se sì, allora rimuovo il mattone dall'ArrayList e aggiorno lo score
-            // check collision with any brick
-            ball.collideWith(flipper, flipperWidth, flipperHeight);
-            if (isCollideWithBrick(ball)) {
-                score = score + 80;
-            }
-
             if (ballPowerUpTaken) {
-                ball_1.move(canvasWidth, canvasHeight);
-                ball_1.collideWith(flipper, flipperWidth, flipperHeight);
-                if (isCollideWithBrick(ball_1)) {
-                    score = score + 80;
+                if (!ball1NotVisible) {
+                    if (ball_1.move(canvasWidth, canvasHeight, flipper, flipperWidth)) {
+                        if (isCollideWithBrick(ball_1)) {
+                            score = score + 80;
+                        }
+                     } else {
+                        ball1NotVisible = true;
+                    }
                 }
 
-                ball_2.move(canvasWidth, canvasHeight);
-                ball_2.collideWith(flipper, flipperWidth, flipperHeight);
-                if (isCollideWithBrick(ball_2)) {
-                    score = score + 80;
+                if (!ball2NotVisible) {
+                    if (ball_2.move(canvasWidth, canvasHeight, flipper, flipperWidth)) {
+                        if (isCollideWithBrick(ball_2)) {
+                            score = score + 80;
+                        }
+                    } else {
+                        ball2NotVisible = true;
+                    }
                 }
             }
 
@@ -605,10 +512,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 StartGame.sound.playScoreSound();
                 p++;
             }
-
         }
-
-        invalidate();
     }
 
     // Il controllo sul powerUp, segue la stessa logica utilizzata per la generazione degli stessi.
@@ -637,6 +541,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                         numberOfPowerUpsTaken++;
                         ball_1 = new Ball(ball.getCx(), ball.getCy(), 20);
                         ball_2 = new Ball(ball.getCx(), ball.getCy(), 20);
+                        ball_1.setCx(ball.getCx());
+                        ball_1.setCy(ball.getCy());
+                        ball_2.setCx(ball.getCx());
+                        ball_2.setCy(ball.getCy());
                         ball_1.generateSpeed();
                         ball_2.generateSpeed();
                         score = score + 200;
@@ -721,11 +629,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         } else if (gameOver && !start) {
             score = 0;
             lifes = 3;
-            resetLevel();
             p = 1;
             gameOver = false;
             return false;
-        // In questo caso che l'utente vuole registrare il touch
+        // In questo caso l'utente vuole registrare il touch
         } else {
             final int action = event.getAction();
             // Nel caso in cui si rilevano dei movimenti (touch)
@@ -804,4 +711,5 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         canvasHeight = h;
         resetLevel();
     }
+
 }
