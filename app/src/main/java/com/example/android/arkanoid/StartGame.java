@@ -10,9 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 public class StartGame extends AppCompatActivity {
 
     private Game game;
-    private Handler updateHandler;
     public static Sound sound;
-    private UpdateThread myThread;
 
     public static Activity activity = null;
 
@@ -27,24 +25,8 @@ public class StartGame extends AppCompatActivity {
         game = new Game(this, 3, 0);
         setContentView(game);
 
-        // Crea un Gestore ed un Thread
-        CreateHandler();
-        myThread = new UpdateThread(updateHandler);
-        myThread.start();
-
         activity = this;
 
-    }
-
-    // Questo handler, permette di farmi runnare il gioco come un "Thread"
-    private void CreateHandler() {
-        updateHandler = new Handler() {
-            public void handleMessage(Message msg) {
-                game.invalidate();
-                game.update(); // Controllo lo status del gioco
-                super.handleMessage(msg);
-            }
-        };
     }
 
     // Metti in pausa il gioco
@@ -64,7 +46,6 @@ public class StartGame extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        myThread.threadSuspended = true;
     }
 
 }

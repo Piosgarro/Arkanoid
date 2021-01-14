@@ -10,7 +10,7 @@ public class Brick extends View {
     private Bitmap brick; // Contenitore per l'immagine del mattone
     private float x; // Posizione del mattone sull'asse orizzontale
     private float y; // Posizione del mattone sull'asse verticale
-    private int lifes; // Vita del Brcik
+    private int lifes; // Vita del Brick
 
     public Brick(Context context, float x, float y, int lifes) {
         super(context);
