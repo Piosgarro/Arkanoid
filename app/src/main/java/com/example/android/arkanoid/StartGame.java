@@ -3,14 +3,12 @@ package com.example.android.arkanoid;
 import android.app.Activity;
 import android.content.pm.ActivityInfo;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
-import android.support.v7.app.AppCompatActivity;
+
+import androidx.appcompat.app.AppCompatActivity;
 
 public class StartGame extends AppCompatActivity {
 
     private Game game;
-    public static Sound sound;
 
     public static Activity activity = null;
 
@@ -21,7 +19,6 @@ public class StartGame extends AppCompatActivity {
         // Imposta orientamento schermo
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
-        sound = new Sound(this);
         game = new Game(this, 3, 0);
         setContentView(game);
 

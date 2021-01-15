@@ -21,5 +21,4 @@ public class Flipper {
     public void setX(float x) {
         this.x = x;
     }
-
 }

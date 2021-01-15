@@ -1,5 +1,6 @@
 package com.example.android.arkanoid;
 
+import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
@@ -8,12 +9,15 @@ import java.util.Random;
 public class Ball {
 
     private float dx,dy;
-    private float cx;
-    private float cy;
+    private float cx, cy;
     private final float radius;
     private final Paint pen;
 
-    public Ball(float cx, float cy, float radius)
+    private final float A = (float) Math.toRadians(20);
+    private final float minA = (float) Math.toRadians(15);
+    private final float maxA = (float) Math.toRadians(85);
+
+    public Ball(float cx, float cy, float radius, Context context)
     {
         this.cx = cx;
         this.cy = cy;
@@ -21,6 +25,7 @@ public class Ball {
         this.dx = 0;
         this.dy = 0;
         this.pen = new Paint(Paint.ANTI_ALIAS_FLAG);
+        new Sound(context);
     }
 
     public void setCx(float cx) {
@@ -61,23 +66,48 @@ public class Ball {
         canvas.drawCircle(cx,cy,radius,pen);
     }
 
-    public boolean move(int w, int h, Flipper flipper, int flipperWidth) {
+    public boolean move(int w, int h, Flipper flipper, int flipperWidth, float vx) {
         this.cx+= dx;
         this.cy+= dy;
 
         // check if ball out of left or right side
-        if((cx-radius) <= 0 || (cx+radius) >= w) {
+        if ((cx-radius) <= 0 || (cx+radius) >= w) {
             dx = -dx;
-            StartGame.sound.playHitSound();
-            return true;
-        } else if((cy-radius) <= 145) { //up side
+            Sound.hitSound.start();
+        }
+        if ((cy-radius) <= 145) { //up side
             dy = -dy;
-            StartGame.sound.playHitSound();
-            return true;
-        } else if (cy+radius >= flipper.getY() && cy+radius <= (flipper.getY()+30) && cx-radius >= flipper.getX() && cx+radius <= (flipper.getX()+flipperWidth) && dy > 0) {
-            dy = -dy;
-            StartGame.sound.playHitSound();
-        } else return !(cy + radius >= h);
+            Sound.hitSound.start();
+        }
+        if (cy+radius >= flipper.getY() && cy+radius <= (flipper.getY()+30) && cx-radius >= flipper.getX() && cx+radius <= (flipper.getX()+flipperWidth) && dy > 0) {
+
+            // Rotate the ball movement vector according to flipper x velocity
+
+            // new angle
+            float angle = (float) Math.atan(dy/dx) - (vx/(1+Math.abs(vx)))*A;
+
+            // bound the angle between minA e maxA
+            if (dx > 0) {
+                if (angle > maxA) angle = maxA;
+                if (angle < minA) angle = minA;
+            } else {
+                if (angle < -maxA) angle = -maxA;
+                if (angle > -minA) angle = -minA;
+                angle += Math.PI;
+            }
+
+            // calculate and set the components of the new vector
+            float sin = (float) Math.sin(angle);
+            float cos = (float) Math.cos(angle);
+            float speed = (float) Math.sqrt(dx*dx + dy*dy);
+
+            dx = speed*cos;
+            dy = -speed*sin;
+
+            Sound.hitFlipper.start();
+        } else {
+            return !(cy - radius - 10 >= h);
+        }
 
         return true;
     }
@@ -107,7 +137,7 @@ public class Ball {
             } else {
                 dy = -dy;
             }
-            StartGame.sound.playHitSound();
+            Sound.hitSound.start();
             return true;
         }
         return false;
@@ -119,7 +149,7 @@ public class Ball {
         float y = powerup.getY() + 40 - cy;
 
         if (((x * x) + (y * y)) < (radius + 40) * (radius + 40)) {
-            StartGame.sound.playPowerUp();
+            Sound.hitPowerUp.start();
             return true;
         }
         return false;
@@ -141,11 +171,11 @@ public class Ball {
         float rangeX = maxX - minX + 1;
         float rangeY = maxY - minY + 1;
 
-        dx = ((float) ((Math.random() * rangeX) + minX)) * randomSign;
-        dy = ((float) (Math.random() * rangeY) + minY);
+        //dx = ((float) ((Math.random() * rangeX) + minX)) * randomSign;
+        //dy = ((float) (Math.random() * rangeY) + minY);
 
-        //dx = (float) 0.52;
-        //dy = (float) -0.52;
+        dx = (float) 8;
+        dy = (float) -8;
 
     }
 

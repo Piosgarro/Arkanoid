@@ -9,21 +9,29 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Insets;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.os.Build;
 import android.os.CountDownTimer;
-import android.support.v4.content.res.ResourcesCompat;
+import androidx.core.content.res.ResourcesCompat;
 import android.util.Log;
+import android.util.Size;
 import android.view.Display;
 import android.view.MotionEvent;
+import android.view.VelocityTracker;
 import android.view.View;
+import android.view.WindowInsets;
 import android.view.WindowManager;
+import android.view.WindowMetrics;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -50,10 +58,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     private final Flipper flipper;
 
+    private int deviceWidth = 0;
+    private int deviceHeight = 0;
+
     private final Paint paint;
     private final Paint textPaint;
-
-    private Point size;
+    private final Paint textPaint2;
 
     private PowerUp mIsPowerUp;
 
@@ -62,7 +72,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private final Sensor accelerometer;
     private final SensorManager sManager;
 
-    private final int flipperHeight;
+    private VelocityTracker mVelocityTracker = null;
+
+    private final int flipperHeight = 40;
+    private int flipperWidth = 150;
 
     private boolean gameOver;
     private boolean ignore;
@@ -80,27 +93,28 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private boolean ball1NotVisible;
     private boolean ball2NotVisible;
     private final boolean touchSensor;
-    private final float xFlipper;
-    private float xPowerUp;
     private float yPowerUp;
     private float xSpeed;
     private float ySpeed;
 
-    private int canvasWidth;
-    private int canvasHeight;
-    private int flipperWidth;
     private int level;
     private int lifes;
     private int numberOfPowerUpsTaken;
     private int p = 1;
+    private int count = 1;
     private int score;
     private long seconds;
     private int index;
+    private float xVelocity;
+
+    private float xDown;
+    private float xFlipperDown;
 
     public Game(Context context, int lifes, int score) {
         super(context);
         paint = new Paint();
         textPaint = new Paint();
+        textPaint2 = new Paint();
         rand = new Random();
 
         /*
@@ -131,19 +145,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         setBackground(context);
 
-        /*
-            Crea una nuova palla ed un nuovo flipper
-         */
-
         // Flipper
         flipperBit = BitmapFactory.decodeResource(getResources(), R.drawable.flipper);
-        xFlipper = (float) (size.x / 2) - 90; // Posizione del Flipper sull'asse orizzontale
-        float yFlipper = size.y - 390; // Posizione del Flipper sull'asse verticale
-        flipper = new Flipper(xFlipper , yFlipper);
-        flipperHeight = 40; // Scelgo la dimensione fissa dell'Height del Flipper che mi servirà in seguito
+        flipper = new Flipper((float) ((deviceWidth / 2) - 90), (deviceHeight - 390));
 
         // Palla
-        ball = new Ball((float) canvasWidth/2, flipper.getY()-20, 20);
+        ball = new Ball((float) deviceWidth/2, flipper.getY()-50, 20, context);
 
         // Secondi random per il contatore dei powerUp
         seconds = rand.nextInt(25000 - 7000 + 1) + 7000;
@@ -164,10 +171,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // ------------------------------------------------------------------------------------
         // Imposto questa "if" per evitare che un powerUp venga aggiunto nella stessa posizione di un
         // powerUp già presente.
+        float xPowerUp;
+        int min = 100;
+        int max = 750;
+        int s = 0;
+
         if (powerUpTakenAtLeastOneTime && numberOfPowerUpsTaken >= 1 || (powerUpSkippedAtThisLevel))  {
-            int min = 100;
-            int max = 750;
-            int s = 0;
             for (int i = 0; i < numberOfPowerUps; i++) {
                 xPowerUp = (int) (Math.random() * 950);
                 while (s == 0) {
@@ -179,9 +188,6 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 powerUpList.add(new PowerUp(context, xPowerUp, yPowerUp));
             }
         } else {
-            int min = 100;
-            int max = 750;
-            int s = 0;
             for (int i = 0; i < numberOfPowerUps; i++) {
                 xPowerUp = (int) (Math.random() * 950);
                 while (s == 0) {
@@ -194,19 +200,21 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             }
         }
         // define the range
-        int max = 2;
-        int min = 0;
-        int range = max - min + 1;
-        index = (int)(Math.random() * range) + min;
-        Log.d("D:","PowerUp Random Index: " + Integer.toString(index));
+        int maxRange = 2;
+        int minRange = 0;
+        int range = maxRange - minRange + 1;
+        index = (int)(Math.random() * range) + minRange;
+        Log.d("D:","PowerUp Random Index: " + (index));
         mIsPowerUp = powerUpList.get(index);
     }
 
     // Riempi la lista "brickList" con dei mattoni
     private void generateBricks(Context context) {
         int brickLifes;
-        if (level == 5) {
+
+        if (level >= 5 * count) {
             brickLifes = 3;
+            count++;
         } else {
             brickLifes = 1;
         }
@@ -221,10 +229,39 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // Imposta sfondo
     private void setBackground(Context context) {
         background = Bitmap.createBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.background));
-        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
-        Display display = wm.getDefaultDisplay();
-        size = new Point();
-        display.getSize(size); // Prendi le dimensione dello schermo
+        WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+
+        // Controlliamo l'SDK. Se è < 30 (R), allora prendo le dimensioni dello schermo
+        // attraverso le vecchie funzioni integrate prima dell'API 30.
+        if (android.os.Build.VERSION.SDK_INT < Build.VERSION_CODES.R) {
+
+            Point size = new Point();
+            Display display = windowManager.getDefaultDisplay();
+            display.getSize(size); // Prendi le dimensione dello schermo
+            deviceWidth = size.x;
+            deviceHeight = size.y;
+
+        } else { // Altrimenti utilizzo le funzioni dell'API >= 30.
+
+            final WindowMetrics wm = windowManager.getCurrentWindowMetrics();
+            Rect deviceScreen = wm.getBounds();
+
+            // Gets all excluding insets
+            final WindowInsets windowInsets = wm.getWindowInsets();
+            Insets insets = windowInsets.getInsetsIgnoringVisibility(WindowInsets.Type.navigationBars() | WindowInsets.Type.displayCutout());
+
+            int insetsWidth = insets.right + insets.left;
+            int insetsHeight = insets.top + insets.bottom;
+
+            // Legacy size that Display.getSize reports
+            final Size legacySize = new Size(deviceScreen.width() - insetsWidth,
+                    deviceScreen.height() - insetsHeight);
+
+            // Final device width & height
+            deviceWidth = legacySize.getWidth();
+            deviceHeight = legacySize.getHeight();
+        }
+
     }
 
     protected void onDraw(Canvas canvas) {
@@ -233,17 +270,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         // Imposta lo sfondo solamente una volta
         if (stretch == null) {
-            stretch = Bitmap.createScaledBitmap(background, size.x, size.y, false);
+            stretch = Bitmap.createScaledBitmap(background, deviceWidth, deviceHeight, false);
         }
         canvas.drawBitmap(stretch, 0, 0, paint); // Disegna il background sul Canvas
 
         // Disegna il flipper
         RectF FlipperRect = new RectF();
-        RectF r = new RectF();
-
-        // Margine per evitare che il Paddle tocchi il bordo del Canvas/View
-        // Si può impostare a 0, in modo tale che tocchi proprio il bordo del Canvas/View
-        final int canvasMargin = 5;
 
         // Scelgo la larghezza del Flipper in base al PowerUp
         if (flipperPowerUpTaken) {
@@ -267,35 +299,18 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             }
         }
 
-        // Calcolo il RectF del Flipper (ma attenzione - potrebbe essere fuori schermo, quindi devo correggerlo subito dopo)
-        FlipperRect.left = Math.max(canvasMargin, flipper.getX());
-        FlipperRect.right = FlipperRect.left + flipperWidth;
-
-        // Verifico, quindi, se sto uscendo fuori dallo schermo dalla parte destra
-        // Se sì, correggo la larghezza.
-        // Inoltre setto il Top e il Bottom
-        if (FlipperRect.right > (this.getWidth() - canvasMargin)) {
-            FlipperRect.left = (this.getWidth() - canvasMargin) - flipperWidth;
-            FlipperRect.right = FlipperRect.left + flipperWidth;
-        }
-
-        FlipperRect.top = Math.max(0, flipper.getY());
-        FlipperRect.bottom = FlipperRect.top + flipperHeight;
-
-        // Costruisco, infine, il Flipper
-        r.set(FlipperRect);
-
         // Se sto iniziando un nuovo livello, oppure sto iniziando da capo
         // imposto il Flipper nella posizione ottimale
         if (newGameStarted) {
-            flipper.setX(xFlipper);
+            flipper.setX((float) (deviceWidth / 2));
         }
 
-        canvas.drawBitmap(flipperBit, null, r, paint); // Disegna il Flipper sul Canvas
+        FlipperRect.set(flipper.getX(), flipper.getY(), flipper.getX()+flipperWidth, flipper.getY()+flipperHeight);
+        canvas.drawBitmap(flipperBit, null, FlipperRect, paint); // Disegna il Flipper sul Canvas
 
         // Disegna i mattoni sul Canvas, prendendo ogni oggetto dall'ArrayList
         // e assegnandoli un rettangolo dalle dimensioni specificate in generateBricks()
-        paint.setColor(Color.GREEN);
+        RectF r;
         for (int i = 0; i < brickList.size(); i++) {
             Brick b = brickList.get(i);
             r = new RectF(b.getX(), b.getY(), b.getX() + 100, b.getY() + 80);
@@ -349,6 +364,11 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         textPaint.setTextAlign(Paint.Align.CENTER);
         textPaint.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
 
+        textPaint2.setColor(RED);
+        textPaint2.setTextSize(80);
+        textPaint2.setTextAlign(Paint.Align.CENTER);
+        textPaint2.setTypeface(Typeface.create(candalFont, Typeface.ITALIC));
+
         // Scrivi "Livello: / Level: " nella posizione specificata
         canvas.drawText(getContext().getString(R.string.level) + level, ((float) getWidth() / 2), 80, textPaint);
 
@@ -372,6 +392,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         // Punteggio al centro dello schermo
         canvas.drawText("" + score, ((float) getWidth() / 2), 1370, textPaint);
+        canvas.drawText("" + xVelocity, ((float) getWidth() / 2), 900, textPaint);
+        canvas.drawText("" + xVelocity/(1+Math.abs(xVelocity)), ((float) getWidth() / 2), 1000, textPaint2);
+        canvas.drawText("DX: " + ball.getDx(), ((float) getWidth() / 2), 1100, textPaint2);
+        canvas.drawText("DY: " + ball.getDy(), ((float) getWidth() / 2), 1200, textPaint2);
 
         // Reimposto il boolean (riguardante se ho iniziato o meno un nuovo gioco) su falso,
         // poichè ci sto giocando.
@@ -409,7 +433,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         // Caso in cui hai perso
         if (lifes == 1) {
-            StartGame.sound.playLostLife(); // Se il gioco è finito, attiva il suono relativo
+            Sound.lostLife.start(); // Se il gioco è finito, attiva il suono relativo
 
             // Reimposto le variabili
             gameOver = true;
@@ -455,8 +479,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 ballPowerUpTaken = false;
             }
             lifes--;
-            StartGame.sound.playLostLife(); // Se l'utente perde una vita, attiva il suono relativo
-            ball.setCx((float) canvasWidth/2);
+            Sound.lostLife.start(); // Se l'utente perde una vita, attiva il suono relativo
+            ball.setCx((float) deviceWidth/2);
             ball.setCy(flipper.getY()-20);
             ball.setDx(xSpeed);
             ball.setDy(-ySpeed);
@@ -471,7 +495,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         if (start) {
             win(); // Controlla se l'utente ha vinto
 
-            if (ball.move(canvasWidth, canvasHeight, flipper, flipperWidth)) {
+            if (ball.move(deviceWidth, deviceHeight, flipper, flipperWidth, xVelocity)) {
                 xSpeed = ball.getDx();
                 ySpeed = ball.getDy();
                 if (isCollideWithBrick(ball)) {
@@ -486,7 +510,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
             if (ballPowerUpTaken) {
                 if (!ball1NotVisible) {
-                    if (ball_1.move(canvasWidth, canvasHeight, flipper, flipperWidth)) {
+                    if (ball_1.move(deviceWidth, deviceHeight, flipper, flipperWidth, xVelocity)) {
                         if (isCollideWithBrick(ball_1)) {
                             score = score + 80;
                         }
@@ -496,7 +520,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 }
 
                 if (!ball2NotVisible) {
-                    if (ball_2.move(canvasWidth, canvasHeight, flipper, flipperWidth)) {
+                    if (ball_2.move(deviceWidth, deviceHeight, flipper, flipperWidth, xVelocity)) {
                         if (isCollideWithBrick(ball_2)) {
                             score = score + 80;
                         }
@@ -509,7 +533,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             // Se l'utente ha raggiunto 1000/2000/3000/4000/x000 ecc.
             // attivo il suono relativo
             if (score >= 1000 * p) {
-                StartGame.sound.playScoreSound();
+                Sound.scoreSound.start();
                 p++;
             }
         }
@@ -539,8 +563,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                         powerUpTakenAtLeastOneTime = true;
                         powerUpIsNotAlive = true;
                         numberOfPowerUpsTaken++;
-                        ball_1 = new Ball(ball.getCx(), ball.getCy(), 20);
-                        ball_2 = new Ball(ball.getCx(), ball.getCy(), 20);
+                        ball_1 = new Ball(ball.getCx(), ball.getCy(), 20, context);
+                        ball_2 = new Ball(ball.getCx(), ball.getCy(), 20, context);
                         ball_1.setCx(ball.getCx());
                         ball_1.setCy(ball.getCy());
                         ball_2.setCx(ball.getCx());
@@ -592,8 +616,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
                 flipper.setX(flipper.getX() - event.values[0] - event.values[0]);
 
-                if (flipper.getX() + event.values[0] > size.x - 200) {
-                    flipper.setX(size.x - 200);
+                if (flipper.getX() + event.values[0] > deviceWidth - 200) {
+                    flipper.setX(deviceWidth - 200);
                 } else if (flipper.getX() - event.values[0] <= 10) {
                     flipper.setX(10);
                 }
@@ -620,6 +644,11 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // Serve a sospendere il gioco in caso di una nuova partita
     @Override
     public boolean onTouch(View v, MotionEvent event) {
+
+        int index = event.getActionIndex();
+        int action = event.getActionMasked();
+        int pointerId = event.getPointerId(index);
+
         // Se l'utente non vuole iniziare una nuova partita, allora il touch
         // non ci serve. Quindi ritorno subito.
         if (ignore) {
@@ -632,25 +661,52 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             p = 1;
             gameOver = false;
             return false;
-        // In questo caso l'utente vuole registrare il touch
-        } else {
-            final int action = event.getAction();
-            // Nel caso in cui si rilevano dei movimenti (touch)
-            // sull'asse x, prendo questo dato e lo imposto
-            // come il punto x del Flipper
-            if ((action & MotionEvent.ACTION_MASK) == MotionEvent.ACTION_MOVE) {
-                if (!touchSensor) { // Controllo della switch
-                    return false;
-                }
-                float x = event.getX();
-                // Se l'utente porta il dito oltre la posizione desiderata
-                // allora la impostiamo noi in modo tale che il Flipper non esca
-                if (x >= size.x - 202) {
-                    event.setLocation(size.x - 200, flipper.getY());
-                } else {
-                    flipper.setX(x);
-                }
+        } else { // In questo caso l'utente vuole registrare il touch
+            switch (action) {
+                case MotionEvent.ACTION_MOVE:
+                    if (mVelocityTracker == null) {
+                        // Retrieve a new VelocityTracker object to watch the
+                        // velocity of a motion.
+                        mVelocityTracker = VelocityTracker.obtain();
+                    } else {
+                        // Reset the velocity tracker back to its initial state.
+                        mVelocityTracker.clear();
+                    }
+                    mVelocityTracker.addMovement(event);
+                    // When you want to determine the velocity, call
+                    // computeCurrentVelocity(). Then call getXVelocity()
+                    // and getYVelocity() to retrieve the velocity for each pointer ID.
+                    mVelocityTracker.computeCurrentVelocity(3);
+                    // Log velocity of pixels per second
+                    // Best practice to use VelocityTrackerCompat where possible.
+                    xVelocity = mVelocityTracker.getXVelocity(pointerId);
+                    Log.d("", "X velocity: " + mVelocityTracker.getXVelocity(pointerId));
+
+                    // Nel caso in cui si rilevano dei movimenti (touch)
+                    // sull'asse x, prendo questo dato e lo imposto
+                    // come il punto x del Flipper
+                    if (!touchSensor) { // Controllo della switch
+                        return false;
+                    } else {
+                        float virtual_right_flipper = (xFlipperDown + (event.getX() - xDown));
+                        if (virtual_right_flipper + flipperWidth > deviceWidth) {
+                            flipper.setX(deviceWidth - flipperWidth);
+                        } else if (virtual_right_flipper < 0) {
+                            flipper.setX(0);
+                        } else {
+                            flipper.setX(virtual_right_flipper);
+                        }
+                    }
+                    break;
+                case MotionEvent.ACTION_DOWN:
+                    xDown = event.getX();
+                    xFlipperDown = flipper.getX();
+                    break;
+                case MotionEvent.ACTION_UP:
+                    xVelocity = 0;
+                    break;
             }
+
             start = true;
             ignore = false;
             return true;
@@ -660,7 +716,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // Imposta la partita per iniziare
     private void resetLevel() {
         ball.generateSpeed();
-        ball.setCx((float) canvasWidth/2);
+        ball.setCx((float) deviceWidth/2);
         ball.setCy(flipper.getY()-20);
         powerUpList = new ArrayList<>();
         brickList = new ArrayList<>();
@@ -696,7 +752,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // Se l'ArrayList dei mattoni è vuota, attivo il suono relativo,
         // aumento il livello, lo resetto, e imposto la partita per iniziare.
         if (brickList.isEmpty()) {
-            StartGame.sound.playWin();
+            Sound.winSound.start();
             ++level;
             resetLevel();
             ball.raiseSpeed(level);
@@ -707,8 +763,6 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     protected void onSizeChanged(int w, int h, int oldw, int oldh)
     {
         super.onSizeChanged(w, h, oldw, oldh);
-        canvasWidth = w;
-        canvasHeight = h;
         resetLevel();
     }
 

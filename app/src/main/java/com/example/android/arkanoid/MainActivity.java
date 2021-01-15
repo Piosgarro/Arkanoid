@@ -1,5 +1,6 @@
 package com.example.android.arkanoid;
 
+import android.annotation.SuppressLint;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
@@ -8,11 +9,12 @@ import android.content.pm.ActivityInfo;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.transition.Slide;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity {
         // Imposto il layout
         setContentView(R.layout.activity_main);
 
+        // Imposta la versione dell'App nel layout
+        setAppVersion();
+
         // Controllo lo stato della Switch tramite getSharedPreferences
         // @param save = Il nome della SharedPreferences
         // @param valueMusic = L'ID del Boolean della switch
@@ -77,6 +82,14 @@ public class MainActivity extends AppCompatActivity {
         frameAnimation.setExitFadeDuration(3000);
         frameAnimation.start();
 
+    }
+
+    @SuppressLint("SetTextI18n")
+    private void setAppVersion() {
+        int versionCode = BuildConfig.VERSION_CODE;
+        String versionName = BuildConfig.VERSION_NAME;
+        TextView appVersion = (TextView) findViewById(R.id.appVersion);
+        appVersion.setText(getString(R.string.appVersion) + versionName + "." + versionCode);
     }
 
     // Imposta la transizione
