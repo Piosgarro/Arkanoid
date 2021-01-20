@@ -3,6 +3,7 @@ package com.example.android.arkanoid;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.View;
 
@@ -17,6 +18,10 @@ public class PowerUp extends View {
         this.x = x;
         this.y = y;
         skin();
+    }
+
+    public PowerUp(Context context, AttributeSet attributeSet) {
+        super(context, attributeSet);
     }
 
     // Assegna una skin al powerup

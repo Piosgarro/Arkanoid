@@ -10,6 +10,8 @@ import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.os.PowerManager;
 import android.transition.Slide;
 import android.view.View;
 import android.view.animation.AccelerateDecelerateInterpolator;
@@ -30,9 +32,11 @@ public class MainActivity extends AppCompatActivity {
     public int lenght; // Punto preciso in cui si fermerà l'audio
     private int lenghtWhenPressBackButton;
     private int lenghtWhenPressHomeButton;
+    private int lenghtWhenScreenOff;
 
     private boolean gameStarted;
     private boolean settingStarted;
+    private boolean screenOff;
     private boolean userClickedHomeButton;
     private boolean userClickedBackButton;
     private static boolean musicSwitch;
@@ -86,10 +90,13 @@ public class MainActivity extends AppCompatActivity {
 
     @SuppressLint("SetTextI18n")
     private void setAppVersion() {
+
+        // Versione dell'App
         int versionCode = BuildConfig.VERSION_CODE;
         String versionName = BuildConfig.VERSION_NAME;
-        TextView appVersion = (TextView) findViewById(R.id.appVersion);
+        TextView appVersion = findViewById(R.id.appVersion);
         appVersion.setText(getString(R.string.appVersion) + versionName + "." + versionCode);
+
     }
 
     // Imposta la transizione
@@ -290,6 +297,12 @@ public class MainActivity extends AppCompatActivity {
                 startFadeIn();
                 mediaPlayer.start();
             }
+            if (screenOff) {
+                screenOff = false;
+                mediaPlayer.seekTo(lenghtWhenScreenOff);
+                startFadeIn();
+                mediaPlayer.start();
+            }
             if (mediaPlayer.isPlaying()) {
                 mediaPlayer.pause();
                 startFadeIn();
@@ -301,6 +314,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onPause() {
         super.onPause();
+
+        // If the screen is off then the device has been locked
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        boolean isScreenOn;
+        isScreenOn = powerManager.isInteractive();
+
+        if (!isScreenOn) {
+            screenOff = true;
+            mediaPlayer.pause(); // Pausa la musica
+            lenghtWhenScreenOff = mediaPlayer.getCurrentPosition(); // Conserva in che punto ho stoppato la musica
+        }
     }
 
 }

@@ -1,6 +1,5 @@
 package com.example.android.arkanoid;
 
-import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 
@@ -12,12 +11,14 @@ public class Ball {
     private float cx, cy;
     private final float radius;
     private final Paint pen;
+    private boolean status;
+    private final Float[] pastPositions = new Float[50];
 
     private final float A = (float) Math.toRadians(20);
     private final float minA = (float) Math.toRadians(15);
     private final float maxA = (float) Math.toRadians(85);
 
-    public Ball(float cx, float cy, float radius, Context context)
+    public Ball(float cx, float cy, float radius, boolean status)
     {
         this.cx = cx;
         this.cy = cy;
@@ -25,7 +26,14 @@ public class Ball {
         this.dx = 0;
         this.dy = 0;
         this.pen = new Paint(Paint.ANTI_ALIAS_FLAG);
-        new Sound(context);
+        this.status = status;
+        for (int i = 0; i < 50; i++) {
+            if (i % 2 == 0) {
+                pastPositions[i] = cx;
+            } else {
+                pastPositions[i] = cy;
+            }
+        }
     }
 
     public void setCx(float cx) {
@@ -60,55 +68,87 @@ public class Ball {
         return dy;
     }
 
-    public void draw(Canvas canvas, int color)
-    {
+    public boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(boolean status) {
+        this.status = status;
+    }
+
+    public void draw(Canvas canvas, int color) {
+
+        pastPositions[0] = cx;
+        pastPositions[1] = cy;
+
+        for (int i = 47; i >= 0; i--) {
+            pastPositions[i+2] = pastPositions[i];
+        }
+
         pen.setColor(color);
+        pen.setSubpixelText(true);
+        pen.setAntiAlias(true);
+
+        for (int i = 0; i < 50; i = i + 2) {
+
+            if (i > 30) {
+                canvas.drawCircle(pastPositions[i], pastPositions[i+1], (float) (radius-12-((i - 29) * 0.526)), pen);
+            } else {
+                canvas.drawCircle(pastPositions[i], pastPositions[i+1], radius-12, pen);
+            }
+        }
+
         canvas.drawCircle(cx,cy,radius,pen);
     }
 
     public boolean move(int w, int h, Flipper flipper, int flipperWidth, float vx) {
-        this.cx+= dx;
-        this.cy+= dy;
 
-        // check if ball out of left or right side
-        if ((cx-radius) <= 0 || (cx+radius) >= w) {
-            dx = -dx;
-            Sound.hitSound.start();
-        }
-        if ((cy-radius) <= 145) { //up side
-            dy = -dy;
-            Sound.hitSound.start();
-        }
-        if (cy+radius >= flipper.getY() && cy+radius <= (flipper.getY()+30) && cx-radius >= flipper.getX() && cx+radius <= (flipper.getX()+flipperWidth) && dy > 0) {
+        if (status) {
 
-            // Rotate the ball movement vector according to flipper x velocity
+            this.cx+= dx;
+            this.cy+= dy;
 
-            // new angle
-            float angle = (float) Math.atan(dy/dx) - (vx/(1+Math.abs(vx)))*A;
-
-            // bound the angle between minA e maxA
-            if (dx > 0) {
-                if (angle > maxA) angle = maxA;
-                if (angle < minA) angle = minA;
-            } else {
-                if (angle < -maxA) angle = -maxA;
-                if (angle > -minA) angle = -minA;
-                angle += Math.PI;
+            // check if ball out of left or right side
+            if ((cx-radius) <= 0 || (cx+radius) >= w) {
+                dx = -dx;
+                StartGame.sound.playHitSound();
             }
+            if ((cy-radius) <= 0) { //up side
+                dy = -dy;
+                StartGame.sound.playHitSound();
+            }
+            if (cy+radius >= flipper.getY() && cy+radius <= (flipper.getY()+30) && cx-radius >= flipper.getX() && cx+radius <= (flipper.getX()+flipperWidth) && dy > 0) {
 
-            // calculate and set the components of the new vector
-            float sin = (float) Math.sin(angle);
-            float cos = (float) Math.cos(angle);
-            float speed = (float) Math.sqrt(dx*dx + dy*dy);
+                // Rotate the ball movement vector according to flipper x velocity
 
-            dx = speed*cos;
-            dy = -speed*sin;
+                // new angle
+                float angle = (float) Math.atan(dy/dx) - (vx/(1+Math.abs(vx)))*A;
 
-            Sound.hitFlipper.start();
-        } else {
-            return !(cy - radius - 10 >= h);
+                // bound the angle between minA e maxA
+                if (dx > 0) {
+                    if (angle > maxA) angle = maxA;
+                    if (angle < minA) angle = minA;
+                } else {
+                    if (angle < -maxA) angle = -maxA;
+                    if (angle > -minA) angle = -minA;
+                    angle += Math.PI;
+                }
+
+                // calculate and set the components of the new vector
+                float sin = (float) Math.sin(angle);
+                float cos = (float) Math.cos(angle);
+                float speed = (float) Math.sqrt(dx*dx + dy*dy);
+
+                dx = speed*cos;
+                dy = -speed*sin;
+
+                StartGame.sound.playHitFlipper();
+            }
+            if( (cy - radius - 10) >= h ) {
+                    status = false;
+                    return false;
+            }
         }
-
         return true;
     }
 
@@ -118,15 +158,15 @@ public class Ball {
 
         if (cx < xBrick) {
             xBrick -= cx;
-        } else if (cx > (xBrick + 100)) {
-            xBrick = cx - (xBrick + 100);
+        } else if (cx > (xBrick + 152)) {
+            xBrick = cx - (xBrick + 152);
         } else {
             xBrick = 0;
         }
         if (cy < yBrick) {
             yBrick -= cy;
-        } else if (cy > (yBrick + 80)) {
-            yBrick = cy - (yBrick + 80);
+        } else if (cy > (yBrick + 66)) {
+            yBrick = cy - (yBrick + 66);
         } else {
             yBrick = 0;
         }
@@ -137,7 +177,7 @@ public class Ball {
             } else {
                 dy = -dy;
             }
-            Sound.hitSound.start();
+            StartGame.sound.playHitSound();
             return true;
         }
         return false;
@@ -149,7 +189,7 @@ public class Ball {
         float y = powerup.getY() + 40 - cy;
 
         if (((x * x) + (y * y)) < (radius + 40) * (radius + 40)) {
-            Sound.hitPowerUp.start();
+            StartGame.sound.playHitPowerUp();
             return true;
         }
         return false;
@@ -171,11 +211,8 @@ public class Ball {
         float rangeX = maxX - minX + 1;
         float rangeY = maxY - minY + 1;
 
-        //dx = ((float) ((Math.random() * rangeX) + minX)) * randomSign;
-        //dy = ((float) (Math.random() * rangeY) + minY);
-
-        dx = (float) 8;
-        dy = (float) -8;
+        dx = ((float) ((Math.random() * rangeX) + minX)) * randomSign;
+        dy = ((float) (Math.random() * rangeY) + minY);
 
     }
 

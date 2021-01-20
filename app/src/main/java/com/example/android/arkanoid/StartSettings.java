@@ -4,18 +4,19 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+
 import android.view.View;
-import android.widget.Switch;
 
 import java.util.Map;
 import java.util.Set;
 
 public class StartSettings extends AppCompatActivity implements SharedPreferences {
 
-    public static Switch touchSwitch;
-    public static Switch musicSwitch;
+    public static SwitchCompat touchSwitch;
+    public static SwitchCompat musicSwitch;
 
-    private MainActivity main = new MainActivity();
+    private final MainActivity main = new MainActivity();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +37,7 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
         SharedPreferences sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
 
         // Assegno la switch della musica alla variabile musicSwitch
-        musicSwitch = (Switch) findViewById(R.id.switchMusic);
+        musicSwitch = findViewById(R.id.switchMusic);
         musicSwitch.setChecked(sharedPreferences.getBoolean("valueMusic", true)); // Controllo lo stato della Switch
 
         musicSwitch.setOnClickListener(new View.OnClickListener() {
@@ -47,9 +48,9 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
                     SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
                     editor.putBoolean("valueMusic", true); // Imposto il valore "valueMusic" come True
                     editor.apply();
-                    main.mediaPlayer.pause(); // Metto in pausa la musica e la ri-avvio tramite un fade
+                    MainActivity.mediaPlayer.pause(); // Metto in pausa la musica e la ri-avvio tramite un fade
                     main.startFadeIn();
-                    main.mediaPlayer.start();
+                    MainActivity.mediaPlayer.start();
                     musicSwitch.setChecked(true);
                 } else {
                     //Switch non attiva
@@ -69,7 +70,7 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
         SharedPreferences sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
 
         // Assegno la switch del Touch alla variabile touchSwitch
-        touchSwitch = (Switch) findViewById(R.id.switchTouch);
+        touchSwitch = findViewById(R.id.switchTouch);
         touchSwitch.setChecked(sharedPreferences.getBoolean("valueTouch", true)); // Controllo lo stato della Switch
 
         touchSwitch.setOnClickListener(new View.OnClickListener() {

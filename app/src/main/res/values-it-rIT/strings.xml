@@ -8,11 +8,12 @@
     <string name="rankings">CLASSIFICA &#128081;</string>
     <string name="settings">IMPOSTAZIONI &#128295;</string>
     <string name="switchTouch">Touch</string>
-    <string name="level">"Livello: "</string>
+    <string name="level">"Livello "</string>
     <string name="touchToStart">Tocca per iniziare</string>
     <string name="gameOver">Game over!</string>
     <string name="startNewMatch">Vuoi iniziare una nuova partita?</string>
     <string name="yes">Sì</string>
     <string name="no">No</string>
     <string name="appVersion">"versione "</string>
+    <string name="music">Musica</string>
 </resources>

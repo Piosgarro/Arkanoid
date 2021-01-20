@@ -1,14 +1,18 @@
 package com.example.android.arkanoid;
 
 import android.app.Activity;
-import android.content.pm.ActivityInfo;
+import android.os.Build;
 import android.os.Bundle;
+import android.view.WindowInsets;
+import android.view.WindowInsetsController;
+import android.view.WindowManager;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class StartGame extends AppCompatActivity {
 
     private Game game;
+    public static Sound sound;
 
     public static Activity activity = null;
 
@@ -16,11 +20,22 @@ public class StartGame extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Imposta orientamento schermo
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-
+        sound = new Sound(this);
         game = new Game(this, 3, 0);
+
         setContentView(game);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            final WindowInsetsController controller = getWindow().getInsetsController();
+
+            if (controller != null)
+                controller.hide(WindowInsets.Type.statusBars());
+        }
+        else {
+            //noinspection deprecation
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
 
         activity = this;
 
@@ -39,10 +54,12 @@ public class StartGame extends AppCompatActivity {
     }
 
     // Se premo indietro, mentre sto giocando, significa che l'utente vuole chiudere
-    // la partita in corso, quindi stoppo il Thread relativo al gioco
+    // la partita in corso, quindi stoppo l'Activity relativo al gioco
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        sound.release();
+        game.interruptGame();
+        finish();
     }
-
 }
