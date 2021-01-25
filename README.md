@@ -20,12 +20,12 @@ __________________________________________________________________
 - Introdurre almeno una variante di gameplay (mattoni che si comportano in modi particolari, armi, ecc...) :warning:
 - Dare nuova struttura della app: splash-screen iniziale, sezione per le opzioni, una per i punteggi, ...  :warning:
 - Introdurre almeno un sistema di controllo alternativo (touch, slider, virtual gamepad, ..) :white_check_mark:	
-- Introdurre livelli di difficoltà (oltre a quello base già presente relativo alla velocità della pallina)
+- Introdurre livelli di difficoltà (oltre a quello base già presente relativo alla velocità della pallina) :white_check_mark:
 - Creare una modalità multiplayer (livello di complessità libero, anche asincrona o non massiva)
 - Fornire un editor di livelli (struttura, difficoltà, ecc) con possibilità di salvare/caricare
-- Introdurre il comparto audio (usare collezioni open source e indicare quale nella documentazione) :white_check_mark:
 - Gestire una classifica che permetta di condividere i punteggi con servizi o app esterne
-- Permettere il gioco anche in modalità ‘landscape’
+- Introdurre il comparto audio (usare collezioni open source e indicare quale nella documentazione) :white_check_mark:
+- Permettere il gioco anche in modalità ‘landscape’ :white_check_mark:
 - Fornire supporto multilingua :white_check_mark:
 - Varie ed eventuali (nuova grafica, ecc) :white_check_mark:
 

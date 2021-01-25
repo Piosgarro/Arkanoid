@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.Paint;
 import android.graphics.Point;
@@ -46,10 +45,14 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private ArrayList<PowerUp> powerUpList;
 
     private Bitmap background;
+    private Bitmap flipperBit;
     private Bitmap stretch;
 
     private CountDownTimer flipperPowerDownTimer;
     private CountDownTimer flipperPowerUpTimer;
+    private CountDownTimer laserPowerUpTimer;
+
+    private Flipper flipper;
 
     private PowerUp mIsPowerUp;
 
@@ -60,6 +63,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private boolean flipperPowerUpTaken;
     private boolean gameOver;
     private boolean ignore;
+    private boolean laserPowerUpTaken;
     private boolean powerUpGone;
     private boolean powerUpIsNotAlive;
     private boolean powerUpSkippedAtThisLevel;
@@ -69,11 +73,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private boolean threadAlive = true;
     private boolean timer1Ended;
 
-    private final Bitmap flipperBit;
-
     private final Context context;
-
-    private final Flipper flipper;
 
     private final Paint levelText;
     private final Paint life;
@@ -93,20 +93,22 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     private final Thread thread = new Thread();
 
+    private float scale;
     private float xDown;
     private float xFlipperDown;
     private float xSpeed;
     private float xVelocity;
     private float yPowerUp;
     private float ySpeed;
-    
+
     private final int flipperHeight = 40;
+    private int flipperWidth = 200;
+
     private int ballsActive = 1;
     private int brickLifes = 1;
     private int count = 1;
     private int deviceHeight = 0;
     private int deviceWidth = 0;
-    private int flipperWidth = 150;
     private int index;
     private int level;
     private int lifes;
@@ -153,10 +155,6 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         setBackground(context);
 
-        // Flipper
-        flipperBit = BitmapFactory.decodeResource(getResources(), R.drawable.flipper);
-        flipper = new Flipper((float) ((deviceWidth / 2) - 90), (deviceHeight - 300));
-
         // Secondi random per il contatore dei powerUp
         seconds = rand.nextInt(25000 - 7000 + 1) + 7000;
 
@@ -166,20 +164,26 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     }
 
+    private void generateFlipper() {
+        // Flipper
+        flipperBit = BitmapFactory.decodeResource(getResources(), R.drawable.flipper);
+        flipper = new Flipper((float) (deviceWidth / 2) - (float) (flipperWidth/2), (deviceHeight - 300 * scale));
+    }
+
     // Riempi la lista "ballsArrayList" con 3 palline
     private void generateBalls() {
        for (int i = 0; i < 3; i++) {
             if (i == 0) {
-                ballArrayList.add(new Ball((float) deviceWidth/2, flipper.getY()-50, 20, true));
+                ballArrayList.add(new Ball((float) deviceWidth/2, flipper.getY()-50, 20 * scale, true));
             } else {
-                ballArrayList.add(new Ball((float) deviceWidth/2, flipper.getY()-50, 20, false));
+                ballArrayList.add(new Ball((float) deviceWidth/2, flipper.getY()-50, 20 * scale, false));
             }
         }
     }
 
     // Riempi la lista "powerUpList" con dei powerup
     private void generatePowerUps() {
-        int numberOfPowerUps = 3; // Numero dei PowerUp
+        int numberOfPowerUps = 4; // Numero dei PowerUp
 
         powerUpList.clear(); // Svuotiamo l'eventuale ArrayList
 
@@ -280,6 +284,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             // Final device width & height
             deviceWidth = legacySize.getWidth();
             deviceHeight = legacySize.getHeight();
+
+            if (deviceWidth < deviceHeight) {
+                scale = (float) deviceWidth / 1080;
+            } else {
+                scale = (float) deviceHeight / 1080;
+            }
         }
 
         // Disegna il testo
@@ -308,7 +318,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     }
 
-    protected void onDraw(Canvas canvas) {
+    protected void onDraw(final Canvas canvas) {
 
         super.onDraw(canvas);
 
@@ -336,7 +346,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             }
         }
 
-        flipperRect.set(flipper.getX(), flipper.getY(), flipper.getX()+flipperWidth, flipper.getY()+flipperHeight);
+        flipperRect.set(flipper.getX(), flipper.getY(), flipper.getX() + flipperWidth, flipper.getY() + flipperHeight);
         canvas.drawBitmap(flipperBit, null, flipperRect, paint); // Disegna il Flipper sul Canvas
 
         // Disegna i mattoni sul Canvas, prendendo ogni oggetto dall'ArrayList
@@ -465,6 +475,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                     StartGame.activity.finish();
                     Intent intent = new Intent(context,StartGame.class)
                             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    intent.putExtra("orientation", StartGame.orientation);
                     context.startActivity(intent);
                 }
             });
@@ -589,8 +600,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
                         score += 200;
                         ballsActive = 3;
-
-                    } else {
+                    } else if (powerUpImage.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.power_up_2))) {
                         powerUpList.remove(index);
                         powerUpTakenAtLeastOneTime = true;
                         powerUpIsNotAlive = true;
@@ -604,6 +614,22 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                             public void onFinish() {
                                 ticks = 0;
                                 flipperPowerDownTaken = false;
+                            }
+                        }.start();
+                    } else {
+                        powerUpList.remove(index);
+                        powerUpTakenAtLeastOneTime = true;
+                        powerUpIsNotAlive = true;
+                        numberOfPowerUpsTaken++;
+                        score += 200;
+                        laserPowerUpTimer = new CountDownTimer(10000, 1000) {
+                            public void onTick(long millisUntilFinished) {
+                                --ticks;
+                                laserPowerUpTaken = true;
+                            }
+                            public void onFinish() {
+                                ticks = 0;
+                                laserPowerUpTaken = false;
                             }
                         }.start();
                     }
@@ -731,6 +757,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         brickList = new ArrayList<>();
         ballArrayList = new ArrayList<>();
         ballsActive = 1;
+        generateFlipper();
         generateBricks();
         generatePowerUps();
         generateBalls();
@@ -741,6 +768,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         if (flipperPowerDownTaken) {
             flipperPowerDownTimer.cancel();
             flipperPowerDownTaken = false;
+        }
+        if (laserPowerUpTaken) {
+            laserPowerUpTimer.cancel();
+            laserPowerUpTaken = false;
         }
         ballArrayList.get(0).generateSpeed();
         ballArrayList.get(0).setCx((float) deviceWidth/2);
@@ -778,8 +809,18 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
+
         deviceWidth = w;
         deviceHeight = h;
+
+        if (deviceWidth < deviceHeight) {
+            scale = (float) deviceWidth / 1080;
+        } else {
+            scale = (float) deviceHeight / 1080;
+        }
+
+        Log.d("DEBUG", "Scale in onSizeChanged: " + scale);
+
     }
 
     @Override

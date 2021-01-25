@@ -24,7 +24,7 @@ public class Sound {
                 .build();
         soundPool = new SoundPool.Builder()
                 .setAudioAttributes(audioAttributes)
-                .setMaxStreams(2)
+                .setMaxStreams(5)
                 .build();
 
         // Assegno il suono delle varie "action", alle variabili consone

@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
     private int lenghtWhenPressBackButton;
     private int lenghtWhenPressHomeButton;
     private int lenghtWhenScreenOff;
+    private int orientation;
 
     private boolean gameStarted;
     private boolean settingStarted;
@@ -44,9 +45,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-        // Imposta orientamento schermo
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         // Setta l'animazione prima di impostare il layout
         setAnimation();
@@ -85,6 +83,8 @@ public class MainActivity extends AppCompatActivity {
         frameAnimation.setEnterFadeDuration(1000);
         frameAnimation.setExitFadeDuration(3000);
         frameAnimation.start();
+
+        orientation = this.getResources().getConfiguration().orientation;
 
     }
 
@@ -125,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Avvia la nuova attività attraverso un fade
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this);
+        i.putExtra("orientation", orientation);
         startActivity(i, options.toBundle());
 
     }

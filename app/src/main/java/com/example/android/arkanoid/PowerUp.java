@@ -20,6 +20,7 @@ public class PowerUp extends View {
         skin();
     }
 
+    // Necessario per rimuovere il warning sul costruttore
     public PowerUp(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
     }
@@ -27,8 +28,8 @@ public class PowerUp extends View {
     // Assegna una skin al powerup
     private void skin() {
         // Random da 0 a 2
-        int a = (int) (Math.random() * 3);
-        Log.d("D:","PowerUp Number: " + Integer.toString(a));
+        int a = (int) (Math.random() * 4);
+        Log.d("D","PowerUp Number: " + a);
         switch (a) {
             case 0:
                 powerup = BitmapFactory.decodeResource(getResources(), R.drawable.power_up_0);
@@ -38,6 +39,9 @@ public class PowerUp extends View {
                 break;
             case 2:
                 powerup = BitmapFactory.decodeResource(getResources(), R.drawable.power_up_2);
+                break;
+            case 3:
+                powerup = BitmapFactory.decodeResource(getResources(), R.drawable.power_up_3);
                 break;
         }
     }

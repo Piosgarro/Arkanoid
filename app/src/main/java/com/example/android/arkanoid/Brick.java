@@ -21,6 +21,7 @@ public class Brick extends View {
         skin(randomSkin);
     }
 
+    // Necessario per rimuovere il warning sul costruttore
     public Brick(Context context, AttributeSet attributeSet) {
         super(context, attributeSet);
     }

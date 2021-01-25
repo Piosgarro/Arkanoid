@@ -1,6 +1,8 @@
 package com.example.android.arkanoid;
 
 import android.app.Activity;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.WindowInsets;
@@ -12,13 +14,23 @@ import androidx.appcompat.app.AppCompatActivity;
 public class StartGame extends AppCompatActivity {
 
     private Game game;
-    public static Sound sound;
-
+    
     public static Activity activity = null;
+    public static Sound sound;
+    public static int orientation = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Bundle bundle = getIntent().getExtras();
+        orientation = bundle.getInt("orientation");
+
+        if (orientation == Configuration.ORIENTATION_PORTRAIT) {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        } else {
+            setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+        }
 
         sound = new Sound(this);
         game = new Game(this, 3, 0);

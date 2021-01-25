@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Arkanoid</string>
     <string name="creditsOriginal">Developed by Ľudovít Laca</string>
-    <string name="divider">___________________</string>
+    <string name="divider">____________________________</string>
     <string name="creditsRevamped">Revamped by GAMP Team</string>
     <string name="buttonGame">PLAY &#127918;</string>
     <string name="rankings">RANKINGS &#128081;</string>

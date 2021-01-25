@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+<LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
@@ -14,59 +14,44 @@
 
         <TextView
             android:id="@+id/appName"
-            android:layout_width="match_parent"
-            android:layout_height="111dp"
+            android:layout_width="wrap_content"
+            android:layout_height="110dp"
+            android:layout_gravity="center_horizontal"
             android:fontFamily="@font/arkanoid"
             android:text="@string/app_name"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="50sp" />
 
-        <androidx.cardview.widget.CardView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_margin="@dimen/card_margin"
-            app:cardCornerRadius="@dimen/card_corner_radius"
-            app:cardElevation="2dp">
+    <androidx.cardview.widget.CardView
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_margin="@dimen/card_margin"
+        app:cardCornerRadius="@dimen/card_corner_radius"
+        app:cardElevation="2dp">
 
-            <include layout="@layout/card_contents_1" />
+        <include layout="@layout/card_contents_1" />
 
-        </androidx.cardview.widget.CardView>
-
-        <TextView
-            android:id="@+id/creditsOriginal"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/creditsOriginal"
-            android:textAlignment="center"
-            android:textColor="#FFFFFF"
-            android:textSize="20sp" />
+    </androidx.cardview.widget.CardView>
 
         <TextView
             android:id="@+id/divider"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:rotationX="74"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginBottom="10dp"
             android:text="@string/divider"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
-            android:textSize="20sp" />
-
-        <TextView
-            android:id="@+id/creditsRevamped"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/creditsRevamped"
-            android:textAlignment="center"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp"
-            android:textStyle="italic" />
+            android:textSize="13sp"
+            android:textStyle="bold" />
 
         <TextView
             android:id="@+id/appVersion"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_gravity="center_horizontal"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
             android:textSize="13sp"

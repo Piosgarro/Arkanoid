@@ -13,6 +13,7 @@ public class Ball {
     private final Paint pen;
     private boolean status;
     private final Float[] pastPositions = new Float[50];
+    private final Float[] trailshape = new Float[25];
 
     private final float A = (float) Math.toRadians(20);
     private final float minA = (float) Math.toRadians(15);
@@ -27,12 +28,18 @@ public class Ball {
         this.dy = 0;
         this.pen = new Paint(Paint.ANTI_ALIAS_FLAG);
         this.status = status;
+
         for (int i = 0; i < 50; i++) {
             if (i % 2 == 0) {
                 pastPositions[i] = cx;
             } else {
                 pastPositions[i] = cy;
             }
+        }
+
+        for (int i = 0; i < 25; i++) {
+            float t = (float) i/25;
+            trailshape[i] = (1 - t) * (1 - t) * radius;
         }
     }
 
@@ -90,12 +97,7 @@ public class Ball {
         pen.setAntiAlias(true);
 
         for (int i = 0; i < 50; i = i + 2) {
-
-            if (i > 30) {
-                canvas.drawCircle(pastPositions[i], pastPositions[i+1], (float) (radius-12-((i - 29) * 0.526)), pen);
-            } else {
-                canvas.drawCircle(pastPositions[i], pastPositions[i+1], radius-12, pen);
-            }
+            canvas.drawCircle(pastPositions[i], pastPositions[i+1], trailshape[i/2] , pen);
         }
 
         canvas.drawCircle(cx,cy,radius,pen);
