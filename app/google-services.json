@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "899139312093",
+    "firebase_url": "https://arkanoid-349f2-default-rtdb.firebaseio.com",
+    "project_id": "arkanoid-349f2",
+    "storage_bucket": "arkanoid-349f2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:899139312093:android:6353c018f2ced4242c3e34",
+        "android_client_info": {
+          "package_name": "com.example.android.arkanoid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "899139312093-9k72ma22pea19hn1i54044urp1psvl8p.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDRBbYg4a6R86sxrsyu_MJGkFNdc0WnnUc"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "899139312093-9k72ma22pea19hn1i54044urp1psvl8p.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -32,9 +32,17 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowMetrics;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import java.util.ArrayList;
 import java.util.Random;
 
+import static android.content.Context.MODE_PRIVATE;
 import static android.graphics.Color.RED;
 import static android.graphics.Color.WHITE;
 
@@ -91,6 +99,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private final Sensor accelerometer;
     private final SensorManager sManager;
 
+    private final SharedPreferences mPrefs;
+
     private final Thread thread = new Thread();
 
     private float scale;
@@ -101,8 +111,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private float yPowerUp;
     private float ySpeed;
 
-    private final int flipperHeight = 40;
-    private int flipperWidth = 200;
+    private final float flipperHeight;
+    private float flipperWidth;
+    public static float brickHeight;
+    public static float brickWidth;
 
     private int ballsActive = 1;
     private int brickLifes = 1;
@@ -117,8 +129,9 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private int score;
     private int ticks = 10;
     private long seconds;
+    private final int orientation;
 
-    public Game(Context context, int lifes, int score) {
+    public Game(Context context, int lifes, int score, int orientation) {
         super(context);
         paint = new Paint();
         life = new Paint();
@@ -137,6 +150,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         this.context = context;
         this.lifes = lifes;
         this.score = score;
+        this.orientation = orientation;
         level = 0;
 
         // Imposto il gameOver se il gioco è finito o se il giocatore ha perso
@@ -150,10 +164,17 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // Controllo lo stato della Switch sul Touch tramite getSharedPreferences
         // @param save = Il nome della SharedPreferences
         // @param valueTouch = L'ID del Boolean della switch
-        SharedPreferences mPrefs = context.getSharedPreferences("save", 0);
+        mPrefs = context.getSharedPreferences("save", 0);
         touchSensor = mPrefs.getBoolean("valueTouch", true);
 
+        getSizeAndScale();
         setBackground(context);
+
+        flipperHeight = 40 * scale;
+        flipperWidth = 200 * scale;
+
+        brickHeight = 60 * scale;
+        brickWidth = 150 * scale;
 
         // Secondi random per il contatore dei powerUp
         seconds = rand.nextInt(25000 - 7000 + 1) + 7000;
@@ -167,7 +188,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private void generateFlipper() {
         // Flipper
         flipperBit = BitmapFactory.decodeResource(getResources(), R.drawable.flipper);
-        flipper = new Flipper((float) (deviceWidth / 2) - (float) (flipperWidth/2), (deviceHeight - 300 * scale));
+        flipper = new Flipper((float) (deviceWidth / 2) - (flipperWidth/2), (deviceHeight - 300 * scale));
     }
 
     // Riempi la lista "ballsArrayList" con 3 palline
@@ -238,21 +259,20 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             count++;
         }
 
-        int randomHue = rand.nextInt(9);
+        int hue = rand.nextInt(9);
+        int palette = rand.nextInt(3) + 2;
 
-        float dividedScreenWidth = (float) deviceWidth / 5;
+        float columnSize = (float) deviceWidth / 5;
 
         for (int i = 3; i < 7; i++) {
             for (int j = 0; j < 5; j++) {
-                int randomSkin = (9 + randomHue + (rand.nextInt(3) - 1)) % 9;
-                brickList.add(new Brick(context, (((dividedScreenWidth * (j+1)) +  (dividedScreenWidth * j)) / 2) - 76, i * 100, brickLifes, randomSkin));
+                int skin = (hue + rand.nextInt(palette)) % 9;
+                brickList.add(new Brick(context, j*columnSize+(columnSize-brickWidth)/2, i * 100 * scale, brickLifes, skin));
             }
         }
     }
 
-    // Imposta sfondo & testo
-    private void setBackground(Context context) {
-        background = Bitmap.createBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.background));
+    private void getSizeAndScale() {
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
         // Controlliamo l'SDK. Se è < 30 (R), allora prendo le dimensioni dello schermo
@@ -284,6 +304,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             // Final device width & height
             deviceWidth = legacySize.getWidth();
             deviceHeight = legacySize.getHeight();
+        }
 
             if (deviceWidth < deviceHeight) {
                 scale = (float) deviceWidth / 1080;
@@ -291,6 +312,10 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 scale = (float) deviceHeight / 1080;
             }
         }
+
+        // Imposta sfondo & testo
+        private void setBackground(Context context) {
+        background = Bitmap.createBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.background));
 
         // Disegna il testo
         Typeface titiliumFont = ResourcesCompat.getFont(context, R.font.titilium_regular);
@@ -331,12 +356,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // Disegna il flipper scegliendo la sua larghezza
         // in base al PowerUp
         if (flipperPowerUpTaken) {
-            flipperWidth = 350;
+            flipperWidth = 350 * scale;
         }
         else if (flipperPowerDownTaken) {
-            flipperWidth = 150;
+            flipperWidth = 150 * scale;
         } else {
-            flipperWidth = 200;
+            flipperWidth = 200 * scale;
         }
 
         for (int i = 0; i < ballArrayList.size(); i++) {
@@ -353,7 +378,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // e assegnandoli un rettangolo dalle dimensioni specificate in generateBricks()
         for (int i = 0; i < brickList.size(); i++) {
             Brick b = brickList.get(i);
-            brickRect.set(b.getX(), b.getY(), b.getX() + 152, b.getY() + 66);
+            brickRect.set(b.getX(), b.getY(), b.getX() + brickWidth, b.getY() + brickHeight);
             canvas.drawBitmap(b.getBrick(), null, brickRect, paint);
         }
 
@@ -396,7 +421,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         //canvas.drawText("" + xVelocity/(1+Math.abs(xVelocity)), ((float) getWidth() / 2), 1000, textPaint2);
         //canvas.drawText("DX: " + ballArrayList.get(0).getDx(), ((float) getWidth() / 2), 1100, textPaint2);
         //canvas.drawText("DY: " + ballArrayList.get(0).getDy(), ((float) getWidth() / 2), 1200, textPaint2);
-        canvas.drawText(String.valueOf(score), ((float) deviceWidth / 2), 1370, scoreText); // Punteggio al centro dello schermo
+        canvas.drawText("" + score, ((float) deviceWidth / 2), 1370, scoreText); // Punteggio al centro dello schermo
         canvas.drawText(getContext().getString(R.string.level) + level, 40, 120, levelText); // Scrivi "Livello: / Level: " nella posizione specificata
 
         // In base a quante vite ho al momento, scrivi 3, 2 o 1 cuore nella posizione specificata
@@ -424,16 +449,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     public boolean isCollideWithBrick(Ball ball) {
         for (int i = 0; i < brickList.size(); i++) {
             Brick currentBrick = brickList.get(i);
-            int brickLife = currentBrick.getLifes();
 
             if (ball.collideWith(currentBrick)) {
-                if (brickLife == 1) {
+                if (currentBrick.loselife(1)) {
                     brickList.remove(i);
                 } else {
-                    currentBrick.setLifes(--brickLife);
-                    if (brickLife < 3) {
-                        currentBrick.setImage(brickLife);
-                    }
+                    currentBrick.skin();
                 }
                 return true;
             }
@@ -450,6 +471,32 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         if (lifes == 1) {
             --lifes;
             StartGame.sound.playLostLife(); // Se il gioco è finito, attiva il suono relativo
+
+            int scoreGame = mPrefs.getInt("Score", 0);
+
+            if (score > scoreGame) {
+                // Cambio il valore score con quello più aggiornato
+                SharedPreferences.Editor editor = context.getSharedPreferences("save", MODE_PRIVATE).edit();
+                editor.putInt("Score", score);
+                editor.apply();
+
+                // Get Firebase user
+                FirebaseAuth mAuth = FirebaseAuth.getInstance();
+                FirebaseUser user = mAuth.getCurrentUser();
+
+                // Get GoogleAcc user
+                GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getContext());
+                if (account != null && user != null) {
+                    String personEmail = account.getEmail(); //Get user email
+                    String personName = account.getDisplayName(); //Get user name
+
+                    // Get reference to our Firebase db and write into it
+                    DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference();
+                    rootRef.child("Users").child(user.getUid()).child("Email").setValue(personEmail);
+                    rootRef.child("Users").child(user.getUid()).child("Name").setValue(personName);
+                    rootRef.child("Users").child(user.getUid()).child("Score").setValue(score);
+                }
+            }
 
             // Reimposto le variabili
             gameOver = true;
@@ -475,7 +522,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                     StartGame.activity.finish();
                     Intent intent = new Intent(context,StartGame.class)
                             .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    intent.putExtra("orientation", StartGame.orientation);
+                    intent.putExtra("orientation", orientation);
                     context.startActivity(intent);
                 }
             });

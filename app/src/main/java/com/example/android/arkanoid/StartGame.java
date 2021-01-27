@@ -33,7 +33,7 @@ public class StartGame extends AppCompatActivity {
         }
 
         sound = new Sound(this);
-        game = new Game(this, 3, 0);
+        game = new Game(this, 3, 0, orientation);
 
         setContentView(game);
 

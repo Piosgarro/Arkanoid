@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.util.Log;
+import android.view.MotionEvent;
+import android.view.View;
 import android.view.WindowInsets;
 import android.view.WindowInsetsController;
 import android.view.WindowManager;
@@ -15,9 +17,12 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class SplashScreen extends AppCompatActivity {
+import static java.lang.Thread.sleep;
 
-    private Handler handler1 = new Handler(Looper.getMainLooper());
+public class SplashScreen extends AppCompatActivity implements View.OnTouchListener {
+
+    private final Handler handler1 = new Handler(Looper.getMainLooper());
+    private boolean isSplashRunning = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,10 +56,45 @@ public class SplashScreen extends AppCompatActivity {
         handler1.postDelayed(new Runnable() {
             @Override
             public void run() {
-                Intent i = new Intent(SplashScreen.this, MainActivity.class);
-                startActivity(i);
-                finish();
+                try {
+                    sleep(0);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if (isSplashRunning) {
+                        Log.d("DEBUG", "Finishing splash activity from Thread");
+                        Intent i = new Intent(SplashScreen.this, MainActivity.class);
+                        startActivity(i);
+                        finish();
+                    }
+                }
             }
         }, 3000);
     }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+            Log.d("DEBUG", "Finishing splash activity because User touched the screen");
+            isSplashRunning = false; //or in onPause
+            Intent i = new Intent(SplashScreen.this, MainActivity.class);
+            startActivity(i);
+            finish();
+        }
+        return super.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        v.performClick();
+        return false;
+    }
+
+    @Override
+    protected void onPause() {
+        isSplashRunning = false;
+        super.onPause();
+        finish();
+    }
+
 }

@@ -5,7 +5,6 @@ import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.ActivityInfo;
 import android.graphics.drawable.AnimationDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -126,6 +125,35 @@ public class MainActivity extends AppCompatActivity {
         // Avvia la nuova attività attraverso un fade
         ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this);
         i.putExtra("orientation", orientation);
+        startActivity(i, options.toBundle());
+
+    }
+
+    public void startProfile(View v){
+
+        // Boolean
+        settingStarted = true;
+
+        //Instanzia una nuova attività
+        Intent i = new Intent(MainActivity.this, Profile.class);
+
+        // Avvia la nuova attività attraverso un fade
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this);
+        i.putExtra("orientation", orientation);
+        startActivity(i, options.toBundle());
+
+    }
+
+    public void startRankings(View v){
+
+        // Boolean
+        settingStarted = true;
+
+        //Instanzia una nuova attività
+        Intent i = new Intent(MainActivity.this, Rankings.class);
+
+        // Avvia la nuova attività attraverso un fade
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(MainActivity.this);
         startActivity(i, options.toBundle());
 
     }

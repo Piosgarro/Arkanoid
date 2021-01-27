@@ -12,13 +12,15 @@ public class Brick extends View {
     private float x; // Posizione del mattone sull'asse orizzontale
     private float y; // Posizione del mattone sull'asse verticale
     private int lifes; // Vita del Brick
+    private int color;
 
-    public Brick(Context context, float x, float y, int lifes, int randomSkin) {
+    public Brick(Context context, float x, float y, int lifes, int color) {
         super(context);
         this.x = x;
         this.y = y;
         this.lifes = lifes;
-        skin(randomSkin);
+        this.color = color;
+        skin();
     }
 
     // Necessario per rimuovere il warning sul costruttore
@@ -27,14 +29,13 @@ public class Brick extends View {
     }
 
     // Assegna un colore random al mattone (brick)
-    private void skin(int randomSkin) {
+    public void skin() {
         // Random da 0 a 8
-        switch (randomSkin) {
+        switch (color) {
             case 0:
                 if (lifes > 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_0_3);
-                }
-                if (lifes == 2) {
+                } else if (lifes == 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_0_2);
                 } else {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_0_1);
@@ -43,8 +44,7 @@ public class Brick extends View {
             case 1:
                 if (lifes > 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_1_3);
-                }
-                if (lifes == 2) {
+                } else if (lifes == 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_1_2);
                 } else {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_1_1);
@@ -53,8 +53,7 @@ public class Brick extends View {
             case 2:
                 if (lifes > 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_2_3);
-                }
-                if (lifes == 2) {
+                } else if (lifes == 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_2_2);
                 } else {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_2_1);
@@ -63,8 +62,7 @@ public class Brick extends View {
             case 3:
                 if (lifes > 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_3_3);
-                }
-                if (lifes == 2) {
+                } else if (lifes == 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_3_2);
                 } else {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_3_1);
@@ -73,8 +71,7 @@ public class Brick extends View {
             case 4:
                 if (lifes > 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_4_3);
-                }
-                if (lifes == 2) {
+                } else if (lifes == 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_4_2);
                 } else {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_4_1);
@@ -83,8 +80,7 @@ public class Brick extends View {
             case 5:
                 if (lifes > 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_5_3);
-                }
-                if (lifes == 2) {
+                } else if (lifes == 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_5_2);
                 } else {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_5_1);
@@ -93,8 +89,7 @@ public class Brick extends View {
             case 6:
                 if (lifes > 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_6_3);
-                }
-                if (lifes == 2) {
+                } else if (lifes == 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_6_2);
                 } else {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_6_1);
@@ -103,8 +98,7 @@ public class Brick extends View {
             case 7:
                 if (lifes > 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_7_3);
-                }
-                if (lifes == 2) {
+                } else if (lifes == 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_7_2);
                 } else {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_7_1);
@@ -113,8 +107,7 @@ public class Brick extends View {
             case 8:
                 if (lifes > 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_8_3);
-                }
-                if (lifes == 2) {
+                } else if (lifes == 2) {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_8_2);
                 } else {
                     brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_8_1);
@@ -143,110 +136,12 @@ public class Brick extends View {
         this.y = y;
     }
 
-    public int getLifes() {
-        return lifes;
-    }
-
-    public void setLifes(int lifes) {
-        this.lifes = lifes;
+    public boolean loselife(int n) {
+        lifes -= n;
+        return lifes <= 0;
     }
 
     public Bitmap getBrick() {
         return brick;
-    }
-
-    public void setImage(int brickLife) {
-        Bitmap brickBitmap = getBrick();
-
-        if ((brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_0_2))) || (brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_0_3))) ){
-            switch (brickLife) {
-                case 1:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_0_1);
-                    break;
-                case 2:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_0_2);
-                    break;
-            }
-        }
-        if ((brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_1_2))) || (brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_1_3))) ){
-            switch (brickLife) {
-                case 1:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_1_1);
-                    break;
-                case 2:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_1_2);
-                    break;
-            }
-        }
-        if ((brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_2_2))) || (brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_2_3))) ){
-            switch (brickLife) {
-                case 1:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_2_1);
-                    break;
-                case 2:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_2_2);
-                    break;
-            }
-        }
-        if ((brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_3_2))) || (brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_3_3))) ){
-            switch (brickLife) {
-                case 1:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_3_1);
-                    break;
-                case 2:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_3_2);
-                    break;
-            }
-        }
-        if ((brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_4_2))) || (brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_4_3))) ){
-            switch (brickLife) {
-                case 1:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_4_1);
-                    break;
-                case 2:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_4_2);
-                    break;
-            }
-        }
-        if ((brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_5_2))) || (brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_5_3))) ){
-            switch (brickLife) {
-                case 1:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_5_1);
-                    break;
-                case 2:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_5_2);
-                    break;
-            }
-        }
-        if ((brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_6_2))) || (brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_6_3))) ){
-            switch (brickLife) {
-                case 1:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_6_1);
-                    break;
-                case 2:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_6_2);
-                    break;
-            }
-        }
-        if ((brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_7_2))) || (brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_7_3))) ){
-            switch (brickLife) {
-                case 1:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_7_1);
-                    break;
-                case 2:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_7_2);
-                    break;
-            }
-        }
-        if ((brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_8_2))) || (brickBitmap.sameAs(BitmapFactory.decodeResource(getResources(), R.drawable.brick_8_3))) ){
-            switch (brickLife) {
-                case 1:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_8_1);
-                    break;
-                case 2:
-                    brick = BitmapFactory.decodeResource(getResources(), R.drawable.brick_8_2);
-                    break;
-            }
-        }
     }
 }

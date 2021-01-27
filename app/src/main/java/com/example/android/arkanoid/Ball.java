@@ -103,7 +103,7 @@ public class Ball {
         canvas.drawCircle(cx,cy,radius,pen);
     }
 
-    public boolean move(int w, int h, Flipper flipper, int flipperWidth, float vx) {
+    public boolean move(int w, int h, Flipper flipper, float flipperWidth, float vx) {
 
         if (status) {
 
@@ -160,15 +160,15 @@ public class Ball {
 
         if (cx < xBrick) {
             xBrick -= cx;
-        } else if (cx > (xBrick + 152)) {
-            xBrick = cx - (xBrick + 152);
+        } else if (cx > (xBrick + Game.brickWidth)) {
+            xBrick = cx - (xBrick + Game.brickWidth);
         } else {
             xBrick = 0;
         }
         if (cy < yBrick) {
             yBrick -= cy;
-        } else if (cy > (yBrick + 66)) {
-            yBrick = cy - (yBrick + 66);
+        } else if (cy > (yBrick + Game.brickHeight)) {
+            yBrick = cy - (yBrick + Game.brickHeight);
         } else {
             yBrick = 0;
         }
