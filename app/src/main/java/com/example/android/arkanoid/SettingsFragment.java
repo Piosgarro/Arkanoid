@@ -2,27 +2,31 @@ package com.example.android.arkanoid;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SwitchCompat;
-
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.fragment.app.Fragment;
 
 import java.util.Map;
 import java.util.Set;
 
-public class StartSettings extends AppCompatActivity implements SharedPreferences {
+import static android.content.Context.MODE_PRIVATE;
+
+public class SettingsFragment extends Fragment implements SharedPreferences {
 
     public static SwitchCompat touchSwitch;
     public static SwitchCompat musicSwitch;
+    private View root;
 
     private final MainActivity main = new MainActivity();
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        setContentView(R.layout.settings_page);
+        root = inflater.inflate(R.layout.fragment_settings, container, false);
 
         // Controllo il sensore attivo
         checkSensorOption();
@@ -30,14 +34,15 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
         // Controllo se la musica deve essere riprodotta
         checkMusic();
 
+        return root;
     }
 
     private void checkMusic() {
 
-        SharedPreferences sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("save", MODE_PRIVATE);
 
         // Assegno la switch della musica alla variabile musicSwitch
-        musicSwitch = findViewById(R.id.switchMusic);
+        musicSwitch = root.findViewById(R.id.switchMusic);
         musicSwitch.setChecked(sharedPreferences.getBoolean("valueMusic", true)); // Controllo lo stato della Switch
 
         musicSwitch.setOnClickListener(new View.OnClickListener() {
@@ -45,7 +50,7 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
             public void onClick(View view) {
                 if (musicSwitch.isChecked()) {
                     //Switch attiva
-                    SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
+                    SharedPreferences.Editor editor = requireActivity().getSharedPreferences("save", MODE_PRIVATE).edit();
                     editor.putBoolean("valueMusic", true); // Imposto il valore "valueMusic" come True
                     editor.apply();
                     MainActivity.mediaPlayer.pause(); // Metto in pausa la musica e la ri-avvio tramite un fade
@@ -54,7 +59,7 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
                     musicSwitch.setChecked(true);
                 } else {
                     //Switch non attiva
-                    SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
+                    SharedPreferences.Editor editor = requireActivity().getSharedPreferences("save", MODE_PRIVATE).edit();
                     editor.putBoolean("valueMusic", false); // Imposto il valore "valueMusic" come False
                     editor.apply();
                     main.startFadeOut(); // Metto in pausa la musica attraverso un fade
@@ -67,10 +72,10 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
 
     private void checkSensorOption() {
 
-        SharedPreferences sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
+        SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("save", MODE_PRIVATE);
 
         // Assegno la switch del Touch alla variabile touchSwitch
-        touchSwitch = findViewById(R.id.switchTouch);
+        touchSwitch = root.findViewById(R.id.switchTouch);
         touchSwitch.setChecked(sharedPreferences.getBoolean("valueTouch", true)); // Controllo lo stato della Switch
 
         touchSwitch.setOnClickListener(new View.OnClickListener() {
@@ -78,13 +83,13 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
             public void onClick(View view) {
                 if (touchSwitch.isChecked()) {
                     //Switch attiva
-                    SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
+                    SharedPreferences.Editor editor = requireActivity().getSharedPreferences("save", MODE_PRIVATE).edit();
                     editor.putBoolean("valueTouch", true); // Imposto il valore "valueTouch" come True
                     editor.apply();
                     touchSwitch.setChecked(true);
                 } else {
                     //Switch non attiva
-                    SharedPreferences.Editor editor = getSharedPreferences("save", MODE_PRIVATE).edit();
+                    SharedPreferences.Editor editor = requireActivity().getSharedPreferences("save", MODE_PRIVATE).edit();
                     editor.putBoolean("valueTouch", false); // Imposto il valore "valueTouch" come False
                     editor.apply();
                     touchSwitch.setChecked(false);
@@ -100,38 +105,38 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
 
     @Nullable
     @Override
-    public String getString(String s, @Nullable String s1) {
+    public String getString(String key, @Nullable String defValue) {
         return null;
     }
 
     @Nullable
     @Override
-    public Set<String> getStringSet(String s, @Nullable Set<String> set) {
+    public Set<String> getStringSet(String key, @Nullable Set<String> defValues) {
         return null;
     }
 
     @Override
-    public int getInt(String s, int i) {
+    public int getInt(String key, int defValue) {
         return 0;
     }
 
     @Override
-    public long getLong(String s, long l) {
+    public long getLong(String key, long defValue) {
         return 0;
     }
 
     @Override
-    public float getFloat(String s, float v) {
+    public float getFloat(String key, float defValue) {
         return 0;
     }
 
     @Override
-    public boolean getBoolean(String s, boolean b) {
+    public boolean getBoolean(String key, boolean defValue) {
         return false;
     }
 
     @Override
-    public boolean contains(String s) {
+    public boolean contains(String key) {
         return false;
     }
 
@@ -141,12 +146,12 @@ public class StartSettings extends AppCompatActivity implements SharedPreference
     }
 
     @Override
-    public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener onSharedPreferenceChangeListener) {
+    public void registerOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
 
     }
 
     @Override
-    public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener onSharedPreferenceChangeListener) {
+    public void unregisterOnSharedPreferenceChangeListener(OnSharedPreferenceChangeListener listener) {
 
     }
 }

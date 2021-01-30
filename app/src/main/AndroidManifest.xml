@@ -30,8 +30,6 @@
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
             android:configChanges="keyboardHidden|orientation|screenSize" />
 
-        <activity android:name=".StartSettings"/>
-        <activity android:name=".Profile"/>
         <activity android:name=".Rankings"/>
 
         <meta-data

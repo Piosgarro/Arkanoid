@@ -5,8 +5,6 @@
     <string name="divider">____________________________</string>
     <string name="creditsRevamped">Revamped by GAMP Team</string>
     <string name="buttonGame">PLAY &#127918;</string>
-    <string name="profile">PROFILE &#128100;</string>
-    <string name="settings">SETTINGS &#128295;</string>
     <string name="switchTouch">Touch</string>
     <string name="level">"Level "</string>
     <string name="gameOver">Game over!</string>
@@ -26,4 +24,7 @@
     <string name="email">Email</string>
     <string name="scorePoints">%1$d</string>
     <string name="rankings">"RANKINGS &#127942; "</string>
+    <string name="title_profile">Profile</string>
+    <string name="title_home">Home</string>
+    <string name="title_settings">Settings</string>
 </resources>

@@ -6,7 +6,9 @@ import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -16,7 +18,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -31,7 +33,6 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -42,7 +43,9 @@ import com.squareup.picasso.Transformation;
 
 import jp.wasabeef.picasso.transformations.RoundedCornersTransformation;
 
-public class Profile extends AppCompatActivity {
+import static android.content.Context.MODE_PRIVATE;
+
+public class ProfileFragment extends Fragment {
 
     private FirebaseAuth mAuth;
     private SignInButton signInButton;
@@ -52,25 +55,31 @@ public class Profile extends AppCompatActivity {
     private SharedPreferences sharedPreferences;
     private Long score;
     private TextView scoreTextView;
+    private View root;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.profile);
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+        root = inflater.inflate(R.layout.fragment_profile, container, false);
+
+        startProfile();
+
+        return root;
+    }
+
+    private void startProfile() {
         mAuth = FirebaseAuth.getInstance();
-        scoreTextView = findViewById(R.id.score);
-        signInButton = findViewById(R.id.sign_in_button);
-        signOutButton = findViewById(R.id.sign_out_button);
+        scoreTextView = root.findViewById(R.id.score);
+        signInButton = root.findViewById(R.id.sign_in_button);
+        signOutButton = root.findViewById(R.id.sign_out_button);
 
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
                 .build();
 
-        mGoogleSignInClient = GoogleSignIn.getClient(this, gso);
+        mGoogleSignInClient = GoogleSignIn.getClient(requireContext(), gso);
 
-        sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
+        sharedPreferences = requireContext().getSharedPreferences("save", MODE_PRIVATE);
 
         boolean isLoggedIn = sharedPreferences.getBoolean("isLogin", false);
 
@@ -78,7 +87,7 @@ public class Profile extends AppCompatActivity {
             try {
                 signIn();
             } catch (Exception e) {
-                Toast.makeText(Profile.this, "There might be problems with your connection. Try again.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "There might be problems with your connection. Try again.", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
 
@@ -96,18 +105,17 @@ public class Profile extends AppCompatActivity {
             public void onClick(View v) {
                 mGoogleSignInClient.signOut();
 
-                sharedPreferences = getSharedPreferences("save", MODE_PRIVATE);
+                sharedPreferences = requireContext().getSharedPreferences("save", MODE_PRIVATE);
                 SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean("isLogin", false);
                 editor.apply();
 
                 updateUI(null);
 
-                Toast.makeText(Profile.this, "You are logged out", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "You are logged out", Toast.LENGTH_SHORT).show();
                 signOutButton.setVisibility(View.INVISIBLE);
             }
         });
-
     }
 
     private void signIn() {
@@ -116,7 +124,7 @@ public class Profile extends AppCompatActivity {
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         try {
             if (requestCode == RC_SIGN_IN) {
@@ -135,24 +143,24 @@ public class Profile extends AppCompatActivity {
             if (acc != null) {
                 FirebaseGoogleAuth(acc);
             } else {
-                Toast.makeText(Profile.this, "There might be problems with your connection. Try again.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "There might be problems with your connection. Try again.", Toast.LENGTH_SHORT).show();
             }
         } catch (ApiException e) {
-            Toast.makeText(Profile.this, "Sign in failed", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getContext(), "Sign in failed", Toast.LENGTH_SHORT).show();
         }
     }
 
     private void FirebaseGoogleAuth(GoogleSignInAccount acc) {
         AuthCredential authCredential = GoogleAuthProvider.getCredential(acc.getIdToken(), null);
-        mAuth.signInWithCredential(authCredential).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        mAuth.signInWithCredential(authCredential).addOnCompleteListener(requireActivity(), new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
                 if (task.isSuccessful()) {
-                    Toast.makeText(Profile.this, "Signed in successfully!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Signed in successfully!", Toast.LENGTH_SHORT).show();
                     FirebaseUser user = mAuth.getCurrentUser();
                     updateUI(user);
                 } else {
-                    Toast.makeText(Profile.this, "There was a problem connecting to the Database!", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "There was a problem connecting to the Database!", Toast.LENGTH_SHORT).show();
                     updateUI(null);
                 }
             }
@@ -161,14 +169,15 @@ public class Profile extends AppCompatActivity {
 
     private void updateUI(final FirebaseUser fUser) {
 
-        ImageView imageView = findViewById(R.id.imageView);
-        TextView profileInfo = findViewById(R.id.profileInfos);
-        TextView emailInfo = findViewById(R.id.emailInfo);
-        LinearLayout linearLayout = findViewById(R.id.linearLayoutEmail);
-        TextView bestScoreText = findViewById(R.id.bestScoreText);
+        ImageView imageView = root.findViewById(R.id.imageView);
+        TextView profileInfo = root.findViewById(R.id.profileInfos);
+        TextView emailInfo = root.findViewById(R.id.emailInfo);
+        LinearLayout linearLayout = root.findViewById(R.id.linearLayoutEmail);
+        TextView bestScoreText = root.findViewById(R.id.bestScoreText);
 
-        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(getApplicationContext());
+        GoogleSignInAccount account = GoogleSignIn.getLastSignedInAccount(requireContext());
 
+        RelativeLayout relativeLayout;
         if (account != null && fUser != null) {
             final String personName = account.getDisplayName();
             final String personEmail = account.getEmail();
@@ -189,7 +198,7 @@ public class Profile extends AppCompatActivity {
 
             int orientation = this.getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                RelativeLayout relativeLayout = findViewById(R.id.imgUser);
+                relativeLayout = root.findViewById(R.id.imgUser);
                 relativeLayout.setVisibility(View.VISIBLE);
             }
 
@@ -225,7 +234,7 @@ public class Profile extends AppCompatActivity {
                                         rootRef.child("Users").child(fUser.getUid()).child("Score").setValue(scoreGame);
                                     }
 
-                                    scoreTextView = findViewById(R.id.score);
+                                    scoreTextView = root.findViewById(R.id.score);
                                     scoreTextView.setText(getString(R.string.scorePoints, score));
                                     scoreTextView.setVisibility(View.VISIBLE);
                                 }
@@ -253,7 +262,7 @@ public class Profile extends AppCompatActivity {
             bestScoreText.setVisibility(View.INVISIBLE);
             int orientation = this.getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                RelativeLayout relativeLayout = findViewById(R.id.imgUser);
+                relativeLayout = root.findViewById(R.id.imgUser);
                 relativeLayout.setVisibility(View.INVISIBLE);
             }
             imageView.setVisibility(View.INVISIBLE);
@@ -263,4 +272,5 @@ public class Profile extends AppCompatActivity {
             Picasso.get().cancelRequest(imageView);
         }
     }
+
 }

@@ -5,8 +5,6 @@
     <string name="divider">____________________________</string>
     <string name="creditsRevamped">Rinnovata dal Team GAMP</string>
     <string name="buttonGame">GIOCA &#127918;</string>
-    <string name="profile">PROFILO &#128100;</string>
-    <string name="settings">IMPOSTAZIONI &#128295;</string>
     <string name="switchTouch">Touch</string>
     <string name="level">"Livello "</string>
     <string name="gameOver">Game over!</string>
@@ -26,4 +24,7 @@
     <string name="email">Email</string>
     <string name="scorePoints">%1$d</string>
     <string name="rankings">"CLASSIFICA &#127942; "</string>
+    <string name="title_profile">Profilo</string>
+    <string name="title_home">Home</string>
+    <string name="title_settings">Impostazioni</string>
 </resources>

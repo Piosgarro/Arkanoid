@@ -4,13 +4,9 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.util.Log;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
-import android.view.WindowManager;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,18 +53,6 @@ public class Rankings extends AppCompatActivity {
 
         emailInfo2nd = findViewById(R.id.emailInfo2nd);
         emailInfo3rd = findViewById(R.id.emailInfo3rd);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            final WindowInsetsController controller = getWindow().getInsetsController();
-
-            if (controller != null)
-                controller.hide(WindowInsets.Type.statusBars());
-        }
-        else {
-            //noinspection deprecation
-            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
-        }
 
         if (hasActiveInternetConnection()) {
             getHighestScore();
