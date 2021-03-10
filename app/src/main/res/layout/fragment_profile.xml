@@ -21,14 +21,17 @@
             android:background="@drawable/circle_border">
 
             <ImageView
-                android:visibility="invisible"
                 android:id="@+id/imageView"
                 android:layout_width="120dp"
                 android:layout_height="120dp"
-                android:layout_margin="9dp"
+                android:layout_marginStart="9dp"
+                android:layout_marginTop="9dp"
+                android:layout_marginEnd="9dp"
+                android:layout_marginBottom="9dp"
                 android:background="@drawable/circle"
+                android:contentDescription="@string/profile_pic"
                 android:scaleType="fitCenter"
-                android:contentDescription="@string/profile_pic" />
+                android:visibility="invisible" />
 
         </RelativeLayout>
 
@@ -81,9 +84,9 @@
                     android:id="@+id/bestScoreText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_horizontal"
                     android:layout_gravity="center_horizontal"
                     android:fontFamily="sans-serif-light"
+                    android:gravity="center_horizontal"
                     android:text="@string/your_best_score"
                     android:textAllCaps="true"
                     android:textColor="@color/white"

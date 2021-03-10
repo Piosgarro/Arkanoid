@@ -14,7 +14,7 @@ import androidx.appcompat.app.AppCompatActivity;
 public class StartGame extends AppCompatActivity {
 
     private Game game;
-    
+
     public static Activity activity = null;
     public static Sound sound;
     public static int orientation = 0;
@@ -33,7 +33,7 @@ public class StartGame extends AppCompatActivity {
         }
 
         sound = new Sound(this);
-        game = new Game(this, 3, 0, orientation);
+        game = new Game(this, orientation);
 
         setContentView(game);
 
@@ -42,9 +42,7 @@ public class StartGame extends AppCompatActivity {
 
             if (controller != null)
                 controller.hide(WindowInsets.Type.statusBars());
-        }
-        else {
-            //noinspection deprecation
+        } else {
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }

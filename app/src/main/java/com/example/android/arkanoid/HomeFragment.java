@@ -27,29 +27,23 @@ public class HomeFragment extends Fragment {
 
         final int orientation = this.getResources().getConfiguration().orientation;
 
-        startButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Instanzia una nuova attività
-                Intent i = new Intent(getActivity(), StartGame.class);
+        startButton.setOnClickListener(v -> {
+            //Instanzia una nuova attività
+            Intent i = new Intent(getActivity(), StartGame.class);
 
-                // Avvia la nuova attività attraverso un fade
-                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(getActivity());
-                i.putExtra("orientation", orientation);
-                startActivity(i, options.toBundle());
-            }
+            // Avvia la nuova attività attraverso un fade
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(getActivity());
+            i.putExtra("orientation", orientation);
+            startActivity(i, options.toBundle());
         });
 
-        startRankings.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                //Instanzia una nuova attività
-                Intent i = new Intent(getActivity(), Rankings.class);
+        startRankings.setOnClickListener(v -> {
+            //Instanzia una nuova attività
+            Intent i = new Intent(getActivity(), Rankings.class);
 
-                // Avvia la nuova attività attraverso un fade
-                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(getActivity());
-                startActivity(i, options.toBundle());
-            }
+            // Avvia la nuova attività attraverso un fade
+            ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(getActivity());
+            startActivity(i, options.toBundle());
         });
 
         // Imposta la versione dell'App nel layout

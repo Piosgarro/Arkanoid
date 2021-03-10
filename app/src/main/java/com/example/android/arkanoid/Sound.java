@@ -39,27 +39,27 @@ public class Sound {
     // Vari metodi per poter riprodurre il suono.
     // Es. uso "playHitFlipper" quando la palla colpisce il Flipper, in modo tale che viene riprodotto il suono appropiato
     public void playHitSound() {
-        soundPool.play(hitSound,1.0f, 1.0f, 1,0,1.0f);
+        soundPool.play(hitSound, 1.0f, 1.0f, 1, 0, 1.0f);
     }
 
     public void playHitFlipper() {
-        soundPool.play(hitFlipper,1.0f, 1.0f, 1,0,1.0f);
+        soundPool.play(hitFlipper, 1.0f, 1.0f, 1, 0, 1.0f);
     }
 
     public void playHitPowerUp() {
-        soundPool.play(hitPowerUp,1.0f, 1.0f, 1,0,1.0f);
+        soundPool.play(hitPowerUp, 1.0f, 1.0f, 1, 0, 1.0f);
     }
 
     public void playScoreSound() {
-        soundPool.play(scoreSound,1.0f, 1.0f, 1,0,1.0f);
+        soundPool.play(scoreSound, 1.0f, 1.0f, 1, 0, 1.0f);
     }
 
     public void playLostLife() {
-        soundPool.play(lostLife,1.0f, 1.0f, 1,0,1.0f);
+        soundPool.play(lostLife, 1.0f, 1.0f, 1, 0, 1.0f);
     }
 
     public void playWin() {
-        soundPool.play(win,1.0f, 1.0f, 1,0,1.0f);
+        soundPool.play(win, 1.0f, 1.0f, 1, 0, 1.0f);
     }
 
     public void release() {

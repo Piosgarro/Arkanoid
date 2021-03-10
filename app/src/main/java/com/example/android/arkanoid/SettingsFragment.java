@@ -45,26 +45,23 @@ public class SettingsFragment extends Fragment implements SharedPreferences {
         musicSwitch = root.findViewById(R.id.switchMusic);
         musicSwitch.setChecked(sharedPreferences.getBoolean("valueMusic", true)); // Controllo lo stato della Switch
 
-        musicSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (musicSwitch.isChecked()) {
-                    //Switch attiva
-                    SharedPreferences.Editor editor = requireActivity().getSharedPreferences("save", MODE_PRIVATE).edit();
-                    editor.putBoolean("valueMusic", true); // Imposto il valore "valueMusic" come True
-                    editor.apply();
-                    MainActivity.mediaPlayer.pause(); // Metto in pausa la musica e la ri-avvio tramite un fade
-                    main.startFadeIn();
-                    MainActivity.mediaPlayer.start();
-                    musicSwitch.setChecked(true);
-                } else {
-                    //Switch non attiva
-                    SharedPreferences.Editor editor = requireActivity().getSharedPreferences("save", MODE_PRIVATE).edit();
-                    editor.putBoolean("valueMusic", false); // Imposto il valore "valueMusic" come False
-                    editor.apply();
-                    main.startFadeOut(); // Metto in pausa la musica attraverso un fade
-                    musicSwitch.setChecked(false);
-                }
+        musicSwitch.setOnClickListener(view -> {
+            if (musicSwitch.isChecked()) {
+                //Switch attiva
+                Editor editor = requireActivity().getSharedPreferences("save", MODE_PRIVATE).edit();
+                editor.putBoolean("valueMusic", true); // Imposto il valore "valueMusic" come True
+                editor.apply();
+                MainActivity.mediaPlayer.pause(); // Metto in pausa la musica e la ri-avvio tramite un fade
+                main.startFadeIn();
+                MainActivity.mediaPlayer.start();
+                musicSwitch.setChecked(true);
+            } else {
+                //Switch non attiva
+                Editor editor = requireActivity().getSharedPreferences("save", MODE_PRIVATE).edit();
+                editor.putBoolean("valueMusic", false); // Imposto il valore "valueMusic" come False
+                editor.apply();
+                main.startFadeOut(); // Metto in pausa la musica attraverso un fade
+                musicSwitch.setChecked(false);
             }
         });
 
@@ -78,22 +75,19 @@ public class SettingsFragment extends Fragment implements SharedPreferences {
         touchSwitch = root.findViewById(R.id.switchTouch);
         touchSwitch.setChecked(sharedPreferences.getBoolean("valueTouch", true)); // Controllo lo stato della Switch
 
-        touchSwitch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (touchSwitch.isChecked()) {
-                    //Switch attiva
-                    SharedPreferences.Editor editor = requireActivity().getSharedPreferences("save", MODE_PRIVATE).edit();
-                    editor.putBoolean("valueTouch", true); // Imposto il valore "valueTouch" come True
-                    editor.apply();
-                    touchSwitch.setChecked(true);
-                } else {
-                    //Switch non attiva
-                    SharedPreferences.Editor editor = requireActivity().getSharedPreferences("save", MODE_PRIVATE).edit();
-                    editor.putBoolean("valueTouch", false); // Imposto il valore "valueTouch" come False
-                    editor.apply();
-                    touchSwitch.setChecked(false);
-                }
+        touchSwitch.setOnClickListener(view -> {
+            if (touchSwitch.isChecked()) {
+                //Switch attiva
+                Editor editor = requireActivity().getSharedPreferences("save", MODE_PRIVATE).edit();
+                editor.putBoolean("valueTouch", true); // Imposto il valore "valueTouch" come True
+                editor.apply();
+                touchSwitch.setChecked(true);
+            } else {
+                //Switch non attiva
+                Editor editor = requireActivity().getSharedPreferences("save", MODE_PRIVATE).edit();
+                editor.putBoolean("valueTouch", false); // Imposto il valore "valueTouch" come False
+                editor.apply();
+                touchSwitch.setChecked(false);
             }
         });
     }

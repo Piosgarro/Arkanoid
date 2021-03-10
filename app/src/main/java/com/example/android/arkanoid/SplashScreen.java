@@ -38,7 +38,6 @@ public class SplashScreen extends AppCompatActivity implements View.OnTouchListe
                 controller.hide(WindowInsets.Type.statusBars());
         }
         else {
-            //noinspection deprecation
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
@@ -53,20 +52,17 @@ public class SplashScreen extends AppCompatActivity implements View.OnTouchListe
         divider.startAnimation(slideInAnimation);
         creditsRevamped.startAnimation(slideInAnimation);
 
-        handler1.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    sleep(0);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if (isSplashRunning) {
-                        Log.d("DEBUG", "Finishing splash activity from Thread");
-                        Intent i = new Intent(SplashScreen.this, MainActivity.class);
-                        startActivity(i);
-                        finish();
-                    }
+        handler1.postDelayed(() -> {
+            try {
+                sleep(0);
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                if (isSplashRunning) {
+                    Log.d("DEBUG", "Finishing splash activity from Thread");
+                    Intent i = new Intent(SplashScreen.this, MainActivity.class);
+                    startActivity(i);
+                    finish();
                 }
             }
         }, 3000);

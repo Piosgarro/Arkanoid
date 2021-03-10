@@ -68,14 +68,14 @@ public class Rankings extends AppCompatActivity {
         Query mDatabaseHighestPlayer = mDatabasePlayers.orderByChild("Score").limitToLast(3);
         mDatabaseHighestPlayer.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot){
-                for (DataSnapshot childSnapshot: dataSnapshot.getChildren()) {
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                     if (childSnapshot != null) {
                         String name = (String) childSnapshot.child("Name").getValue();
                         long score = (long) childSnapshot.child("Score").getValue();
 
-                        listOfNames.add(i,name);
-                        listOfScores.add(i,score);
+                        listOfNames.add(i, name);
+                        listOfScores.add(i, score);
                         i++;
                     }
                 }
@@ -112,6 +112,7 @@ public class Rankings extends AppCompatActivity {
                 }
 
             }
+
             @Override
             public void onCancelled(@NonNull DatabaseError databaseError) {
                 Toast.makeText(Rankings.this, "Errore", Toast.LENGTH_LONG).show();

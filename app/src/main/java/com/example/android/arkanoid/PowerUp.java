@@ -1,73 +1,46 @@
 package com.example.android.arkanoid;
 
-import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.util.AttributeSet;
-import android.util.Log;
-import android.view.View;
+public class PowerUp {
 
-public class PowerUp extends View {
+    //                                  85, 5, 2, 5, 3
+    public static final int[] weight = {85, 5, 2, 5, 3};
 
-    private Bitmap powerup; // Contenitore per l'immagine del powerUp
-    private float x; // Posizione del powerUp sull'asse orizzontale
+    private final float x; // Posizione del powerUp sull'asse orizzontale
     private float y; // Posizione del powerUp sull'asse verticale
+    private int id; // Identificativo del powerup
+    private final float fallingSpeed;
 
-    public PowerUp(Context context, float x, float y) {
-        super(context);
+    public PowerUp(float x, float y, int id, float fallingSpeed) {
         this.x = x;
         this.y = y;
-        skin();
+        this.id = id;
+        this.fallingSpeed = fallingSpeed;
     }
 
-    // Necessario per rimuovere il warning sul costruttore
-    public PowerUp(Context context, AttributeSet attributeSet) {
-        super(context, attributeSet);
-    }
+    public boolean move() {
+        y += fallingSpeed;
 
-    // Assegna una skin al powerup
-    private void skin() {
-        // Random da 0 a 2
-        int a = (int) (Math.random() * 4);
-        Log.d("D","PowerUp Number: " + a);
-        switch (a) {
-            case 0:
-                powerup = BitmapFactory.decodeResource(getResources(), R.drawable.power_up_0);
-                break;
-            case 1:
-                powerup = BitmapFactory.decodeResource(getResources(), R.drawable.power_up_1);
-                break;
-            case 2:
-                powerup = BitmapFactory.decodeResource(getResources(), R.drawable.power_up_2);
-                break;
-            case 3:
-                powerup = BitmapFactory.decodeResource(getResources(), R.drawable.power_up_3);
-                break;
+        if (y >= Game.deviceHeight) {
+            id = 0;
+            return true;
+            // Collisione rettangolo-rettangolo
+        } else if (y + Game.powerUpSide >= Game.flipper.top && y <= Game.flipper.bottom && x + Game.powerUpSide >= Game.flipper.left && x <= Game.flipper.right) {
+            StartGame.sound.playHitPowerUp();
+            return true;
         }
+        return false;
     }
 
-    @Override
     public float getX() {
         return x;
     }
 
-    @Override
-    public void setX(float x) {
-        this.x = x;
-    }
-
-    @Override
     public float getY() {
         return y;
     }
 
-    @Override
-    public void setY(float y) {
-        this.y = y;
-    }
-
-    public Bitmap getPowerUp() {
-        return powerup;
+    public int getId() {
+        return id;
     }
 
 }

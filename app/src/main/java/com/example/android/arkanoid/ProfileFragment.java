@@ -26,10 +26,8 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
@@ -90,31 +88,22 @@ public class ProfileFragment extends Fragment {
                 Toast.makeText(getContext(), "There might be problems with your connection. Try again.", Toast.LENGTH_SHORT).show();
                 e.printStackTrace();
             }
-
         }
 
-        signInButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                signIn();
-            }
-        });
+        signInButton.setOnClickListener(v -> signIn());
 
-        signOutButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                mGoogleSignInClient.signOut();
+        signOutButton.setOnClickListener(v -> {
+            mGoogleSignInClient.signOut();
 
-                sharedPreferences = requireContext().getSharedPreferences("save", MODE_PRIVATE);
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("isLogin", false);
-                editor.apply();
+            sharedPreferences = requireContext().getSharedPreferences("save", MODE_PRIVATE);
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("isLogin", false);
+            editor.apply();
 
-                updateUI(null);
+            updateUI(null);
 
-                Toast.makeText(getContext(), "You are logged out", Toast.LENGTH_SHORT).show();
-                signOutButton.setVisibility(View.INVISIBLE);
-            }
+            Toast.makeText(getContext(), "You are logged out", Toast.LENGTH_SHORT).show();
+            signOutButton.setVisibility(View.INVISIBLE);
         });
     }
 
@@ -152,17 +141,14 @@ public class ProfileFragment extends Fragment {
 
     private void FirebaseGoogleAuth(GoogleSignInAccount acc) {
         AuthCredential authCredential = GoogleAuthProvider.getCredential(acc.getIdToken(), null);
-        mAuth.signInWithCredential(authCredential).addOnCompleteListener(requireActivity(), new OnCompleteListener<AuthResult>() {
-            @Override
-            public void onComplete(@NonNull Task<AuthResult> task) {
-                if (task.isSuccessful()) {
-                    Toast.makeText(getContext(), "Signed in successfully!", Toast.LENGTH_SHORT).show();
-                    FirebaseUser user = mAuth.getCurrentUser();
-                    updateUI(user);
-                } else {
-                    Toast.makeText(getContext(), "There was a problem connecting to the Database!", Toast.LENGTH_SHORT).show();
-                    updateUI(null);
-                }
+        mAuth.signInWithCredential(authCredential).addOnCompleteListener(requireActivity(), task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(getContext(), "Signed in successfully!", Toast.LENGTH_SHORT).show();
+                FirebaseUser user = mAuth.getCurrentUser();
+                updateUI(user);
+            } else {
+                Toast.makeText(getContext(), "There was a problem connecting to the Database!", Toast.LENGTH_SHORT).show();
+                updateUI(null);
             }
         });
     }
@@ -212,7 +198,7 @@ public class ProfileFragment extends Fragment {
                 ValueEventListener eventListener = new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-                        if(!dataSnapshot.exists()) {
+                        if (!dataSnapshot.exists()) {
                             final DatabaseReference cRef = FirebaseDatabase.getInstance().getReference("Users").child(fUser.getUid());
                             cRef.setValue(fUser.getUid());
                             cRef.child("Email").setValue(personEmail);
