@@ -16,8 +16,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
@@ -49,10 +50,10 @@ public class ProfileFragment extends Fragment {
     private SignInButton signInButton;
     private GoogleSignInClient mGoogleSignInClient;
     private Button signOutButton;
-    private final int RC_SIGN_IN = 1;
     private SharedPreferences sharedPreferences;
     private Long score;
     private TextView scoreTextView;
+    private Button shareButton;
     private View root;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -67,6 +68,7 @@ public class ProfileFragment extends Fragment {
     private void startProfile() {
         mAuth = FirebaseAuth.getInstance();
         scoreTextView = root.findViewById(R.id.score);
+        shareButton = root.findViewById(R.id.shareButton);
         signInButton = root.findViewById(R.id.sign_in_button);
         signOutButton = root.findViewById(R.id.sign_out_button);
 
@@ -90,6 +92,8 @@ public class ProfileFragment extends Fragment {
             }
         }
 
+        shareButton.setOnClickListener(this::shareScore);
+
         signInButton.setOnClickListener(v -> signIn());
 
         signOutButton.setOnClickListener(v -> {
@@ -109,22 +113,20 @@ public class ProfileFragment extends Fragment {
 
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        startActivityForResult(signInIntent, RC_SIGN_IN);
+        someActivityResultLauncher.launch(signInIntent);
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        try {
-            if (requestCode == RC_SIGN_IN) {
-                Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
-                handleSignInResult(task);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-    }
+    ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                try {
+                    Intent data = result.getData();
+                    Task<GoogleSignInAccount> task = GoogleSignIn.getSignedInAccountFromIntent(data);
+                    handleSignInResult(task);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
 
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
@@ -151,6 +153,17 @@ public class ProfileFragment extends Fragment {
                 updateUI(null);
             }
         });
+    }
+
+    public void shareScore(View v) {
+
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.shareString, score));
+        sendIntent.setType("text/plain");
+        Intent shareIntent = Intent.createChooser(sendIntent, getString(R.string.shareTitle));
+        startActivity(shareIntent);
+
     }
 
     private void updateUI(final FirebaseUser fUser) {
@@ -223,6 +236,9 @@ public class ProfileFragment extends Fragment {
                                     scoreTextView = root.findViewById(R.id.score);
                                     scoreTextView.setText(getString(R.string.scorePoints, score));
                                     scoreTextView.setVisibility(View.VISIBLE);
+
+                                    shareButton.setVisibility(View.VISIBLE);
+
                                 }
 
                                 @Override
@@ -244,6 +260,7 @@ public class ProfileFragment extends Fragment {
             signInButton.setVisibility(View.VISIBLE);
             signOutButton.setVisibility(View.INVISIBLE);
             scoreTextView.setVisibility(View.INVISIBLE);
+            shareButton.setVisibility(View.INVISIBLE);
             linearLayout.setVisibility(View.INVISIBLE);
             bestScoreText.setVisibility(View.INVISIBLE);
             int orientation = this.getResources().getConfiguration().orientation;

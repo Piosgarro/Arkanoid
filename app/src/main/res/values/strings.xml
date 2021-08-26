@@ -27,4 +27,7 @@
     <string name="title_profile">Profile</string>
     <string name="title_home">Home</string>
     <string name="title_settings">Settings</string>
+    <string name="share_your_score">SHARE YOUR SCORE</string>
+    <string name="shareString">Hey! I just reached %1$d points in Arkanoid! Come play!</string>
+    <string name="shareTitle">Share score through:</string>
 </resources>

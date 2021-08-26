@@ -101,10 +101,10 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        timer.schedule(timerTask,FADE_INTERVAL,FADE_INTERVAL);
+        timer.schedule(timerTask, FADE_INTERVAL, FADE_INTERVAL);
     }
 
-    private void fadeOutStep(float deltaVolume){
+    private void fadeOutStep(float deltaVolume) {
         mediaPlayer.setVolume(volume, volume);
         volume -= deltaVolume;
     }
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        timer.schedule(timerTask,FADE_INTERVAL,FADE_INTERVAL);
+        timer.schedule(timerTask, FADE_INTERVAL, FADE_INTERVAL);
     }
 
     // Libera il Player dalla memoria

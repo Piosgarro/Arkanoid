@@ -27,4 +27,7 @@
     <string name="title_profile">Profilo</string>
     <string name="title_home">Home</string>
     <string name="title_settings">Impostazioni</string>
+    <string name="share_your_score">CONDIVIDI IL TUO PUNTEGGIO</string>
+    <string name="shareString">Hey! Ho appena totalizzato %1$d punti su Arkanoid! Gioca anche tu!</string>
+    <string name="shareTitle">Condividi il tuo punteggio attraverso:</string>
 </resources>
