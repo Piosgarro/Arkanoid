@@ -1,5 +1,6 @@
 package com.example.android.arkanoid;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,6 +20,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import static java.lang.Thread.sleep;
 
+@SuppressLint("CustomSplashScreen")
 public class SplashScreen extends AppCompatActivity implements View.OnTouchListener {
 
     private final Handler handler1 = new Handler(Looper.getMainLooper());

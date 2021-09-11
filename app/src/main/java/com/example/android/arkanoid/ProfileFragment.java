@@ -113,10 +113,10 @@ public class ProfileFragment extends Fragment {
 
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
-        someActivityResultLauncher.launch(signInIntent);
+        activityResultLauncher.launch(signInIntent);
     }
 
-    ActivityResultLauncher<Intent> someActivityResultLauncher = registerForActivityResult(
+    ActivityResultLauncher<Intent> activityResultLauncher = registerForActivityResult(
             new ActivityResultContracts.StartActivityForResult(),
             result -> {
                 try {
@@ -145,12 +145,18 @@ public class ProfileFragment extends Fragment {
         AuthCredential authCredential = GoogleAuthProvider.getCredential(acc.getIdToken(), null);
         mAuth.signInWithCredential(authCredential).addOnCompleteListener(requireActivity(), task -> {
             if (task.isSuccessful()) {
-                Toast.makeText(getContext(), "Signed in successfully!", Toast.LENGTH_SHORT).show();
-                FirebaseUser user = mAuth.getCurrentUser();
-                updateUI(user);
+                try {
+                    Toast.makeText(getContext(), "Signed in successfully!", Toast.LENGTH_SHORT).show();
+                    FirebaseUser user = mAuth.getCurrentUser();
+                    updateUI(user);
+                } catch (NullPointerException ignored){
+                }
             } else {
-                Toast.makeText(getContext(), "There was a problem connecting to the Database!", Toast.LENGTH_SHORT).show();
-                updateUI(null);
+                try {
+                    Toast.makeText(getContext(), "There was a problem connecting to the Database!", Toast.LENGTH_SHORT).show();
+                    updateUI(null);
+                } catch (NullPointerException ignored){
+                }
             }
         });
     }

@@ -29,4 +29,8 @@ __________________________________________________________________
 - Fornire supporto multilingua :white_check_mark:
 - Varie ed eventuali (nuova grafica, ecc) :white_check_mark:
 
-<img src="https://user-images.githubusercontent.com/38889174/57987417-4647ef00-7a81-11e9-9589-9614bf986706.jpg" width="300">
+<p float="left">
+  <img src="https://user-images.githubusercontent.com/38889174/57987417-4647ef00-7a81-11e9-9589-9614bf986706.jpg" width="300" />
+  &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;
+  <img src="https://user-images.githubusercontent.com/6324754/146642820-6e0f9acf-1e2c-478c-91a4-d044eafd87a7.png" width="300" />
+</p>

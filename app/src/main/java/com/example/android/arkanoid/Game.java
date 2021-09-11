@@ -2,7 +2,6 @@ package com.example.android.arkanoid;
 
 import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -156,11 +155,13 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
         // Inizializza l'array delle soglie di probabilità sommando i pesi di ciascun powerup
         {
-            int l = powerUpProbabilityThreshold.length;
-            powerUpProbabilityThreshold[0] = PowerUp.weight[0];
+            int l = powerUpProbabilityThreshold.length; // Lunghezza dell'Array
+            powerUpProbabilityThreshold[0] = PowerUp.weight[0]; //Creo le soglie per i powerup
             for (int i = 1; i < l; i++) {
+                // Somme parziali
                 powerUpProbabilityThreshold[i] = powerUpProbabilityThreshold[i - 1] + PowerUp.weight[i];
             }
+            // L'ultimo valore della scala
             RNG_Bound = powerUpProbabilityThreshold[l - 1];
         }
 
@@ -169,6 +170,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         this.setOnTouchListener(this);
     }
 
+    // Per avere tutti i bitmap a disposizione (Risparmio calcoli per frame)
     private void collectBitmaps() {
         int i;
 
@@ -177,8 +179,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         bitmaps.put("fl1", BitmapFactory.decodeResource(getResources(), R.drawable.feedback_powerup));
 
         // salva i bitmap dei mattoni
-        for (i = 0; i < 9; i++) {
-            for (int j = 1; j <= 3; j++) {
+        for (i = 0; i < 9; i++) { // Per ogni colore del brick
+            for (int j = 1; j <= 3; j++) { //Per ogni vita del brick
                 int d = getResources().getIdentifier("brick_" + i + "_" + j, "drawable", BuildConfig.APPLICATION_ID);
                 bitmaps.put("br_" + i + "_" + j, BitmapFactory.decodeResource(getResources(), d));
             }
@@ -191,6 +193,8 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
     }
 
+    // Per avere la stessa grandezza delle immagini/oggetti
+    // indipendentemente dalla risoluzione del dispositivo
     private void getSizeAndScale() {
         WindowManager windowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
@@ -320,7 +324,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         canvas.drawText("" + score, (float) (deviceWidth / 2), 1370, scoreText);
         canvas.drawText(getContext().getString(R.string.level) + level, 40, 120, levelText);
 
-        // Disegna tanti cuori quante vite
+        // Disegna tanti cuori quante sono vite
         for (int i = 0; i < life; i++) {
             canvas.drawText("\uD83D\uDC9B", deviceWidth - 100 - 60 * i, 120, hearth);
         }
@@ -329,9 +333,11 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     }
 
+    // Orologio dei powerup
     private void makePowerUpClocks() {
         PUT_flipper = new CountDownTimer(10000, 100) {
             public void onTick(long millisUntilFinished) {
+                // Se il powerup sta per scadere, lampeggia (% 2) il flipper (contorno verde)
                 flipperFeedback = millisUntilFinished <= 2000 && (millisUntilFinished / 100) % 2 == 0;
             }
 
@@ -365,11 +371,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         if (mode == 0) {
             ++level;
             generateBricks();
-            levelBallSpeed = (14 + level * 2) * scale;
+            levelBallSpeed = (14 + (level * 2)) * scale;
         }
 
         flipper.offsetTo((deviceWidth - flipper.width()) / 2, deviceHeight - 300 * scale);
         ballArrayList.add(new Ball(ballStartingPosition.x, ballStartingPosition.y, 20 * scale));
+
         launching.add(0);
         launchingAngle = 0;
     }
@@ -377,6 +384,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     // mode 0 -> reset dopo aver completato un livello
     // mode 1 -> reset dopo aver perso una vita
     private void powerUpCleaner(int mode) {
+        // Mode 0
         if (mode == 0) {
             fallingPowerUp.clear();
             ballArrayList.clear();
@@ -386,20 +394,23 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             PUT_flipper.cancel();
             PUT_lasers.cancel();
         }
-
+        // Mode 1
         // ??Non ci sono powerup che necessitano essere resettati dopo aver perso una vita??
     }
 
     private void generateBricks() {
-        int hue = rand.nextInt(9);
-        int palette = rand.nextInt(3) + 2;
+        int hue = rand.nextInt(9); // Rand da 0 a 8 - Colore di riferimento
+        int palette = rand.nextInt(3) + 2; // Rand da 2 a 4 - Numero di colori a partire dal colore di riferimento
 
+        // Per fare 5 colonne
         float columnSize = (float) deviceWidth / 5;
 
+        // 4 righe - 5 colonne
         for (int i = 3; i < 7; i++) {
             for (int j = 0; j < 5; j++) {
                 int color = (hue + rand.nextInt(palette)) % 9;
-                brickList.add(new Brick(j * columnSize + (columnSize - brickWidth) / 2, i * 100 * scale, level / 5 + 1, color));
+                // Level = Ad ogni 5 livelli
+                brickList.add(new Brick(j * columnSize + (columnSize - brickWidth) / 2, i * 100 * scale, (level / 5) + 1, color));
             }
         }
     }
@@ -427,6 +438,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                     brickList.remove(b);
                     whatsInside(b);
                 }
+                scoreUpdate(80);
                 return true;
             }
         }
@@ -435,9 +447,13 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     // Sorteggia un powerUp (0: niente)
     private void whatsInside(Brick b) {
+        // Mi scegli uno a caso dalla scala dei powerUp
         int randomInt = rand.nextInt(RNG_Bound);
         int id = 0;
+        // Finche c'è un altro powerUp da controllare,
+        // controlla se il numero sorteggiato è minore della soglia dell'n-simo powerup
         while (id < powerUpProbabilityThreshold.length) {
+            // Semplicemente va a decidere in che intervallo va a cadere il valore
             if (randomInt < powerUpProbabilityThreshold[id]) {
                 break;
             }
@@ -539,6 +555,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private void moveBalls() {
         for (int i = 0; i < ballArrayList.size(); i++) {
             // Non trattare le palle in fase di lancio
+            // Tratto solo le palline che sono già lanciate
             if (!launching.contains(i)) {
                 Ball b = ballArrayList.get(i);
                 // Dopo il movimento se...
@@ -583,6 +600,7 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
                 scoreUpdate(200);
                 int n = ballArrayList.size();
                 Ball b = ballArrayList.get(n - 1);
+                // Mi serve per avere un tetto massimo di palline
                 for (int i = n; i < 3; i++) {
                     ballArrayList.add(new Ball(b.cx, b.cy, 20 * scale));
                     ballArrayList.get(i).setVelocity(levelBallSpeed, rand.nextDouble() * 2 * Math.PI);
@@ -654,12 +672,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         if (launching.isEmpty()) {
             if (touchSensor) {
                 switch (event.getActionMasked()) {
-                    case MotionEvent.ACTION_MOVE:
-                        flipper.offsetTo((xFlipperDown + (event.getX() - xDown)), flipper.top);
-                        break;
                     case MotionEvent.ACTION_DOWN:
                         xDown = event.getX();
                         xFlipperDown = flipper.left;
+                        break;
+                    case MotionEvent.ACTION_MOVE:
+                        flipper.offsetTo((xFlipperDown + (event.getX() - xDown)), flipper.top);
                         break;
                 }
             }
@@ -667,6 +685,11 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             switch (event.getActionMasked()) {
                 case MotionEvent.ACTION_MOVE:
                     Ball b = ballArrayList.get(launching.get(0));
+                    // Angolo che c'è tra la palla e il dito
+                    // Scelgo atan2, poichè atan mi restituisce valori tra -pi/2 e pi/2.
+                    // mentre con atan2, mi restituisce valori tra -pi e pi (che serve a noi).
+                    // Questo perchè altrimenti, c'è la possibilità che nel caso in cui mettessi
+                    // il dito sulla parte superiore sinistra, il programma me lo registra sulla inferiore destra
                     launchingAngle = Math.atan2(-Math.abs(event.getY() - b.cy), event.getX() - b.cx);
                     launchingAngle = Math.min(Math.toRadians(-15), Math.max(launchingAngle, Math.toRadians(-165)));
                     break;

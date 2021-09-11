@@ -72,8 +72,7 @@ public class Rankings extends AppCompatActivity {
                 for (DataSnapshot childSnapshot : dataSnapshot.getChildren()) {
                     if (childSnapshot != null) {
                         String name = (String) childSnapshot.child("Name").getValue();
-                        long score = (long) childSnapshot.child("Score").getValue();
-
+                        Long score = childSnapshot.child("Score").getValue(Long.class);
                         listOfNames.add(i, name);
                         listOfScores.add(i, score);
                         i++;

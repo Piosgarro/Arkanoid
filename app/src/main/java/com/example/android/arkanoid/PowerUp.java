@@ -2,6 +2,7 @@ package com.example.android.arkanoid;
 
 public class PowerUp {
 
+    //                                      DEFAULT
     //                                  85, 5, 2, 5, 3
     public static final int[] weight = {85, 5, 2, 5, 3};
 
