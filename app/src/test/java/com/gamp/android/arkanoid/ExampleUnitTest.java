@@ -1,4 +1,4 @@
-package com.example.android.arkanoid;
+package com.gamp.android.arkanoid;
 
 import org.junit.Test;
 

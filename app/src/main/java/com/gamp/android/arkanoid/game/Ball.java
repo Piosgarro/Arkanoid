@@ -1,7 +1,9 @@
-package com.example.android.arkanoid;
+package com.gamp.android.arkanoid.game;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+
+import com.gamp.android.arkanoid.StartGame;
 
 public class Ball {
 
@@ -23,6 +25,13 @@ public class Ball {
         }
     }
 
+    /**
+     * Costruttore dell'oggetto Ball
+     *
+     * @param  cx  posizione della pallina sull'asse X
+     * @param  cy posizione della pallina sull'asse Y
+     * @param  radius raggio della pallina. Più è grande, più sarò grande la pallina
+     */
     public Ball(float cx, float cy, float radius) {
         this.cx = cx;
         this.cy = cy;
@@ -40,10 +49,16 @@ public class Ball {
         }
     }
 
-    // Imposta la velocità e o la direzione della palla
-    // angle != 0 -> angle è il nuovo angolo della velocità
-    // speed != 0 -> speed è il nuovo modulo della velocità
-    // angle == 0 && speed == 0 non cambia nulla
+    /**
+     * Imposta la velocità e o la direzione della pallina
+     *
+     * // angle != 0 ->                 angle è il nuovo angolo della velocità
+     * // speed != 0 ->                 speed è il nuovo modulo della velocità
+     * // angle == 0 && speed == 0 ->   non cambia nulla
+     *
+     * @param  speed  velocità della pallina
+     * @param  angle angolo (direzione) della pallina
+     */
     public void setVelocity(float speed, double angle) {
 
         if (speed == 0) {
@@ -62,6 +77,13 @@ public class Ball {
         }
     }
 
+    /**
+     * Disegna la pallina sul canvas
+     * Inoltre disegniamo la scia (che sarà composta da palline sempre più piccole di con raggio 1/2)
+     *
+     * @param  canvas  la View su cui disegnare la pallina
+     * @param  color il colore della pallina
+     */
     public void draw(Canvas canvas, int color) {
 
         // disegna la palla
@@ -87,6 +109,12 @@ public class Ball {
 
     }
 
+    /**
+     * Muovi la pallina sul canvas
+     * Aggiungiamo la velocità (dx/dy) alla posizione attuale della pallina (cx/cy)
+     * Controlliamo inoltre, se la pallina ha colpito i lati, la parte superiore, il Flipper
+     * oppure se si trova sotto il Flipper
+     */
     public boolean move() {
 
         int w = Game.deviceWidth;
@@ -114,6 +142,16 @@ public class Ball {
         return !((cy - radius - 10) >= h);
     }
 
+    /**
+     * Controlla la collisione con il brick
+     *
+     * Ci prendiamo il riferimento al brick (scorrendo tra quelli presenti)
+     * e controlliamo se la pallina ha colpito la parte superiore/inferiore del brick,
+     * le parti laterali dei brick o gli angoli dei brick
+     *
+     * @param brick Il brick che vogliamo controllare
+     * @return Ritorniamo vero se abbiamo colpito il brick, altrimenti falso
+     */
     public boolean collideWith(Brick brick) {
         float xBrick = brick.getX();
         float yBrick = brick.getY();

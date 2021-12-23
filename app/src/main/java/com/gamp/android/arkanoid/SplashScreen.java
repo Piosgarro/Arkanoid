@@ -1,11 +1,10 @@
-package com.example.android.arkanoid;
+package com.gamp.android.arkanoid;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -18,14 +17,19 @@ import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import static java.lang.Thread.sleep;
-
 @SuppressLint("CustomSplashScreen")
 public class SplashScreen extends AppCompatActivity implements View.OnTouchListener {
 
-    private final Handler handler1 = new Handler(Looper.getMainLooper());
-    private boolean isSplashRunning = true;
+    // Creiamo un oggetto di tipo Handler & Runnable
+    private final Handler h = new Handler();
+    private Runnable r = null;
 
+    /**
+     * onCreate per la Splash Screen
+     * Carichiamo l'XML della Splash Screen, impostiamo lo schermo a FullScreen e avviamo l'animazione
+     *
+     * @param savedInstanceState default di Android
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,28 +58,39 @@ public class SplashScreen extends AppCompatActivity implements View.OnTouchListe
         divider.startAnimation(slideInAnimation);
         creditsRevamped.startAnimation(slideInAnimation);
 
-        handler1.postDelayed(() -> {
-            try {
-                sleep(0);
-            } catch (Exception e) {
-                e.printStackTrace();
-            } finally {
-                if (isSplashRunning) {
-                    Log.d("DEBUG", "Finishing splash activity from Thread");
-                    Intent i = new Intent(SplashScreen.this, MainActivity.class);
-                    startActivity(i);
-                    finish();
-                }
-            }
-        }, 3000);
+        // Impostiamo un oggetto Runnable, il quale ci chiude la SplashScreen e ci avvia la MainActivity
+        r = () -> {
+            Intent i = new Intent(SplashScreen.this, MainActivity.class);
+            startActivity(i);
+            finish();
+        };
+
+        // Attraverso l'Handler creato a inizio classe, aspettiamo 3000ms (3 secondi), dopo di che
+        // avvia il metodo run() dell'oggetto Runnable creato precedentemente. Sostanzialmente quello che
+        // si cerca di fare con questo è:
+        // - Aspetto 3 secondi, se l'utente non ha cliccato lo schermo (facendo chiudere l'Activity), allora la chiudo
+        //   a prescindere, per evitare che lo Splash Screen rimanga sempre attivo senza mai chiudersi.
+        h.postDelayed(r, 3000);
     }
 
+    /**
+     * Metodo relativo al tocco su schermo
+     * Se tocchiamo lo schermo, finiamo l'attività e avviamo la MainActivity.
+     * @param event default di Android
+     * @return Ritorna Vero o Falso
+     */
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         if (event.getAction() == MotionEvent.ACTION_DOWN) {
             Log.d("DEBUG", "Finishing splash activity because User touched the screen");
-            isSplashRunning = false; //or in onPause
-            Intent i = new Intent(SplashScreen.this, MainActivity.class);
+            // Il removeCallbacks(r) ci serve per indicare che quando clicchiamo lo schermo
+            // (e che quindi chiudiamo la SplashScreen), non c'è più bisogno di invocare il metodo
+            // run() relativo al Runnable (Riga 63).
+            // Senza questo, accadeva che nel caso in cui toccavamo lo schermo prima che si chiudesse
+            // automaticamente, veniva comunque invocato il metodo run() e quindi la MainActivity
+            // si chiudeva e riapriva nuovamente
+            h.removeCallbacks(r);
+            Intent i = new Intent(this, MainActivity.class);
             startActivity(i);
             finish();
         }
@@ -90,7 +105,6 @@ public class SplashScreen extends AppCompatActivity implements View.OnTouchListe
 
     @Override
     protected void onPause() {
-        isSplashRunning = false;
         super.onPause();
         finish();
     }

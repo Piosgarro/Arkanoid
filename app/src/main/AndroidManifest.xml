@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.android.arkanoid">
+    package="com.gamp.android.arkanoid">
 
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.INTERNET"/>
@@ -17,7 +17,7 @@
         android:networkSecurityConfig="@xml/network_security_config"
         android:theme="@style/AppTheme">
 
-        <activity android:name=".SplashScreen"
+        <activity android:name="com.gamp.android.arkanoid.SplashScreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -26,13 +26,13 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".MainActivity"/>
+        <activity android:name="com.gamp.android.arkanoid.MainActivity"/>
 
-        <activity android:name=".StartGame"
+        <activity android:name="com.gamp.android.arkanoid.StartGame"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar.FullScreen"
             android:configChanges="keyboardHidden|orientation|screenSize" />
 
-        <activity android:name=".Rankings"/>
+        <activity android:name="com.gamp.android.arkanoid.Rankings"/>
 
         <meta-data
             android:name="preloaded_fonts"

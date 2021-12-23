@@ -1,4 +1,4 @@
-package com.example.android.arkanoid;
+package com.gamp.android.arkanoid.fragments;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -21,6 +21,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
+import com.gamp.android.arkanoid.R;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.android.gms.auth.api.signin.GoogleSignInClient;
@@ -56,6 +57,15 @@ public class ProfileFragment extends Fragment {
     private Button shareButton;
     private View root;
 
+    /**
+     * onCreate per il Profile Fragment.
+     * Semplicemente carichiamo l'xml del fragment profile nella View relativa al Fragment.
+     *
+     * @param  inflater  default di Android
+     * @param  container default di Android
+     * @param savedInstanceState default di Android
+     * @return      la View (root) relativa al Profile Fragment
+     */
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         root = inflater.inflate(R.layout.fragment_profile, container, false);
@@ -65,6 +75,13 @@ public class ProfileFragment extends Fragment {
         return root;
     }
 
+    /**
+     * Metodo per l'inizializzazione del profilo dell'utente
+     * Inizializziamo anche i listener dei pulsanti per Sign In e Sign Out
+     * Da qui, prendiamo un riferimento alla classe relativa al 'Google Sign In'
+     * e controlliamo se l'utente è già loggato. Se non lo è allora avviamo l'attività di Sign In
+     *
+     */
     private void startProfile() {
         mAuth = FirebaseAuth.getInstance();
         scoreTextView = root.findViewById(R.id.score);
@@ -111,6 +128,10 @@ public class ProfileFragment extends Fragment {
         });
     }
 
+    /**
+     * Metodo che avvia l'attività relativa al Google Sign In.
+     * Il tutto è stato implementato tramite la documentazione ufficiale Android.
+     */
     private void signIn() {
         Intent signInIntent = mGoogleSignInClient.getSignInIntent();
         activityResultLauncher.launch(signInIntent);
@@ -128,6 +149,12 @@ public class ProfileFragment extends Fragment {
                 }
             });
 
+    /**
+     * Metodo che ci dice se il login è andato a buon fine o meno
+     * Se sì, allora avvia il collegamento con Firebase, altrimenti
+     * mostra un messaggio di errore.
+     * @param  completedTask  Indica se il Task di Google Sign in è avvenuto con successo
+     */
     private void handleSignInResult(Task<GoogleSignInAccount> completedTask) {
         try {
             GoogleSignInAccount acc = completedTask.getResult(ApiException.class);
@@ -141,6 +168,11 @@ public class ProfileFragment extends Fragment {
         }
     }
 
+    /**
+     * Metodo che controlla la validità dell'account Google e inizia la comunicazione con Firebase
+     *
+     * @param  acc  L'account relativo a Google
+     */
     private void FirebaseGoogleAuth(GoogleSignInAccount acc) {
         AuthCredential authCredential = GoogleAuthProvider.getCredential(acc.getIdToken(), null);
         mAuth.signInWithCredential(authCredential).addOnCompleteListener(requireActivity(), task -> {
@@ -161,17 +193,16 @@ public class ProfileFragment extends Fragment {
         });
     }
 
-    public void shareScore(View v) {
-
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.shareString, score));
-        sendIntent.setType("text/plain");
-        Intent shareIntent = Intent.createChooser(sendIntent, getString(R.string.shareTitle));
-        startActivity(shareIntent);
-
-    }
-
+    /**
+     * Metodo principale che si occupa dell'aggiornamento dello score dell'utente, di prendere
+     * l'immagine relativa all'Account Google, il Nome/Cognome dell'utente, la Mail, ecc.
+     * Inoltre controlla se c'è uno score superiore (salvato all'interno del telefono) rispetto
+     * a quello su Firebase. Se sì, allora aggiorna lo score sia sul Database, sia sulla View.
+     * Infine, se per qualche motivo l'account di Firebase / Google non è valido, allora reimposta
+     * l'activity come se l'utente avesse effettuato un logout.
+     *
+     * @param  fUser  L'account relativo a Firebase (che sarà collegato a Google)
+     */
     private void updateUI(final FirebaseUser fUser) {
 
         ImageView imageView = root.findViewById(R.id.imageView);
@@ -197,14 +228,14 @@ public class ProfileFragment extends Fragment {
 
             signOutButton.setVisibility(View.VISIBLE);
             signInButton.setVisibility(View.INVISIBLE);
-            linearLayout.setVisibility(View.VISIBLE);
             bestScoreText.setVisibility(View.VISIBLE);
             imageView.setVisibility(View.VISIBLE);
+            relativeLayout = root.findViewById(R.id.imgUser);
+            relativeLayout.setVisibility(View.VISIBLE);
 
             int orientation = this.getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                relativeLayout = root.findViewById(R.id.imgUser);
-                relativeLayout.setVisibility(View.VISIBLE);
+                linearLayout.setVisibility(View.VISIBLE);
             }
 
             SharedPreferences.Editor editor = sharedPreferences.edit();
@@ -267,12 +298,12 @@ public class ProfileFragment extends Fragment {
             signOutButton.setVisibility(View.INVISIBLE);
             scoreTextView.setVisibility(View.INVISIBLE);
             shareButton.setVisibility(View.INVISIBLE);
-            linearLayout.setVisibility(View.INVISIBLE);
             bestScoreText.setVisibility(View.INVISIBLE);
+            relativeLayout = root.findViewById(R.id.imgUser);
+            relativeLayout.setVisibility(View.INVISIBLE);
             int orientation = this.getResources().getConfiguration().orientation;
             if (orientation == Configuration.ORIENTATION_PORTRAIT) {
-                relativeLayout = root.findViewById(R.id.imgUser);
-                relativeLayout.setVisibility(View.INVISIBLE);
+                linearLayout.setVisibility(View.INVISIBLE);
             }
             imageView.setVisibility(View.INVISIBLE);
             profileInfo.setText("");
@@ -280,6 +311,15 @@ public class ProfileFragment extends Fragment {
             imageView.setImageDrawable(null);
             Picasso.get().cancelRequest(imageView);
         }
+    }
+
+    public void shareScore(View v) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, getString(R.string.shareString, score));
+        sendIntent.setType("text/plain");
+        Intent shareIntent = Intent.createChooser(sendIntent, getString(R.string.shareTitle));
+        startActivity(shareIntent);
     }
 
 }

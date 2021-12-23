@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/fragmentHome"
+    android:background="@drawable/gradient_anim"
+    tools:context="com.gamp.android.arkanoid.fragments.HomeFragment">
+
+    <TextView
+        android:id="@+id/appName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="start"
+        android:layout_marginStart="107dp"
+        android:layout_marginTop="40dp"
+        android:layout_marginBottom="245dp"
+        android:fontFamily="@font/arkanoid"
+        android:text="@string/app_name"
+        android:textColor="#FFFFFF"
+        android:textSize="50sp" />
+
+    <TextView
+        android:id="@+id/divider"
+        android:layout_width="wrap_content"
+        android:layout_height="39dp"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="start"
+        android:layout_marginStart="158dp"
+        android:layout_marginBottom="196dp"
+        android:text="@string/divider"
+        android:textColor="#FFFFFF"
+        android:textSize="13sp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/appVersion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="start"
+        android:layout_marginStart="200dp"
+        android:layout_marginBottom="176dp"
+        android:textColor="#FFFFFF"
+        android:textSize="13sp"
+        android:textStyle="bold|italic" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/buttonGame"
+        android:layout_width="150dp"
+        android:layout_height="150dp"
+        android:layout_marginStart="550dp"
+        android:layout_marginTop="40dp"
+        android:backgroundTint="@color/buttonColor"
+        android:contentDescription="@string/buttonGame"
+
+        android:src="@drawable/ic_baseline_play_arrow_24"
+        app:fabCustomSize="150dp"
+        app:maxImageSize="96dp"
+        tools:ignore="ImageContrastCheck,ImageContrastCheck" />
+
+    <Button
+        android:id="@+id/rankings"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="center"
+        android:layout_marginStart="482dp"
+        android:layout_marginEnd="58dp"
+        android:layout_marginBottom="78dp"
+        android:background="@drawable/buttonselector"
+        android:text="@string/rankings"
+        android:textAlignment="center"
+        android:textColor="#FFFFFF"
+        android:textSize="24sp" />
+
+</RelativeLayout>

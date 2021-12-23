@@ -1,4 +1,4 @@
-package com.example.android.arkanoid;
+package com.gamp.android.arkanoid;
 
 import android.content.Context;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.example.android.arkanoid", appContext.getPackageName());
+        assertEquals("com.gamp.android.arkanoid", appContext.getPackageName());
     }
 }

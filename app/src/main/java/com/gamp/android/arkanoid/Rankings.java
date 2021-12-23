@@ -1,4 +1,4 @@
-package com.example.android.arkanoid;
+package com.gamp.android.arkanoid;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
@@ -13,6 +13,7 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.gamp.android.arkanoid.R;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -37,6 +38,14 @@ public class Rankings extends AppCompatActivity {
     private final ArrayList<Long> listOfScores = new ArrayList<>();
     private int i = 0;
 
+    /**
+     * onCreate per l'activity Rankings
+     * Carichiamo l'xml dell'Activity Rankings e controlliamo se l'Utente ha una connessione attiva
+     * da cui attingere la classifica. Se sì, inizia l'implementazione relativa all'ottenimento
+     * della classifica generale.
+     *
+     * @param savedInstanceState default di Android
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,6 +63,7 @@ public class Rankings extends AppCompatActivity {
         emailInfo2nd = findViewById(R.id.emailInfo2nd);
         emailInfo3rd = findViewById(R.id.emailInfo3rd);
 
+        // Controlliamo lo stato di connessione
         if (hasActiveInternetConnection()) {
             getHighestScore();
         } else {
@@ -62,8 +72,13 @@ public class Rankings extends AppCompatActivity {
 
     }
 
+    /**
+     * Metodo per recuperare i primi 3 classificati.
+     * Ci colleghiamo a Firebase e prendiamo le prime 3 occorrenze
+     * relative agli utenti, ordinati per "Score", successivamente
+     * li stamperemo a video.
+     */
     private void getHighestScore() {
-
         DatabaseReference mDatabasePlayers = FirebaseDatabase.getInstance().getReference().child("Users");
         Query mDatabaseHighestPlayer = mDatabasePlayers.orderByChild("Score").limitToLast(3);
         mDatabaseHighestPlayer.addValueEventListener(new ValueEventListener() {
@@ -121,6 +136,8 @@ public class Rankings extends AppCompatActivity {
 
     }
 
+    // Effettuiamo una semplice richiesta a Google. Se abbiamo un valore di ritorno, allora
+    // la connessione è presente, altrimenti no
     public boolean hasActiveInternetConnection() {
         if (isNetworkAvailable()) {
             try {
@@ -139,6 +156,8 @@ public class Rankings extends AppCompatActivity {
         return false;
     }
 
+    // Controlliamo se almeno il Wi-Fi o la rete cellulare (3G / 4G) sono presenti, prima di iniziare la
+    // richiesta di cui sopra
     private Boolean isNetworkAvailable() {
         ConnectivityManager connectivityManager = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
         Network nw = connectivityManager.getActiveNetwork();

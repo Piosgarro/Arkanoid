@@ -1,4 +1,4 @@
-package com.example.android.arkanoid;
+package com.gamp.android.arkanoid;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -11,6 +11,7 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.NavigationUI;
 
+import com.gamp.android.arkanoid.R;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.Timer;
@@ -35,6 +36,13 @@ public class MainActivity extends AppCompatActivity {
     private boolean userClickedBackButton;
     private static boolean musicSwitch;
 
+    /**
+     * onCreate per la Main Activity.
+     * Carichiamo l'xml della Main Activity, controlliamo se la musica debba essere riprodotta
+     * e carichiamo tutte le dipendenze necessarie per poter inizializzare la NavBar con i Fragments
+     *
+     * @param savedInstanceState default di Android
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -60,11 +68,8 @@ public class MainActivity extends AppCompatActivity {
 
         BottomNavigationView navView = findViewById(R.id.nav_view);
 
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupWithNavController(navView, navController);
-
     }
 
 
@@ -115,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
         final int FADE_INTERVAL = 200;
 
         // Valore della transizione - Il volume della musica aumenta di "fade" volte, ogni volta
-        final double fade = 0.02083324;
+        final double fade = 0.10;
 
         // Crea un Timer & Timer task per poter runnare la transizione
         final Timer timer = new Timer(true);
@@ -144,9 +149,12 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Cattura il pulsante Back
-    // Una volta che l'utente preme il tasto "Indietro", possiamo
-    // caricare un nostro codice personale
+    /**
+     * Cattura il pulsante Back
+     * Una volta che l'utente preme il tasto "Indietro", possiamo
+     * caricare un nostro codice personale
+     *
+     */
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -163,9 +171,11 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // Cattura il pulsante Home
-    // Una volta che l'utente preme il tasto "Home", possiamo
-    // caricare un nostro codice personale
+    /**
+     * Cattura il pulsante Home
+     * Una volta che l'utente preme il tasto "Home", possiamo
+     * caricare un nostro codice personale
+     */
     @Override
     protected void onUserLeaveHint() {
         super.onUserLeaveHint();
@@ -182,8 +192,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // onResume permette di caricare un nostro codice personale quando
-    // l'attività "MainActivity" viene ripresa.
+    /**
+     * onResume permette di caricare un nostro codice personale quando
+     * l'attività "MainActivity" viene ripresa.
+     */
     @Override
     public void onResume() {
         super.onResume();

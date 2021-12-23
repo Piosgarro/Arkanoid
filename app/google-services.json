@@ -8,18 +8,18 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:899139312093:android:6353c018f2ced4242c3e34",
+        "mobilesdk_app_id": "1:899139312093:android:5edbf00ae5f208922c3e34",
         "android_client_info": {
-          "package_name": "com.example.android.arkanoid"
+          "package_name": "com.gamp.android.arkanoid"
         }
       },
       "oauth_client": [
         {
-          "client_id": "899139312093-tptqc2jgki12m7aapc4p62oek5nnrels.apps.googleusercontent.com",
+          "client_id": "899139312093-m1chb1a8eboho8ivhlhbk003lnd72768.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.android.arkanoid",
-            "certificate_hash": "ab45948a1e8786da57b882806db1c73c1f18c371"
+            "package_name": "com.gamp.android.arkanoid",
+            "certificate_hash": "068d456cf9220eb51acda3f588d637028b0e62dc"
           }
         },
         {

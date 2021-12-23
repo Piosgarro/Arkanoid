@@ -1,4 +1,4 @@
-package com.example.android.arkanoid;
+package com.gamp.android.arkanoid.game;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -31,6 +31,9 @@ import android.view.WindowInsets;
 import android.view.WindowManager;
 import android.view.WindowMetrics;
 
+import com.gamp.android.arkanoid.BuildConfig;
+import com.gamp.android.arkanoid.R;
+import com.gamp.android.arkanoid.StartGame;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
 import com.google.firebase.auth.FirebaseAuth;
@@ -40,7 +43,9 @@ import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Random;
+import java.util.function.Predicate;
 
 import static android.content.Context.MODE_PRIVATE;
 import static android.graphics.Color.RED;
@@ -112,6 +117,15 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
     private int life = 3;
     private final int orientation;
 
+    /**
+     * Costruttore dell'oggetto Game
+     *
+     * Qui inizializziamo tutte le varibili necessarie per il funzionamento del gioco
+     * e impostiamo il gioco in modo che l'utente (Attraverso un tocco) faccia iniziare il livello
+     *
+     * @param  context  il contesto (this)
+     * @param  orientation indica se il gioco deve essere avviato in landscape o portrait
+     */
     public Game(Context context, int orientation) {
         super(context);
 
@@ -170,7 +184,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         this.setOnTouchListener(this);
     }
 
-    // Per avere tutti i bitmap a disposizione (Risparmio calcoli per frame)
+    /**
+     * Inizializzazione Bitmaps
+     *
+     * Metodo che serve per collezionare tutti i Bitmap una sola volta e in un unico posto
+     * In questo modo si risparmia una grande quantità di tempo e calcoli per frame
+     */
     private void collectBitmaps() {
         int i;
 
@@ -193,6 +212,14 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
     }
 
+    /**
+     * Impostiamo la scala (scale) relativa al Device
+     *
+     * All'interno di questo metodo, ci prendiamo la larghezza e la lunghezza del dispositivo
+     * e ci salviamo queste informazioni. Successivamente, impostiamo una scala (ratio) che ci servirà
+     * per definire le grandezze dei bricks, del flipper, della pallina, etc.
+     * Il ratio è dato da "larghezza o lunghezza dispositivo / 1080"
+     */
     // Per avere la stessa grandezza delle immagini/oggetti
     // indipendentemente dalla risoluzione del dispositivo
     private void getSizeAndScale() {
@@ -236,7 +263,12 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
     }
 
-    // Imposta sfondo & testo
+    /**
+     * Impostazione background
+     *
+     * Metodo che serve per impostare il background del gioco e inizializzare le scritte
+     * presenti nel gioco (Livello, Score, Vite, etc).
+     */
     private void setBackground(Context context) {
         background = Bitmap.createBitmap(BitmapFactory.decodeResource(getResources(), R.drawable.background));
         background = Bitmap.createScaledBitmap(background, deviceWidth, deviceHeight, true);
@@ -269,6 +301,17 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         startingBeam.setAntiAlias(true);
     }
 
+    /**
+     * Metodo di onDraw della View
+     *
+     * Qui disegniamo ogni elemento all'interno del Canvas:
+     * - Pallina
+     * - Flipper
+     * - Mattoni
+     * - PowerUp
+     *
+     * @param  canvas  il Canvas in questione
+     */
     protected void onDraw(final Canvas canvas) {
 
         super.onDraw(canvas);
@@ -362,8 +405,14 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         };
     }
 
-    // mode 0 -> reset dopo aver completato un livello
-    // mode 1 -> reset dopo aver perso una vita
+    /**
+     * Metodo di reset del livello
+     *
+     * Qui resettiamo il livello in base alla modalità richiesta
+     *
+     * @param mode  Mode 0 -> reset dopo aver completato un livello
+     *              Mode 1 -> reset dopo aver perso una vita
+     */
     private void resetLevel(int mode) {
 
         powerUpCleaner(mode);
@@ -381,8 +430,15 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         launchingAngle = 0;
     }
 
-    // mode 0 -> reset dopo aver completato un livello
-    // mode 1 -> reset dopo aver perso una vita
+    /**
+     * Metodo di reset dei PowerUp
+     *
+     * Qui resettiamo gli array contenenti i PowerUp
+     * in base alla modalità richiesta
+     *
+     * @param mode  Mode 0 -> reset dopo aver completato un livello
+     *              Mode 1 -> reset dopo aver perso una vita
+     */
     private void powerUpCleaner(int mode) {
         // Mode 0
         if (mode == 0) {
@@ -398,6 +454,14 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         // ??Non ci sono powerup che necessitano essere resettati dopo aver perso una vita??
     }
 
+    /**
+     * Metodo di generazione dei brick
+     *
+     * Generiamo i brick, prendendo un colore a caso e scegliendo, inoltre, tra il colore
+     * più chiaro (+1) e il colore più scuro (-1) in modo tale da colorare i brick
+     * con una palette omogenea
+     * Ad ogni 5 livelli, passiamo alla skin (relativa al Brick) della vita successiva
+     */
     private void generateBricks() {
         int hue = rand.nextInt(9); // Rand da 0 a 8 - Colore di riferimento
         int palette = rand.nextInt(3) + 2; // Rand da 2 a 4 - Numero di colori a partire dal colore di riferimento
@@ -415,6 +479,15 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
     }
 
+    /**
+     * Controlla la collisione con tra brick e pallina
+     *
+     * Ci prendiamo il riferimento alla pallina e controlliamo per ogni Brick
+     * presente nel gioco, se quest'ultima ha toccato i Brick in questione
+     *
+     * @param ball La pallina con cui vogliamo controllare la collisione
+     * @return True se la collisione è avvenuta, False altrimenti
+     */
     private boolean isCollideWithBrick(Ball ball) {
         for (int i = 0; i < brickList.size(); i++) {
             Brick b = brickList.get(i);
@@ -429,6 +502,15 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         return false;
     }
 
+    /**
+     * Controlla la collisione con tra brick e laser
+     *
+     * Ci prendiamo il riferimento al laser e controlliamo per ogni Brick
+     * presente nel gioco, se quest'ultimo ha toccato i Brick in questione
+     *
+     * @param laser Il laser con cui vogliamo controllare la collisione
+     * @return True se la collisione è avvenuta, False altrimenti
+     */
     private boolean isCollideWithBrick(RectF laser) {
         for (int i = 0; i < brickList.size(); i++) {
             Brick b = brickList.get(i);
@@ -445,6 +527,14 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         return false;
     }
 
+    /**
+     * Sorteggio del PowerUp da mostrare
+     *
+     * Ogni volta che becchiamo un Brick con la pallina, generiamo una probabilità
+     * che esca o meno un determinato PowerUp
+     *
+     * @param b Il brick con cui vogliamo generare un PowerUp
+     */
     // Sorteggia un powerUp (0: niente)
     private void whatsInside(Brick b) {
         // Mi scegli uno a caso dalla scala dei powerUp
@@ -465,6 +555,15 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
     }
 
+    /**
+     * Controllo delle vite in gioco
+     *
+     * In questa fase controlliamo le vite del giocatore.
+     * Se le vite < 0, allora il gioco è finito; Quindi, avviamo la procedura
+     * per salvare il punteggio, per mostrare a video la possibilità di
+     * riavviare la partita o di tornare al Menù.
+     *
+     */
     // Perdi una vita e interrompi il gioco in caso di perdita
     private void loseLife() {
         --life;
@@ -538,7 +637,17 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
             StartGame.sound.playScoreSound();
         }
     }
-
+    /**
+     * Aggiornamento del gioco
+     *
+     * Questo è una parte fondamentale del gioco.
+     * Qui controlliamo se il livello è completato, altrimenti muoviamo
+     * gli oggetti necessari, quali:
+     * - Pallina
+     * - PowerUp
+     * - Laser
+     *
+     */
     private void update() {
         // Controlla se il livello è stato completato
         if (brickList.isEmpty()) {
@@ -551,6 +660,14 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
     }
 
+
+    /**
+     * Aggiornamento delle palline in movimento
+     *
+     * Qui aggiorniamo la posizione delle palline in movimento,
+     * controllando se le palline sono in gioco o meno.
+     *
+     */
     // Aggiorna la posizione delle palle in movimento
     private void moveBalls() {
         for (int i = 0; i < ballArrayList.size(); i++) {
@@ -576,16 +693,45 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
     }
 
+    /**
+     * Aggiornamento dei PowerUp in movimento
+     *
+     * Qui aggiorniamo la posizione dei PowerUp in movimento,
+     * controllando se sono in gioco o meno.
+     *
+     */
     private void movePowerUps() {
-        for (int i = 0; i < fallingPowerUp.size(); i++) {
-            PowerUp p = fallingPowerUp.get(i);
-            if (p.move()) {
+        fallingPowerUp.removeIf(p -> {
+            if(p.move()) {
                 powerUpActivate(p.getId());
-                fallingPowerUp.remove(i);
+                return true;
+            } else {
+                return false;
             }
-        }
+        });
     }
 
+    /**
+     * Aggiornamento dei Laser in movimento
+     *
+     * Qui aggiorniamo la posizione dei Laser in movimento,
+     * controllando se sono in gioco o meno.
+     *
+     */
+    private void moveLasers() {
+        lasers.removeIf(l -> {
+            l.offset(0,-24);
+            return l.bottom <= 0 || isCollideWithBrick(l);
+        });
+    }
+
+    /**
+     * Attivazione PowerUp
+     *
+     * Qui attiviamo i PowerUp in base all'ID passato alla funzione.
+     *
+     * @param id identifica un PowerUp (Flipper più lungo/corto, bonus palline, etc.)
+     */
     private void powerUpActivate(int id) {
         switch (id) {
             case 0:
@@ -620,16 +766,6 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         }
     }
 
-    private void moveLasers() {
-        for (int i = 0; i < lasers.size(); i++) {
-            RectF l = lasers.get(i);
-            l.offset(0, -24);
-            if (l.bottom <= 0 || isCollideWithBrick(l)) {
-                lasers.remove(i);
-            }
-        }
-    }
-
     public void pauseGame() {
         sManager.unregisterListener(this);
     }
@@ -638,7 +774,14 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         sManager.registerListener(this, accelerometer, SensorManager.SENSOR_DELAY_GAME);
     }
 
-    // Comanda Flipper tramite accelerometro
+    /**
+     * Accelerometro
+     *
+     * Catturiamo l'evento (cambiamento) dell'accelerometro e di conseguenza
+     * spostiamo il Flipper in base alla posizione del sensore.
+     *
+     * @param event evento verificatosi al movimento dell'accelerometro
+     */
     @Override
     public void onSensorChanged(SensorEvent event) {
         // "touchSensor" è una variabile collegata alla Switch del Touch presente
@@ -666,7 +809,17 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         return true;
     }
 
-    // Serve a sospendere il gioco in caso di una nuova partita
+    /**
+     * Touch
+     *
+     * Catturiamo l'evento (tocco su schermo) del Touch e di conseguenza
+     * spostiamo il Flipper in base alla posizione del nostro dito.e
+     * Inoltre, ci serve anche a inizio partita, per mostrare al giocatore
+     * l'angolo in cui la pallina andrà a finire non appena rilasciamo il dito.
+     *
+     * @param v la View a cui si sta facendo riferimento
+     * @param event evento verificatosi al tocco sullo schermo
+     */
     @Override
     public boolean onTouch(View v, MotionEvent event) {
         if (launching.isEmpty()) {
@@ -704,6 +857,18 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
         return true;
     }
 
+    /**
+     * Aggiornamento scale
+     *
+     * Catturiamo l'evento in cui le dimensioni del telefono si aggiornano
+     * (di solito quando si passa da landscape a portrait) e aggiorniamo il
+     * fattore 'scale' di conseguenza.
+     *
+     * @param w la nuova larghezza del telefono
+     * @param h la nuova lunghezza del telefono
+     * @param oldw la vecchia larghezza del telefono
+     * @param oldh la vecchia lunghezza del telefono
+     */
     protected void onSizeChanged(int w, int h, int oldw, int oldh) {
         super.onSizeChanged(w, h, oldw, oldh);
 
@@ -720,19 +885,34 @@ public class Game extends View implements SensorEventListener, View.OnTouchListe
 
     }
 
+    /**
+     * Thread Game
+     *
+     * Questo è il cuore del gioco. Da qui passa ogni funzione vista precedentemente
+     * E' un Thread che invoca il metodo 'update()' il quale muove le palline, laser, etc.
+     * e disegna a schermo quello contenuto nell'onDraw.
+     * Inoltre se il Thread non è più accessibile (visibile tramite la variabile 'threadAlive')
+     * allora interrompiamo il Thread stesso, interrompendo il gioco.
+     *
+     */
     @Override
     public void run() {
-        try {
-            if (threadAlive) {
-                update();
-                postInvalidateOnAnimation();
-                Thread.sleep(1);
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+        if (threadAlive) {
+            update();
+            postInvalidateOnAnimation();
         }
     }
 
+    /**
+     * Interruzione Thread
+     *
+     * Questo metodo è invocato quando vogliamo interrompere il gioco.
+     * Viene lanciato quando premiamo il tasto indietro.
+     * Inoltre viene aggiornata la variabile che indica se il Thread è
+     * ancora valido o meno, in modo tale da non far continuare
+     * l'esecuzione del Thread stesso nel metodo 'run()'
+     *
+     */
     public void interruptGame() {
         threadAlive = false;
         thread.interrupt();
